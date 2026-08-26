@@ -48,6 +48,7 @@ async function concurrentJoin(db, roomCode, playerId) {
       score: 0,
       joinOrder: Number(slotId.replace('slot-', '')),
     });
+    await db.ref(`rooms/${roomCode}/scores/${playerId}`).set(0);
     return { committed: true, slotId };
   }
   return { committed: false, snapshot: roomSnapshot };
@@ -75,6 +76,16 @@ try {
   assert.equal(Object.keys(roomB.players).length, 4, 'Room B must remain capped at four players.');
   assert.equal(roomA.players['room-a-host'].id, 'room-a-host');
   assert.equal(roomB.players['room-b-host'].id, 'room-b-host');
+  const roomAJoiners = Object.keys(roomA.players).filter((id) => id !== 'room-a-host');
+  const roomBJoiners = Object.keys(roomB.players).filter((id) => id !== 'room-b-host');
+  assert.ok(roomAJoiners.length >= 1, 'Room A must accept at least one independent joiner.');
+  assert.ok(roomBJoiners.length >= 1, 'Room B must accept at least one independent joiner.');
+  for (const playerId of roomAJoiners) {
+    assert.equal(roomA.scores[playerId], 0, `Room A join must initialize a zero score for ${playerId}.`);
+  }
+  for (const playerId of roomBJoiners) {
+    assert.equal(roomB.scores[playerId], 0, `Room B join must initialize a zero score for ${playerId}.`);
+  }
   assert.equal(Object.keys(roomA.players).some((id) => id.startsWith('b')), false, 'Room A must not receive Room B players.');
   assert.equal(Object.keys(roomB.players).some((id) => id.startsWith('a')), false, 'Room B must not receive Room A players.');
   assert.equal(results.length, 20);

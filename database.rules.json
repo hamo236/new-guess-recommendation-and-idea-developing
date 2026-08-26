@@ -179,8 +179,12 @@
           ".write": "auth != null && data.parent().child('hostId').val() === auth.uid"
         },
         "scores": {
-          ".write": "auth != null && (data.parent().child('hostId').val() === auth.uid || (auth.uid === newData.child(auth.uid).val() && !data.child(auth.uid).exists() && newData.child(auth.uid).val() === 0 && (data.parent().child('phase').val() === 'lobby' || data.parent().child('phase').val() === 'results')))",
-          ".validate": "newData.hasChildren() && newData.getPriority() == null"
+          ".write": "auth != null && data.parent().child('hostId').val() === auth.uid",
+          ".validate": "newData.hasChildren() && newData.getPriority() == null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && !data.exists() && newData.val() === 0 && data.parent().parent().child('phase').val() === 'lobby' && data.parent().parent().child('status').val() === 'lobby' && data.parent().parent().child('players').child($uid).exists()",
+            ".validate": "newData.isNumber() && newData.val() === 0"
+          }
         },
         "round": {
           ".write": "auth != null && data.parent().child('hostId').val() === auth.uid"

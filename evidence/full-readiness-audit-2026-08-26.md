@@ -112,3 +112,58 @@ Protected and unchanged: gameplay engines, target selection/private projections,
 The deployed `/one-v-one/` surface loaded directly and displayed `Firebase Connected — Real-time Multiplayer Active`. The temporary host name was accepted. The Create Room control correctly blocked the attempt with `Please select a category first`, which is an existing validation guard; no room was created and no gameplay state was altered. This confirms the live form is reachable and the precondition guard is functioning. A category selection is required before the next authorized smoke attempt.
 
 The live DOM inspection of `/one-v-one/` found no `<select>` or category input. The visible room panel currently exposes the existing `Four IMPOSTOR Social room strategy` mode control and Create Room action, while Create Room correctly reports `Please select a category first`. This is recorded as a live UI-state observation only; no mode or gameplay behavior was changed during the audit.
+## Live 1v1 validation checkpoint — successful
+- After selecting the existing Cartoon Characters category, the deployed Create Room action succeeded.
+- The live waiting room displayed `Room Created!`, invite code `188`, host `QA Host 826 (You)`, and `Players (1/2)`.
+- The Start Game control remained correctly disabled because the existing 1v1 contract requires exactly two players.
+- This validates the post-Rules live transaction path and waiting-room projection; gameplay, target assignment, scoring, and timing were not changed.
+## Live 2v2 validation checkpoint
+The deployed `/team-battle/` route loaded directly and exposed the expected player-name input, existing category selector, room-code input, Create Room, and Join Room controls. At the captured viewport, the right-side action controls appear visually compressed/narrow inside the entry panel; this remains a presentation-only finding and is not being changed during the live behavior test. The next behavior step is to enter a temporary player name and create one room using the existing selected category.
+## Live 2v2 validation checkpoint — successful
+The deployed Team Battle route created room `728` successfully after the existing category was left unchanged. The waiting room showed `1/4`, the host `QA Team Host 826`, the invite code, a disabled Start Match control because three more players are required, and `Realtime connected` after a transient reconnect banner settled. The room and competitive state were not modified beyond this authorized create smoke test. The captured viewport also confirms a presentation-only issue: the compact room-entry action rail is visually narrow/compressed on the live page; it does not block room creation but remains a candidate for a separate CSS-only repair.
+
+### 2v2 cleanup result
+The existing Leave control was used after the room-creation smoke test. The UI transitioned to `closed` and displayed `PERMISSION_DENIED: Permission denied`, `Retry connection`, and “This Team Battle room has ended or was closed.” Cleanup was therefore attempted through the product path, but a clean backend leave/deletion confirmation was not obtained. No raw database deletion was performed. This is recorded as a recovery/cleanup observation requiring independent-client follow-up, not as a new source defect without trace evidence.
+
+## Live Four-player validation checkpoint — successful
+The deployed `/tournament/` route created room `106` successfully using the existing `Types of Sports` category. The waiting room displayed `1/4`, host `QA Four Host 826`, the invite code, a disabled Start Match control because three more players are required, and a recovered/connected realtime status. No match was started and no gameplay, target, scoring, round, or bracket state was changed.
+
+### Four-player cleanup result
+The existing Leave control was used after the Four-player room-creation smoke test. The UI transitioned to `closed` and showed `PERMISSION_DENIED: Permission denied`, `Retry connection`, and the message that the room had ended or was closed. Cleanup was attempted through the product path, but a clean backend leave/deletion confirmation was not obtained. No raw database deletion was performed.
+
+## Live 1v1 recovery observation — stale local session
+On direct navigation to `/one-v-one/`, the deployed page reported `RECOVERY AVAILABLE`, retained room `188`, and displayed `transaction failed: Data returned contains undefined in property 'rooms.188.players.zC8mhxiOqhOkkYUdYBnGWOC4UNC2.joinOrder'`. The page offered `RECONNECT OR RESET`, `TRY AGAIN`, and `START NEW ROOM`. This is runtime evidence of a stale local/session payload from the earlier smoke room; it is not yet classified as a source defect or live Rules defect. No gameplay was started and no target data was exposed in this observation.
+
+### 1v1 recovery reset result
+The existing `START NEW ROOM` recovery control was used. The stale room `188` and its undefined `joinOrder` transaction message disappeared from the rendered recovery panel, and the live page returned to the normal room-entry surface with `Firebase Connected — Real-time Multiplayer Active`. This confirms the local reset path is observable and non-destructive; it does not prove cross-client recovery or backend cleanup.
+
+### Fresh 1v1 host attempt — existing category guard
+After resetting the stale session and opening the dedicated 1v1 route, entering `QA Independent Host 826` and pressing Create Room produced the existing `Please select a category first` guard. The visible selector displayed `Cartoon Characters`, but the control had not been explicitly changed in this fresh form state. No room was created and no gameplay state changed. The next bounded step is to explicitly select the existing first category, then retry once.
+
+### Fresh 1v1 host room — live creation verified
+After explicitly toggling the existing category selector and restoring `Cartoon Characters`, Create Room succeeded on the deployed Test site. The waiting room displayed invite code `247`, host `QA Independent Host 826 (You)`, `Players (1/2)`, and Start Game remained disabled with `1v1 requires exactly 2 players (1/2)`. This is `LIVE BROWSER` and `LIVE FIREBASE` single-client host evidence only. Independent join, refresh/reconnect after a join, target privacy, and full gameplay remain unverified in this pass.
+
+
+## Incident: independent 1v1 Join Permission Denied — 2026-08-26
+
+### Live failure evidence
+The host-created room `247` was opened from an independent phone. The phone reported `Stage: join-transaction`, `Status: failed`, `Code: PERMISSION_DENIED`, correlation `join-mta2el56-ryj6seew`, elapsed `1842ms`; browser connectivity was reported as Online/4G. This is **LIVE BROWSER / LIVE FIREBASE — FAIL** for independent 1v1 join.
+
+### Root-cause trace
+`src/firebase/roomService.js` uses the existing sequence: reserve a `joinSlots/<slot>` transaction, create `players/<uid>` transactionally, then initialize `rooms/<code>/scores/<uid>` to numeric zero. The prior social `scores` parent `.write` expression attempted to authorize a non-host only when `auth.uid === newData.child(auth.uid).val()` and that same child value equaled `0`. A UID string cannot equal numeric zero, so the non-host score initialization branch was unsatisfiable. The live stage is consistent with this source/rules contradiction. The exact failing child operation is **SOURCE VERIFIED** and **EMULATOR VERIFIED**; post-deployment child-path confirmation remains pending.
+
+### Repair implemented locally
+- `database.rules.json`: retained host-only aggregate score-map replacement and added a child `$uid` rule allowing only the authenticated UID to create its own zero score after its player record exists while the room is in lobby; removed the contradictory non-host aggregate branch.
+- `scripts/multi-client-isolation-emulator.test.mjs`: added the application’s real post-join score write and verifies every actual non-host occupant gets a zero score while capacity and cross-room isolation hold.
+- `scripts/security-rules-contract.test.mjs`: added static assertions for host-only aggregate writes and own-UID/zero-score/player-exists child authorization.
+- `src/firebase/roomService.js`: intentionally unchanged. No gameplay source, target logic, rounds, timers, scoring formulas, room capacity, join semantics, navigation, or UI flow changed.
+
+### Verification
+- **TEST VERIFIED:** single-room boundary probe passed for slot transaction, player transaction, and child score write.
+- **TEST VERIFIED:** 20-client emulator isolation/capacity regression passed; both rooms remained capped at four and actual joiners received zero scores.
+- **TEST VERIFIED:** existing Rules emulator suite passed, including private-target isolation, protected authority writes, lifecycle scope, and outsider denial.
+- **TEST VERIFIED / BUILD VERIFIED:** existing smoke, Team Battle, image paths, built image paths, removed-player, Pages routes, static Rules contract, and production build all passed.
+- **SOURCE VERIFIED:** only `database.rules.json` and focused regression tests changed in the repair; protected gameplay implementation was not edited.
+
+### Required external gate
+The corrected `database.rules.json` still requires manual publication by the user in the `neon-guess-test` Firebase Console. This workflow does not publish RTDB Rules automatically. Until publication and a fresh independent-device retry succeed, independent live joining remains **NOT VERIFIED**, and release status remains **NOT READY** for multiplayer readiness.

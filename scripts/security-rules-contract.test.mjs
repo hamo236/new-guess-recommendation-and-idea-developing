@@ -9,6 +9,8 @@ const teamPrivate = rules.teamBattlePrivateTargets.$roomId.$uid.$matchId.target;
 const isolatedPrivate = rules.privateRooms.$roomCode.$uid;
 const isolatedOwnTarget = isolatedPrivate.ownTarget;
 const isolatedDisplayTarget = isolatedPrivate.displayTarget;
+const socialScores = rules.rooms.$roomCode.scores;
+const socialScoreByUid = socialScores.$uid;
 
 assert.match(tournamentRoom['.read'], /!data\.exists\(\)/, 'Tournament creation transactions need a fresh-node read grant');
 assert.match(tournamentRoom['.read'], /players.*auth\.uid/);
@@ -17,6 +19,11 @@ assert.match(teamRoom['.read'], /!data\.exists\(\)/, 'Team creation transactions
 assert.match(teamRoom['.read'], /players.*auth\.uid/);
 assert.doesNotMatch(teamRoom['.read'], /^auth != null$/);
 assert.match(rules.rooms.$roomCode['.read'], /!data\.exists\(\)/, 'Social creation transactions need a fresh-node read grant');
+assert.match(socialScores['.write'], /hostId.*auth\.uid/, 'Only the host may replace the aggregate social scores map');
+assert.doesNotMatch(socialScores['.write'], /newData\.child\(auth\.uid\)/, 'Aggregate scores must not contain the contradictory non-host join branch');
+assert.match(socialScoreByUid['.write'], /auth\.uid === \$uid/, 'A joining player may initialize only their own score');
+assert.match(socialScoreByUid['.write'], /newData\.val\(\) === 0/, 'A joining player may initialize only a zero score');
+assert.match(socialScoreByUid['.write'], /players.*\$uid/, 'Score initialization requires an existing room player record');
 assert.match(tournamentPrivate['.read'], /auth\.uid === \$uid/);
 assert.match(tournamentPrivate['.write'], /hostId/);
 assert.match(tournamentPrivate['.write'], /targetReady/);
