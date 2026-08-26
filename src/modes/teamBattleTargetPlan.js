@@ -44,3 +44,12 @@ export function targetIdsForRound(category, teams, options = {}) {
   const targetMap = targetMapForTeams(category, teams, options);
   return Object.fromEntries(Object.values(teams || {}).map((team) => [team.teamId, targetMap[team.playerIds[0]]?.targetId || null]));
 }
+
+export function targetSnapshotsForTeams(category, stateOrTeams, { roomSeed = 'default', roundNumber = 1 } = {}) {
+  const teams = stateOrTeams?.teams || stateOrTeams || {};
+  const targetMap = targetMapForTeams(category, teams, { roomSeed, roundNumber });
+  return Object.fromEntries(Object.values(teams).map((team) => {
+    const source = targetMap[team.playerIds?.[0]];
+    return source ? [team.teamId, { id: source.id, targetId: source.targetId || source.id, name: source.name, image: source.image, teamId: team.teamId }] : null;
+  }).filter(Boolean));
+}

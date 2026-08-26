@@ -315,7 +315,11 @@ export function sanitizePublicState(state) {
       const safeMatch = { ...match };
       delete safeMatch.targets;
       if (safeMatch.guesses) safeMatch.guesses = Object.fromEntries(Object.entries(safeMatch.guesses).map(([playerId, guess]) => { const { targetId: _targetId, ...safeGuess } = guess || {}; return [playerId, safeGuess]; }));
-      if (safeMatch.result) { const { targets: _targets, ...safeResult } = safeMatch.result; safeMatch.result = safeResult; }
+      if (safeMatch.result) {
+        const { targets: rawTargets, ...safeResult } = safeMatch.result;
+        const canRevealTeamTargets = safe.mode === 'team_battle' && ['round_result', 'finished'].includes(safeMatch.status) && rawTargets;
+        safeMatch.result = canRevealTeamTargets ? { ...safeResult, targets: rawTargets } : safeResult;
+      }
       return [matchId, safeMatch];
     }));
   }

@@ -7,7 +7,7 @@ import { createCompetitiveRoom, joinCompetitiveRoom, leaveCompetitiveRoom, mutat
 import { COMPETITIVE_MODES, MODE_PHASES, createModePlayer, createStableId, clone } from '../modes/modeTypes.js';
 import { createTournamentState, finishMatch, recordMatchConfirmation, reconcileTournamentMatchScores, completeTournamentRound, advanceTournamentRound as advanceTournamentRoundState, startMatch, startNextTournamentMatches, tournamentTargetOffset, TOURNAMENT_MATCH_IDS } from '../modes/tournamentEngine.js';
 import { assignTeamTargets, createTeamBattleState, finishTeamRound, advanceTeamRound, confirmTeamRound, areAllRequiredTeamConfirmationsComplete, getRequiredConfirmationTeams, validateTeamAssignments, TEAM_IDS } from '../modes/teamBattleEngine.js';
-import { targetMapForTeams } from '../modes/teamBattleTargetPlan.js';
+import { targetMapForTeams, targetSnapshotsForTeams } from '../modes/teamBattleTargetPlan.js';
 import { generateRoomCode, normalizeRoomCode } from '../game/roomManager.js';
 import { createJoinTrace, getSafeClientNetworkSnapshot } from '../firebase/joinDiagnostics.js';
 import { getStableRevealDeadline } from '../game/revealTiming.js';
@@ -402,13 +402,10 @@ export function CompetitiveModeProvider({ mode, children }) {
       const guesses = Object.values(current.match?.guesses || {});
       const confirmingTeamIds = getRequiredConfirmationTeams(current);
       if (confirmingTeamIds.length === 0) return current;
-      const confirmationSnapshots = Object.fromEntries(confirmingTeamIds.map((teamId) => {
-        const confirmation = Object.values(current.match?.confirmations?.[teamId] || {}).find((entry) => entry?.roundNumber === current.roundNumber && entry?.matchId === current.match?.matchId && entry?.targetSnapshot);
-        return [teamId, confirmation?.targetSnapshot || null];
-      }).filter(([, snapshot]) => snapshot));
-      const privateSnapshots = {};
-      if (privateTarget?.teamId && privateTarget?.name) privateSnapshots[privateTarget.teamId] = { id: privateTarget.id, targetId: privateTarget.targetId || privateTarget.id, name: privateTarget.name, image: privateTarget.image, teamId: privateTarget.teamId };
-      const targetSnapshots = { ...privateSnapshots, ...confirmationSnapshots };
+      const targetSnapshots = targetSnapshotsForTeams(current.category, current, {
+        roomSeed: `${current.teamRoomId}:${current.createdAt}`,
+        roundNumber: current.roundNumber,
+      });
       const winningTeamIds = confirmingTeamIds.map((teamId) => teamId === TEAM_IDS.A ? TEAM_IDS.B : TEAM_IDS.A);
       const points = { [TEAM_IDS.A]: winningTeamIds.includes(TEAM_IDS.A) ? 1 : 0, [TEAM_IDS.B]: winningTeamIds.includes(TEAM_IDS.B) ? 1 : 0 };
       return finishTeamRound(current, winningTeamIds, { points, guesses, targetSnapshots, winningTeamIds });
