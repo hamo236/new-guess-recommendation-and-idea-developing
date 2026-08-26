@@ -2,7 +2,7 @@
   "rules": {
     "tournamentRooms": {
       "$roomId": {
-        ".read": "auth != null && (data.child('players').child(auth.uid).exists() || (data.child('status').val() === 'lobby' && data.child('phase').val() === 'lobby'))",
+        ".read": "auth != null && (!data.exists() || data.child('players').child(auth.uid).exists() || (data.child('status').val() === 'lobby' && data.child('phase').val() === 'lobby'))",
         ".write": "auth != null && ((!data.exists() && newData.child('hostId').val() === auth.uid && newData.child('mode').val() === 'tournament' && newData.child('status').val() === 'lobby' && newData.child('phase').val() === 'lobby' && newData.child('players').child(auth.uid).child('id').val() === auth.uid && newData.child('players').child(auth.uid).child('isHost').val() === true) || (data.exists() && data.child('hostId').val() === auth.uid))",
         "voiceCalls": {
           "$callId": {
@@ -57,7 +57,7 @@
     },
     "teamRooms": {
       "$roomId": {
-        ".read": "auth != null && (data.child('players').child(auth.uid).exists() || (data.child('status').val() === 'lobby' && data.child('phase').val() === 'lobby'))",
+        ".read": "auth != null && (!data.exists() || data.child('players').child(auth.uid).exists() || (data.child('status').val() === 'lobby' && data.child('phase').val() === 'lobby'))",
         ".write": "auth != null && ((!data.exists() && newData.child('hostId').val() === auth.uid && newData.child('mode').val() === 'team_battle' && newData.child('status').val() === 'lobby' && newData.child('phase').val() === 'lobby' && newData.child('players').child(auth.uid).child('id').val() === auth.uid && newData.child('players').child(auth.uid).child('isHost').val() === true) || (data.exists() && data.child('hostId').val() === auth.uid))",
         "voiceCalls": {
           "$callId": {
@@ -132,7 +132,7 @@
     },
     "rooms": {
       "$roomCode": {
-        ".read": "auth != null && (data.child('players').child(auth.uid).exists() || (data.child('phase').val() === 'lobby' && data.child('status').val() === 'lobby'))",
+        ".read": "auth != null && (!data.exists() || data.child('players').child(auth.uid).exists() || (data.child('phase').val() === 'lobby' && data.child('status').val() === 'lobby'))",
         ".write": "auth != null && !data.exists() && newData.child('hostId').val() === auth.uid && newData.child('phase').val() === 'lobby' && newData.child('status').val() === 'lobby' && newData.child('players').child(auth.uid).child('id').val() === auth.uid && newData.child('players').child(auth.uid).child('isHost').val() === true",
 
         "voiceCalls": {

@@ -10,10 +10,13 @@ const isolatedPrivate = rules.privateRooms.$roomCode.$uid;
 const isolatedOwnTarget = isolatedPrivate.ownTarget;
 const isolatedDisplayTarget = isolatedPrivate.displayTarget;
 
+assert.match(tournamentRoom['.read'], /!data\.exists\(\)/, 'Tournament creation transactions need a fresh-node read grant');
 assert.match(tournamentRoom['.read'], /players.*auth\.uid/);
 assert.doesNotMatch(tournamentRoom['.read'], /^auth != null$/);
+assert.match(teamRoom['.read'], /!data\.exists\(\)/, 'Team creation transactions need a fresh-node read grant');
 assert.match(teamRoom['.read'], /players.*auth\.uid/);
 assert.doesNotMatch(teamRoom['.read'], /^auth != null$/);
+assert.match(rules.rooms.$roomCode['.read'], /!data\.exists\(\)/, 'Social creation transactions need a fresh-node read grant');
 assert.match(tournamentPrivate['.read'], /auth\.uid === \$uid/);
 assert.match(tournamentPrivate['.write'], /hostId/);
 assert.match(tournamentPrivate['.write'], /targetReady/);

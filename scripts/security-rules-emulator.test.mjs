@@ -27,6 +27,9 @@ try {
     round: 1, roundId: 'round-1', targetReady: true,
   };
 
+  // Firebase SDK transactions require read permission before their first write.
+  // This is the exact fresh-node operation used by social room creation.
+  await assertSucceeds(host.ref('rooms/transaction-r1').transaction((current) => current ?? room));
   await assertSucceeds(host.ref('rooms/r1').set(room));
   await assertSucceeds(host.ref('privateRooms/r1/host-a/ownTarget').set(target));
   await assertSucceeds(host.ref('privateRooms/r1/player-b/ownTarget').set({ ...target, id: 'target-b' }));
@@ -64,6 +67,7 @@ try {
     },
     teams: { team_a: { teamId: 'team_a', playerIds: ['host-a'] }, team_b: { teamId: 'team_b', playerIds: [] } },
   };
+  await assertSucceeds(host.ref('teamRooms/transaction-tb').transaction((current) => current ?? competitiveRoom));
   await assertSucceeds(host.ref('teamRooms/tb-1').set(competitiveRoom));
   await assertSucceeds(host.ref('teamRooms/tb-1/teamSeats/team_a_1').set({ playerId: 'host-a' }));
   await assertSucceeds(playerB.ref('teamRooms/tb-1/players/player-b').set({ id: 'player-b', name: 'Player B', isHost: false, connected: true, score: 0, joinOrder: 2, teamId: 'team_a' }));
@@ -83,6 +87,7 @@ try {
 
   const tournamentRoom = { ...competitiveRoom, roomId: 'tr-1', mode: 'tournament', teams: undefined };
   delete tournamentRoom.teams;
+  await assertSucceeds(host.ref('tournamentRooms/transaction-tr').transaction((current) => current ?? tournamentRoom));
   await assertSucceeds(host.ref('tournamentRooms/tr-1').set(tournamentRoom));
   await assertFails(playerB.ref('tournamentRooms/tr-1').remove());
   await assertFails(playerB.ref('tournamentRooms/tr-1/status').set('finished'));
