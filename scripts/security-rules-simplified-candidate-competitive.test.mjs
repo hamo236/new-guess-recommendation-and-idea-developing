@@ -180,7 +180,7 @@ const tournamentState = (roomId, ids, hostId) => ({
   createdAt: ts,
   updatedAt: ts,
 });
-const guess = (playerId, roundNumber) => ({ playerId, roundNumber, confirmed: true, correct: true, timestamp: ts + roundNumber });
+const guess = (confirmerId, guesserId, roundNumber) => ({ playerId: confirmerId, confirmerId, guesserId, roundNumber, confirmed: true, correct: true, timestamp: ts + roundNumber });
 
 try {
   const host = env.authenticatedContext('tb-host').database();
@@ -268,7 +268,7 @@ try {
       const snapshot = (await get(ref(tournamentHost, tournamentPath))).val();
       const currentMatch = snapshot.matches[matchId];
       for (const id of matchPlayers) {
-        await assertSucceeds(runTransaction(ref(tournamentClient[id], `${tournamentPath}/matches/${matchId}/guesses/${id}`), (value) => value ?? guess(id, roundNumber)));
+        await assertSucceeds(runTransaction(ref(tournamentClient[id], `${tournamentPath}/matches/${matchId}/guesses/${id}`), (value) => value ?? guess(id, matchPlayers.find((candidate) => candidate !== id), roundNumber)));
       }
       if (roundNumber < 3) {
         await assertSucceeds(runTransaction(ref(tournamentHost, tournamentPath), (value) => value ? {

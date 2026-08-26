@@ -333,12 +333,14 @@ export function sanitizePublicState(state) {
   return safe;
 }
 
-export async function submitTournamentGuess({ roomId, matchId, playerId, roundNumber }) {
+export async function submitTournamentGuess({ roomId, matchId, confirmerId, guesserId, roundNumber }) {
   const target = roomRef('tournament', roomId);
   if (!target) throw new Error('Firebase not configured');
-  const guessRef = child(target, `matches/${matchId}/guesses/${playerId}`);
+  const guessRef = child(target, `matches/${matchId}/guesses/${confirmerId}`);
   const result = await runTransaction(guessRef, (current) => current || {
-    playerId,
+    playerId: confirmerId,
+    confirmerId,
+    guesserId,
     roundNumber: Number(roundNumber),
     confirmed: true,
     correct: true,

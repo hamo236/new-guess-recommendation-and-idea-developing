@@ -5,7 +5,7 @@ import { initAuth, getAuthFailureMessage, resetAuthInitialization } from '../fir
 import { isFirebaseConfigured } from '../firebase/config.js';
 import { createCompetitiveRoom, joinCompetitiveRoom, leaveCompetitiveRoom, mutateCompetitiveState, submitTournamentGuess, submitTeamConfirmation, removeCompetitivePlayer, setCompetitiveTeam, subscribeCompetitiveConnection, subscribeCompetitiveRoom, subscribeCompetitiveTarget, subscribeCompetitiveChat, sendCompetitiveChatMessage, writeCompetitiveState, writeCompetitiveTarget } from '../firebase/competitiveFirebase.js';
 import { COMPETITIVE_MODES, MODE_PHASES, createModePlayer, createStableId, clone } from '../modes/modeTypes.js';
-import { createTournamentState, finishMatch, recordMatchGuess, completeTournamentRound, advanceTournamentRound as advanceTournamentRoundState, startMatch, startNextTournamentMatches, tournamentTargetOffset, TOURNAMENT_MATCH_IDS } from '../modes/tournamentEngine.js';
+import { createTournamentState, finishMatch, recordMatchConfirmation, reconcileTournamentMatchScores, completeTournamentRound, advanceTournamentRound as advanceTournamentRoundState, startMatch, startNextTournamentMatches, tournamentTargetOffset, TOURNAMENT_MATCH_IDS } from '../modes/tournamentEngine.js';
 import { assignTeamTargets, createTeamBattleState, finishTeamRound, advanceTeamRound, confirmTeamRound, areAllRequiredTeamConfirmationsComplete, getRequiredConfirmationTeams, validateTeamAssignments, TEAM_IDS } from '../modes/teamBattleEngine.js';
 import { targetMapForTeams } from '../modes/teamBattleTargetPlan.js';
 import { generateRoomCode, normalizeRoomCode } from '../game/roomManager.js';
@@ -305,13 +305,15 @@ export function CompetitiveModeProvider({ mode, children }) {
     if (mode === COMPETITIVE_MODES.TOURNAMENT) {
       const active = getActiveMatch(state, playerId);
       if (!active || !targetId || !targetReady || !canMutateCompetitive) return;
+      const guesserId = active.playerIds.find((id) => id !== playerId);
+      if (!guesserId) return;
       if (isFirebaseConfigured) {
-        await submitTournamentGuess({ roomId, matchId: active.matchId, playerId, roundNumber: active.roundNumber });
+        await submitTournamentGuess({ roomId, matchId: active.matchId, confirmerId: playerId, guesserId, roundNumber: active.roundNumber });
         return;
       }
     }
     await mutateCompetitiveState({ mode, roomId, mutate: (current) => {
-      if (mode === COMPETITIVE_MODES.TOURNAMENT) { const active = getActiveMatch(current, playerId); if (!active) return current; const guessed = recordMatchGuess(current, active.matchId, playerId, targetId); const updated = guessed.matches?.[active.matchId]; return updated?.playerIds?.every((id) => updated.guesses?.[id]) ? completeTournamentRound(guessed, active.matchId) : guessed; }
+      if (mode === COMPETITIVE_MODES.TOURNAMENT) { const active = getActiveMatch(current, playerId); if (!active) return current; const guesserId = active.playerIds.find((id) => id !== playerId); if (!guesserId) return current; const guessed = recordMatchConfirmation(current, active.matchId, playerId, targetId, guesserId, true); const updated = guessed.matches?.[active.matchId]; return updated?.playerIds?.every((id) => updated.guesses?.[id]) ? completeTournamentRound(guessed, active.matchId) : guessed; }
       const team = getPlayerTeam(current, playerId); const opponentTeam = Object.values(current.teams || {}).find((candidate) => candidate.teamId !== team?.teamId);
       if (!team || !opponentTeam || current.match?.status !== 'playing' || current.match.guesses?.[playerId]) return current;
       const currentRoundNumber = Number(current.match.roundNumber || current.roundNumber);
@@ -329,24 +331,17 @@ export function CompetitiveModeProvider({ mode, children }) {
     const next = await mutateCompetitiveState({ mode, roomId, mutate: (current) => {
       const match = current.matches?.[matchId];
       if (!match || match.status !== 'playing') return current;
-      let resolved = current;
-      const currentMatch = resolved.matches?.[matchId];
+      let resolved = reconcileTournamentMatchScores(current, matchId);
+      let currentMatch = resolved.matches?.[matchId];
       const protectedTargets = currentMatch?.targets && Object.keys(currentMatch.targets).length === 2
         ? currentMatch.targets
         : targetMapForTournament(resolved.category, currentMatch.playerIds, { roomSeed: getTournamentRoomSeed(resolved, roomId), offset: tournamentTargetOffset(matchId, currentMatch.roundNumber) ?? 0 });
       resolved = { ...resolved, matches: { ...resolved.matches, [matchId]: { ...currentMatch, targets: protectedTargets } } };
-      match.playerIds.filter((id) => !match.guesses?.[id]).forEach((id) => { resolved = recordMatchGuess(resolved, matchId, id, '__timeout__'); });
-      const completedMatch = resolved.matches?.[matchId];
-      const scores = { ...(completedMatch?.scores || {}) };
-      const playerStats = { ...(resolved.playerStats || {}) };
-      completedMatch.playerIds.forEach((id) => {
-        const guess = completedMatch.guesses?.[id];
-        if (!guess?.correct) return;
-        scores[id] = (scores[id] || 0) + 1;
-        const existing = playerStats[id] || { playerId: id, score: 0, guesses: 0, correctGuesses: 0, roundHistory: [], reward: null };
-        playerStats[id] = { ...existing, score: (existing.score || 0) + 1, guesses: existing.guesses || 0, correctGuesses: (existing.correctGuesses || 0) + 1 };
+      currentMatch = resolved.matches?.[matchId];
+      currentMatch.playerIds.filter((id) => !currentMatch.guesses?.[id]).forEach((confirmerId) => {
+        const guesserId = currentMatch.playerIds.find((id) => id !== confirmerId);
+        resolved = recordMatchConfirmation(resolved, matchId, confirmerId, '__timeout__', guesserId, false);
       });
-      resolved = { ...resolved, playerStats, matches: { ...resolved.matches, [matchId]: { ...completedMatch, scores } } };
       return completeTournamentRound(resolved, matchId);
     } });
     return next;

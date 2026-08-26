@@ -71,40 +71,81 @@ export function startMatch(state, matchId, targets) {
   };
 }
 
-export function recordMatchGuess(state, matchId, playerId, targetId) {
+function getStoredGuessForPlayer(match, playerId) {
+  const direct = match?.guesses?.[playerId];
+  if (direct?.guesserId === playerId || (!direct?.confirmerId && direct?.confirmed !== true && direct?.playerId === playerId)) {
+    return { entry: direct, confirmerId: direct?.confirmerId || match.playerIds.find((id) => id !== playerId) };
+  }
+  const found = Object.entries(match?.guesses || {}).find(([confirmerId, guess]) => guess?.guesserId === playerId || (!guess?.confirmerId && guess?.confirmed === true && guess?.playerId === confirmerId && confirmerId !== playerId));
+  if (!found) return { entry: null, confirmerId: null };
+  const [confirmerId, entry] = found;
+  return { entry, confirmerId };
+}
+
+function applyStoredGuessScore(state, matchId, confirmerId, guess) {
   const current = state.matches[matchId];
-  if (!current || current.status !== 'playing' || !current.playerIds.includes(playerId) || current.guesses?.[playerId]) return state;
-  const opponentId = current.playerIds.find((id) => id !== playerId);
-  const correct = current.targets?.[opponentId]?.id === targetId;
-  const oldStats = state.playerStats?.[playerId] || createPlayerStats(state.players[playerId] || { id: playerId });
+  if (!current || !guess || guess.scored === true) return state;
+  const expectedGuesserId = current.playerIds.find((id) => id !== confirmerId);
+  if (!expectedGuesserId || (guess.guesserId && guess.guesserId !== expectedGuesserId)) return state;
+  const guesserId = expectedGuesserId;
+  const correct = Boolean(guess.correct);
+  const oldStats = state.playerStats?.[guesserId] || createPlayerStats(state.players[guesserId] || { id: guesserId });
   const playerStats = {
     ...state.playerStats,
-    [playerId]: { ...oldStats, score: oldStats.score + (correct ? 1 : 0), guesses: oldStats.guesses + 1, correctGuesses: oldStats.correctGuesses + (correct ? 1 : 0) },
+    [guesserId]: { ...oldStats, score: oldStats.score + (correct ? 1 : 0), guesses: oldStats.guesses + 1, correctGuesses: oldStats.correctGuesses + (correct ? 1 : 0) },
   };
   return {
     ...state,
     playerStats,
-    matches: { ...state.matches, [matchId]: { ...current, scores: { ...current.scores, [playerId]: (current.scores[playerId] || 0) + (correct ? 1 : 0) }, guesses: { ...current.guesses, [playerId]: { playerId, targetId, correct, timestamp: Date.now() } } } },
+    matches: { ...state.matches, [matchId]: { ...current, scores: { ...current.scores, [guesserId]: (current.scores[guesserId] || 0) + (correct ? 1 : 0) }, guesses: { ...current.guesses, [confirmerId]: { ...guess, playerId: confirmerId, confirmerId, guesserId, scored: true } } } },
     updatedAt: Date.now(),
   };
+}
+
+export function recordMatchConfirmation(state, matchId, confirmerId, targetId, guesserId, correct = true) {
+  const current = state.matches[matchId];
+  if (!current || current.status !== 'playing' || !current.playerIds.includes(confirmerId) || !current.playerIds.includes(guesserId) || confirmerId === guesserId) return state;
+  if (current.guesses?.[confirmerId] || getStoredGuessForPlayer(current, guesserId).entry) return state;
+  const guess = { playerId: confirmerId, confirmerId, guesserId, targetId, roundNumber: current.roundNumber, confirmed: true, correct: Boolean(correct), scored: false, timestamp: Date.now() };
+  const recorded = { ...state, matches: { ...state.matches, [matchId]: { ...current, guesses: { ...current.guesses, [confirmerId]: guess } } }, updatedAt: Date.now() };
+  return applyStoredGuessScore(recorded, matchId, confirmerId, guess);
+}
+
+export function reconcileTournamentMatchScores(state, matchId) {
+  const current = state.matches[matchId];
+  if (!current) return state;
+  let next = state;
+  Object.entries(current.guesses || {}).forEach(([confirmerId, guess]) => {
+    next = applyStoredGuessScore(next, matchId, confirmerId, guess);
+  });
+  return next;
+}
+
+export function recordMatchGuess(state, matchId, playerId, targetId) {
+  const current = state.matches[matchId];
+  if (!current || !current.playerIds.includes(playerId)) return state;
+  const confirmerId = current.playerIds.find((id) => id !== playerId);
+  const correct = current.targets?.[confirmerId]?.id === targetId;
+  return recordMatchConfirmation(state, matchId, confirmerId, targetId, playerId, correct);
 }
 
 export function completeTournamentRound(state, matchId) {
   const current = state.matches[matchId];
   if (!current || current.status !== 'playing' || current.playerIds.length !== 2) return state;
   if (current.playerIds.some((playerId) => !current.guesses?.[playerId])) return state;
+  const normalizedGuesses = Object.fromEntries(current.playerIds.map((playerId) => [playerId, clone(getStoredGuessForPlayer(current, playerId).entry || null)]));
   const roundResult = {
     roundNumber: current.roundNumber,
-    guesses: cloneOr(current.guesses, {}),
+    guesses: normalizedGuesses,
     targets: cloneOr(current.targets, {}),
     scores: cloneOr(current.scores, {}),
-    revealSnapshot: current.playerIds.map((playerId) => ({ playerId, target: clone(current.targets?.[playerId] || null), guess: clone(current.guesses?.[playerId] || null) })),
+    revealSnapshot: current.playerIds.map((playerId) => ({ playerId, target: clone(current.targets?.[playerId] || null), guess: clone(normalizedGuesses[playerId] || null) })),
     completedAt: Date.now(),
   };
   const playerStats = { ...state.playerStats };
   current.playerIds.forEach((id) => {
     const existing = playerStats[id] || createPlayerStats(state.players[id] || { id });
-    playerStats[id] = { ...existing, roundHistory: [...(existing.roundHistory || []), { roundNumber: current.roundNumber, matchId, target: clone(current.targets?.[id] || null), guess: clone(current.guesses?.[id] || null) }] };
+    playerStats[id] = { ...existing, roundHistory: [...(existing.roundHistory || []), { roundNumber: current.roundNumber, matchId, target: clone(current.targets?.[id] || null), guess: clone(getStoredGuessForPlayer(current, id).entry || null) }] };
   });
   return {
     ...state,
@@ -143,12 +184,13 @@ export function finishMatch(state, matchId, winnerId, result = {}) {
   const loserId = current.playerIds.find((id) => id !== winnerId);
   const playerStats = { ...state.playerStats };
   current.playerIds.forEach((id) => {
-    const guess = current.guesses?.[id] || null;
+    const guess = getStoredGuessForPlayer(current, id).entry || null;
     const existing = playerStats[id] || createPlayerStats(state.players[id] || { id });
     const alreadyRecorded = (existing.roundHistory || []).some((entry) => entry.matchId === matchId && entry.roundNumber === current.roundNumber);
     playerStats[id] = alreadyRecorded ? existing : { ...existing, roundHistory: [...(existing.roundHistory || []), { roundNumber: current.roundNumber, matchId, target: clone(current.targets?.[id] || null), guess: clone(guess) }] };
   });
-  const finished = { ...current, status: 'finished', phase: MODE_PHASES.RESULTS, result: { ...result, winnerId, loserId, matchId, scores: cloneOr(current.scores, {}), guesses: cloneOr(current.guesses, {}), targets: cloneOr(current.targets, {}), playerIds: [...current.playerIds] }, revealEndTimestamp: null };
+  const normalizedGuesses = Object.fromEntries(current.playerIds.map((playerId) => [playerId, clone(getStoredGuessForPlayer(current, playerId).entry || null)]));
+  const finished = { ...current, status: 'finished', phase: MODE_PHASES.RESULTS, result: { ...result, winnerId, loserId, matchId, scores: cloneOr(current.scores, {}), guesses: normalizedGuesses, targets: cloneOr(current.targets, {}), playerIds: [...current.playerIds] }, revealEndTimestamp: null };
   const matches = { ...state.matches, [matchId]: finished };
   const semiA = matches[TOURNAMENT_MATCH_IDS.SEMI_A];
   const semiB = matches[TOURNAMENT_MATCH_IDS.SEMI_B];
