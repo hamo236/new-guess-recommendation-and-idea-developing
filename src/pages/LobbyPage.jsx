@@ -211,7 +211,7 @@ const LobbyPage = () => {
   const handleAddMockPlayer = () => {
     const maxForMode = mode === GAME_MODES.ONE_V_ONE ? 2 : MAX_PLAYERS;
     if (players.length >= maxForMode) {
-      setError(`Maximum ${maxForMode} players reached.`);
+      setError(`Room Full: maximum ${maxForMode} players reached.`);
       return;
     }
     const name = newPlayerName.trim() ||
@@ -243,6 +243,10 @@ const LobbyPage = () => {
       setError('1v1 mode requires exactly 2 players.');
       return;
     }
+    if (mode === GAME_MODES.SOCIAL && players.length !== 4) {
+      setError('Four mode requires exactly 4 players.');
+      return;
+    }
     if (!category) { setError('Select a category.'); return; }
     setError('');
     setIsStarting(true);
@@ -257,7 +261,9 @@ const LobbyPage = () => {
 
   const canStart = mode === GAME_MODES.ONE_V_ONE
     ? players.length === 2 && !!category
-    : players.length >= MIN_PLAYERS && !!category;
+    : mode === GAME_MODES.SOCIAL
+      ? players.length === 4 && !!category
+      : players.length >= MIN_PLAYERS && !!category;
   const canModifyLobby = !roomCode || !isFirebaseConfigured || isHost;
 
   // Bottom navigation uses ?mode=1v1 to create a real route transition.

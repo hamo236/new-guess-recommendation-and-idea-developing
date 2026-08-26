@@ -68,7 +68,7 @@ assert(!results.includes('href="#"'), 'Results contains a dead navigation link.'
 assert(competitivePage.includes('TeamSlotPreview'), '2v2 team-slot preview is missing.');
 assert(competitivePage.includes('aria-label="2v2 team slots"'), '2v2 team-slot preview is missing an accessible name.');
 assert(competitivePage.includes('mode === COMPETITIVE_MODES.TEAM_BATTLE && <TeamSlotPreview players={players} actions={{ ...actions, onChangeTeam:'), '2v2 team-slot preview is not isolated to Team Battle lobby mode or its guarded action wrapper is missing.');
-assert(competitivePage.includes('grouped by join order'), '2v2 team assignment preview does not explain its read-only ordering.');
+assert(competitivePage.includes('Current team assignments are used when Start is pressed.'), '2v2 team assignment preview does not explain that current lobby teams govern Start.');
 assert(competitivePage.includes('Number(a.joinOrder)') && competitivePage.includes('Number(b.joinOrder)'), '2v2 preview must sort by persisted join order.');
 assert(competitiveContext.includes('mode === COMPETITIVE_MODES.TEAM_BATTLE') && competitiveContext.includes('Number(a.joinOrder)'), 'Team Battle start must sort players by persisted join order.');
 assert(competitiveFirebase.includes('joinOrder: 1'), 'Competitive host join order is not persisted.');
