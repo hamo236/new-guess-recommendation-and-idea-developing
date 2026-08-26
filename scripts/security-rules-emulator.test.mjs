@@ -31,6 +31,33 @@ try {
   // This is the exact fresh-node operation used by social room creation.
   await assertSucceeds(host.ref('rooms/transaction-r1').transaction((current) => current ?? room));
   await assertSucceeds(host.ref('rooms/r1').set(room));
+
+  // Mirrors syncEnterPreview's exact root fan-out. This failed before the
+  // timestamp child Rules were added because the host write was denied.
+  const startPreviewUpdates = {
+    'rooms/r1/phase': 'preview',
+    'rooms/r1/status': 'preview',
+    'rooms/r1/round': 1,
+    'rooms/r1/roundResult': null,
+    'rooms/r1/bracket': null,
+    'rooms/r1/playerAssignments': {},
+    'rooms/r1/matchResults': {},
+    'rooms/r1/standings': [],
+    'rooms/r1/revealEndTimestamp': 0,
+    'rooms/r1/transitionStartedAt': 0,
+    'rooms/r1/transitionEndsAt': 0,
+    'rooms/r1/timerEndTimestamp': 0,
+  };
+  await assertSucceeds(host.ref('/').update(startPreviewUpdates));
+  await assertFails(playerB.ref('/').update(startPreviewUpdates));
+  await assertFails(outsider.ref('/').update(startPreviewUpdates));
+  await assertFails(host.ref('/').update({
+    'rooms/r1/transitionEndsAt': -1,
+  }));
+  await assertFails(playerB.ref('/').update({
+    'rooms/r2/phase': 'preview',
+  }));
+
   await assertSucceeds(host.ref('privateRooms/r1/host-a/ownTarget').set(target));
   await assertSucceeds(host.ref('privateRooms/r1/player-b/ownTarget').set({ ...target, id: 'target-b' }));
   await assertSucceeds(host.ref('privateRooms/r1/host-a/displayTarget').set({ ...target, id: 'target-b' }));

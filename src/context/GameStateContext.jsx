@@ -711,12 +711,15 @@ const attachToRoom = useCallback((roomCode, playerId, roomPhase, roundId = null)
       if (!isHost && isFirebaseConfigured) {
         throw new Error('Only the host can start the game.');
       }
-      const nextState = engineEnterPreview(state);
-      dispatch({ type: A.START_GAME });
+            const nextState = engineEnterPreview(state);
 
       if (isFirebaseConfigured && state.roomCode) {
         await syncEnterPreview(state.roomCode, nextState);
       }
+
+      // Firebase confirmation is required before entering the local preview state.
+      dispatch({ type: A.START_GAME });
+
     }, [state, isHost, isFirebaseConfigured]),
 
     beginRound: useCallback(async () => {

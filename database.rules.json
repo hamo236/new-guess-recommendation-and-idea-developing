@@ -178,6 +178,18 @@
         "phase": {
           ".write": "auth != null && data.parent().child('hostId').val() === auth.uid"
         },
+        "revealEndTimestamp": {
+          ".write": "auth != null && data.parent().child('hostId').val() === auth.uid",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "transitionStartedAt": {
+          ".write": "auth != null && data.parent().child('hostId').val() === auth.uid",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "transitionEndsAt": {
+          ".write": "auth != null && data.parent().child('hostId').val() === auth.uid",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
         "scores": {
           ".write": "auth != null && data.parent().child('hostId').val() === auth.uid",
           ".validate": "newData.hasChildren() && newData.getPriority() == null",

@@ -167,3 +167,39 @@ The host-created room `247` was opened from an independent phone. The phone repo
 
 ### Required external gate
 The corrected `database.rules.json` still requires manual publication by the user in the `neon-guess-test` Firebase Console. This workflow does not publish RTDB Rules automatically. Until publication and a fresh independent-device retry succeed, independent live joining remains **NOT VERIFIED**, and release status remains **NOT READY** for multiplayer readiness.
+
+
+## Incident: 1v1 Start Game Preview flashes then returns to Lobby — 2026-08-26
+
+### Live failure evidence
+The reported behavior was a brief Preview/character surface immediately after pressing Start Game, followed by disappearance and return to the Lobby. A live four-client reproduction was not available; the application source and a local RTDB emulator reproduced the causal rollback chain. Independent live post-repair Start verification remains pending.
+
+### Root-cause trace
+**SOURCE VERIFIED:** `LobbyPage.handleStartGame` invokes the Provider `startGame` action and then navigates to `/game`. `GameStateContext.startGame` previously dispatched local `START_GAME` before awaiting `syncEnterPreview`. `syncEnterPreview` performs one root `update(ref(db), updates)` covering `phase`, `status`, `round`, `roundResult`, `bracket`, `playerAssignments`, `matchResults`, `standings`, `revealEndTimestamp`, `transitionStartedAt`, `transitionEndsAt`, and `timerEndTimestamp`.
+
+**EMULATOR VERIFIED:** the exact fan-out was denied before the repair because the classic room Rules had host authorization for several sibling fields but no child `.write` grant for `revealEndTimestamp`, `transitionStartedAt`, or `transitionEndsAt`. The failed Firebase write left authoritative room state in `lobby`; the room listener then dispatched `FB_ROOM_SYNC`, and the existing `/game` guards correctly redirected a lobby-phase client back to the 1v1 entry route. The flash was therefore an optimistic local Preview followed by authoritative rollback, not a missing Preview component.
+
+### Repair implemented
+- `database.rules.json`: added host-only child `.write` rules for `revealEndTimestamp`, `transitionStartedAt`, and `transitionEndsAt`, each with numeric nonnegative validation. Existing host authorization for the other Start fan-out fields and the prior join-score repair remain intact.
+- `src/context/GameStateContext.jsx`: `startGame` now awaits the existing `syncEnterPreview` write before dispatching local `START_GAME`. A rejected Firebase write therefore cannot show a false local Preview that is immediately rolled back. The existing engine transition, payload, route meaning, targets, rounds, reveal timing, scoring, timers, teams, brackets, capacity, and join semantics were not changed.
+- `scripts/security-rules-emulator.test.mjs`: added the exact Start fan-out regression. Host success, player denial, outsider denial, negative timestamp denial, cross-room denial, and private-target assertions are covered.
+- `scripts/security-rules-contract.test.mjs`: added structural authorization/type assertions for the Start timestamp children.
+- `scripts/start-flow-contract.test.mjs` and `package.json`: added a source contract proving Firebase confirmation precedes local `START_GAME` dispatch.
+
+### Verification after final repair
+- **TEST VERIFIED:** `npm run test:start-flow` passed.
+- **TEST VERIFIED:** `node scripts/security-rules-contract.test.mjs` passed.
+- **EMULATOR VERIFIED:** `npx --yes firebase-tools emulators:exec --only database --project neon-guess-test "node scripts/security-rules-emulator.test.mjs && node scripts/multi-client-isolation-emulator.test.mjs"` passed. The suite covered exact Start fan-out authorization, private target isolation, protected authority writes, lifecycle scope, outsider denial, 20 concurrent clients, capacity capping, lobby discovery, and score initialization.
+- **TEST VERIFIED:** `npm test`, `npm run test:team-battle`, `npm run test:image-paths`, `npm run test:removed-player`, `npm run test:pages-routes`, and `npm run test:image-paths:built` passed.
+- **BUILD VERIFIED:** `npm run build` passed and generated the Pages route documents. Existing non-blocking Vite warnings remain: Firebase dynamic/static import overlap and a 666.20 kB minified main chunk.
+- **DIFF VERIFIED:** `git diff --check` passed after the final source/test edits.
+
+### Protected-contract audit
+**NO CONSTITUTION CHANGE.** No target assignment or visibility, character/category content, 1v1/2v2/Four rules, rounds, five-second reveal, scoring, timers, voting, winner logic, rematch behavior, teams/brackets, room capacity, join semantics, navigation meaning, or private-target paths were changed. `beginRound` and its transaction/private-target fan-out were intentionally left unchanged because this incident was isolated to Start Preview authorization and optimistic ordering.
+
+### Remaining release gates
+The corrected `database.rules.json` is a reviewed artifact and still requires manual publication by the user in the `neon-guess-test` Firebase Console. No Rules publication or production/Page Firebase operation was performed by this workflow. After publication, a fresh 1v1 room must be created and joined from an independent device/profile, then Start Game must be exercised from the host. Refresh/reconnect/Leave, target privacy, and full independent-client 2v2/Four gameplay remain **NOT VERIFIED**. Release decision for the live multiplayer change remains **CONDITIONAL/BLOCKED pending the manual Rules publish and independent-client validation**.
+
+## Final engineering memory
+
+The reusable regression rule is: whenever a Firebase action uses a root multi-location update, every leaf in the payload must have an explicit compatible authorization/validation contract, and local UI state must not advance optimistically ahead of an authoritative write when a rejected write would trigger listener rollback and navigation. Preserve the separation between source, emulator, build, live browser, live Firebase, and four-client evidence in future reports.

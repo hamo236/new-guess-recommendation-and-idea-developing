@@ -9,7 +9,8 @@ const teamPrivate = rules.teamBattlePrivateTargets.$roomId.$uid.$matchId.target;
 const isolatedPrivate = rules.privateRooms.$roomCode.$uid;
 const isolatedOwnTarget = isolatedPrivate.ownTarget;
 const isolatedDisplayTarget = isolatedPrivate.displayTarget;
-const socialScores = rules.rooms.$roomCode.scores;
+const socialRoom = rules.rooms.$roomCode;
+const socialScores = socialRoom.scores;
 const socialScoreByUid = socialScores.$uid;
 
 assert.match(tournamentRoom['.read'], /!data\.exists\(\)/, 'Tournament creation transactions need a fresh-node read grant');
@@ -18,7 +19,12 @@ assert.doesNotMatch(tournamentRoom['.read'], /^auth != null$/);
 assert.match(teamRoom['.read'], /!data\.exists\(\)/, 'Team creation transactions need a fresh-node read grant');
 assert.match(teamRoom['.read'], /players.*auth\.uid/);
 assert.doesNotMatch(teamRoom['.read'], /^auth != null$/);
-assert.match(rules.rooms.$roomCode['.read'], /!data\.exists\(\)/, 'Social creation transactions need a fresh-node read grant');
+assert.match(socialRoom['.read'], /!data\.exists\(\)/, 'Social creation transactions need a fresh-node read grant');
+assert.match(socialRoom.phase['.write'], /hostId.*auth\.uid/, 'Only the host may change the social room phase');
+for (const field of ['revealEndTimestamp', 'transitionStartedAt', 'transitionEndsAt']) {
+  assert.match(socialRoom[field]['.write'], /hostId.*auth\.uid/, `${field} must be host-authorized`);
+  assert.match(socialRoom[field]['.validate'], /newData\.isNumber\(\)/, `${field} must remain numeric`);
+}
 assert.match(socialScores['.write'], /hostId.*auth\.uid/, 'Only the host may replace the aggregate social scores map');
 assert.doesNotMatch(socialScores['.write'], /newData\.child\(auth\.uid\)/, 'Aggregate scores must not contain the contradictory non-host join branch');
 assert.match(socialScoreByUid['.write'], /auth\.uid === \$uid/, 'A joining player may initialize only their own score');
