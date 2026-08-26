@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useCompetitiveMode } from '../context/CompetitiveModeContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { getItemsByCategory } from '../data/gameData.js';

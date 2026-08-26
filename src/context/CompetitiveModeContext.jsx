@@ -164,7 +164,8 @@ export function CompetitiveModeProvider({ mode, children }) {
         clearSession(mode); setRoomId(''); setState(null); setPrivateTarget(null); setTargetReady(false); setStatus('closed'); setConnectionState(isFirebaseConfigured ? 'error' : 'offline-local'); return;
       }
       const activeMatch = Boolean(next.match?.status === 'playing' || Object.values(next.matches || {}).some((match) => match?.status === 'playing' && match.playerIds?.includes(playerId)));
-      saveSession(mode, { roomId, playerId, playerName, resumeAfterRefresh: mode === COMPETITIVE_MODES.TOURNAMENT ? next.phase !== MODE_PHASES.LOBBY : activeMatch });
+      const resumableTeamBattle = mode === COMPETITIVE_MODES.TEAM_BATTLE && ['playing', 'round_result', 'finished'].includes(next.match?.status);
+      saveSession(mode, { roomId, playerId, playerName, resumeAfterRefresh: mode === COMPETITIVE_MODES.TOURNAMENT ? next.phase !== MODE_PHASES.LOBBY : activeMatch || resumableTeamBattle });
       setState(next); setStatus('ready');
       if (!isFirebaseConfigured) setConnectionState('offline-local');
       else if (connectionOnlineRef.current === true || connectionOnlineRef.current === null) {

@@ -4,6 +4,9 @@ const page = fs.readFileSync(new URL('../src/pages/CompetitiveModePage.jsx', imp
 const adapter = fs.readFileSync(new URL('../src/firebase/competitiveFirebase.js', import.meta.url), 'utf8');
 const context = fs.readFileSync(new URL('../src/context/CompetitiveModeContext.jsx', import.meta.url), 'utf8');
 
+if (!page.includes("useRef") || !page.match(/import React, \{[^}]*useRef[^}]*\} from 'react';/)) throw new Error('CompetitiveModePage useCountdown requires an imported useRef hook.');
+if (!page.includes('function useCountdown(endTimestamp)') || !page.includes('deadlineRef')) throw new Error('CompetitiveModePage countdown hook is missing its stable deadline state.');
+
 const gameplayStart = page.indexOf('function TeamBattleGameplay');
 const gameplayEnd = page.indexOf('function BracketMatch');
 if (gameplayStart < 0 || gameplayEnd < 0) throw new Error('Team Battle gameplay component is missing.');
@@ -33,6 +36,7 @@ if (!page.includes('DASHBOARD') || !page.includes('LEAVE')) throw new Error('Fin
 if (!page.includes('function TeamRevealTargets') || !page.includes('result?.targets?.[team.playerIds[0]]') || !page.includes('<TeamRevealTargets state={state} result={result} />')) throw new Error('Team Battle reveal must expose and render both teams’ completed-round target snapshots.');
 if (!context.includes('teamResolutionInFlightRef') || !context.includes('areAllRequiredTeamConfirmationsComplete(state)') || !context.includes('resolveTeamRound()')) throw new Error('Provider must automatically resolve a complete Team Battle confirmation set.');
 if (!context.includes('teamAdvanceInFlightRef') || !context.includes('state.match?.revealEndTimestamp') || !context.includes('advanceTeam()')) throw new Error('Provider must automatically advance after the reveal timestamp expires.');
+if (!context.includes("['playing', 'round_result', 'finished'].includes(next.match?.status)") || !context.includes('resumableTeamBattle')) throw new Error('Team Battle session recovery must remain enabled through round results and finished state.');
 const resolveBlock = context.slice(context.indexOf('const resolveTeamRound'), context.indexOf('const advanceTeam'));
 const advanceBlock = context.slice(context.indexOf('const advanceTeam'), context.indexOf('useEffect(() => {', context.indexOf('const advanceTeam')));
 if (resolveBlock.includes('state.hostId !== playerId') || advanceBlock.includes('state.hostId !== playerId') || advanceBlock.includes('current.hostId !== playerId')) throw new Error('Team Battle resolve/advance must not depend on a live host tab; Firebase transaction guards remain authoritative.');
