@@ -280,12 +280,6 @@ function gameReducer(state, action) {
           ...state.displayTargets,
           [action.payload.playerId]: target,
         },
-        ...(isOneVOne ? {
-          roundTargets: {
-            ...state.roundTargets,
-            [action.payload.playerId]: target,
-          },
-        } : {}),
       };
     }
     case A.SET_MY_PLAYER_ID: {
