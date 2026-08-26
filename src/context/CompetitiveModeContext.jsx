@@ -6,7 +6,7 @@ import { isFirebaseConfigured } from '../firebase/config.js';
 import { createCompetitiveRoom, joinCompetitiveRoom, leaveCompetitiveRoom, mutateCompetitiveState, submitTournamentGuess, submitTeamConfirmation, removeCompetitivePlayer, setCompetitiveTeam, subscribeCompetitiveConnection, subscribeCompetitiveRoom, subscribeCompetitiveTarget, subscribeCompetitiveChat, sendCompetitiveChatMessage, writeCompetitiveState, writeCompetitiveTarget } from '../firebase/competitiveFirebase.js';
 import { COMPETITIVE_MODES, MODE_PHASES, createModePlayer, createStableId, clone } from '../modes/modeTypes.js';
 import { createTournamentState, finishMatch, recordMatchConfirmation, reconcileTournamentMatchScores, completeTournamentRound, advanceTournamentRound as advanceTournamentRoundState, startMatch, startNextTournamentMatches, tournamentTargetOffset, TOURNAMENT_MATCH_IDS } from '../modes/tournamentEngine.js';
-import { assignTeamTargets, createTeamBattleState, finishTeamRound, advanceTeamRound, confirmTeamRound, areAllRequiredTeamConfirmationsComplete, getRequiredConfirmationTeams, validateTeamAssignments, TEAM_IDS } from '../modes/teamBattleEngine.js';
+import { assignTeamTargets, createTeamBattleState, finishTeamRound, advanceTeamRound, confirmTeamRound, hasResolvableTeamConfirmation, getCompletedConfirmationTeams, validateTeamAssignments, TEAM_IDS } from '../modes/teamBattleEngine.js';
 import { targetMapForTeams, targetSnapshotsForTeams } from '../modes/teamBattleTargetPlan.js';
 import { generateRoomCode, normalizeRoomCode } from '../game/roomManager.js';
 import { createJoinTrace, getSafeClientNetworkSnapshot } from '../firebase/joinDiagnostics.js';
@@ -398,9 +398,9 @@ export function CompetitiveModeProvider({ mode, children }) {
   const resolveTeamRound = useCallback(async () => {
     if (!state || state.match?.status !== 'playing' || !canMutateCompetitive) return;
     await mutateCompetitiveState({ mode, roomId, mutate: (current) => {
-      if (current.match?.status !== 'playing' || !areAllRequiredTeamConfirmationsComplete(current)) return current;
+      if (current.match?.status !== 'playing' || !hasResolvableTeamConfirmation(current)) return current;
       const guesses = Object.values(current.match?.guesses || {});
-      const confirmingTeamIds = getRequiredConfirmationTeams(current);
+      const confirmingTeamIds = getCompletedConfirmationTeams(current);
       if (confirmingTeamIds.length === 0) return current;
       const targetSnapshots = targetSnapshotsForTeams(current.category, current, {
         roomSeed: `${current.teamRoomId}:${current.createdAt}`,
@@ -429,7 +429,7 @@ export function CompetitiveModeProvider({ mode, children }) {
   }, [mode, playerId, roomId, state, canMutateCompetitive]);
 
   useEffect(() => {
-    if (mode !== COMPETITIVE_MODES.TEAM_BATTLE || !state || !canMutateCompetitive || state.match?.status !== 'playing' || !areAllRequiredTeamConfirmationsComplete(state) || teamResolutionInFlightRef.current) return undefined;
+    if (mode !== COMPETITIVE_MODES.TEAM_BATTLE || !state || !canMutateCompetitive || state.match?.status !== 'playing' || !hasResolvableTeamConfirmation(state) || teamResolutionInFlightRef.current) return undefined;
     teamResolutionInFlightRef.current = true;
     resolveTeamRound().catch((resolutionError) => setError(resolutionError?.message || 'Team Battle round resolution failed.')).finally(() => { teamResolutionInFlightRef.current = false; });
     return undefined;

@@ -29,6 +29,14 @@ export function areAllRequiredTeamConfirmationsComplete(state) {
   return requiredTeams.length > 0 && requiredTeams.every((teamId) => getTeamConfirmationStatus(state, teamId).complete);
 }
 
+export function getCompletedConfirmationTeams(state) {
+  return getRequiredConfirmationTeams(state).filter((teamId) => getTeamConfirmationStatus(state, teamId).complete);
+}
+
+export function hasResolvableTeamConfirmation(state) {
+  return getCompletedConfirmationTeams(state).length > 0;
+}
+
 export function areAllTeamConfirmationsComplete(state) {
   return areAllRequiredTeamConfirmationsComplete(state);
 }
@@ -111,7 +119,7 @@ function rewardForTeam(teamId, isWinner) { return { teamId, placement: isWinner 
 export function finishTeamRound(state, winningTeamId, result = {}) {
   const winningTeamIds = [...new Set(result.winningTeamIds || (Array.isArray(winningTeamId) ? winningTeamId : [winningTeamId]))].filter((teamId) => state.teams[teamId]);
   if (winningTeamIds.length === 0) throw new Error('Winning team does not exist.');
-  if (state.match.status !== 'playing' || !areAllRequiredTeamConfirmationsComplete(state)) return state;
+  if (state.match.status !== 'playing' || !hasResolvableTeamConfirmation(state)) return state;
   const teams = Object.fromEntries(Object.entries(state.teams).map(([teamId, team]) => [teamId, winningTeamIds.includes(teamId) ? { ...team, score: team.score + 1 } : team]));
   const guesses = clone(result.guesses || state.match.guesses || {});
   const completedAt = Date.now();
