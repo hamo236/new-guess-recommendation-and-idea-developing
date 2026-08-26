@@ -98,3 +98,17 @@ The current Rules file uses authenticated access and default-deny behavior. Fres
 3. Add a deterministic `test:pages-routes` contract that fails if a direct route document is missing after build.
 
 Protected and unchanged: gameplay engines, target selection/private projections, scoring, round/match progression, room payloads, Firebase Rules, auth, and competitive synchronization.
+
+## Post-deployment live verification — 2026-08-26
+
+- Pages workflow run `32930724695` completed successfully for commit `dcacf1d`.
+- Direct HTTP checks for `/`, `/one-v-one`, `/game`, `/results`, `/admin`, `/tournament`, `/team-battle`, `/daily`, and `/how-to-play` returned HTTP 200 after the route-packaging repair.
+- Live home page loaded with the expected NEON GUESS shell and existing mode cards. No gameplay state was changed during visual inspection.
+- Live `/one-v-one/` direct navigation loaded the existing room-entry surface, including Create Room, Join Room, host-name input, and the existing Four Impostor social-room panel. This confirms static route resolution and preserves the current UI structure.
+- The first broad Firebase marker scan was a false positive because it matched the intentional Test database URL and a placeholder URL; the exact old production marker was absent, the Test marker was present only in the intended fallback config, no private credential patterns were found, `git diff --check` passed, and protected `src/game`, `src/firebase`, `src/context`, and `database.rules.json` paths were not modified in this release pass.
+
+## Live 1v1 interaction check — 2026-08-26
+
+The deployed `/one-v-one/` surface loaded directly and displayed `Firebase Connected — Real-time Multiplayer Active`. The temporary host name was accepted. The Create Room control correctly blocked the attempt with `Please select a category first`, which is an existing validation guard; no room was created and no gameplay state was altered. This confirms the live form is reachable and the precondition guard is functioning. A category selection is required before the next authorized smoke attempt.
+
+The live DOM inspection of `/one-v-one/` found no `<select>` or category input. The visible room panel currently exposes the existing `Four IMPOSTOR Social room strategy` mode control and Create Room action, while Create Room correctly reports `Please select a category first`. This is recorded as a live UI-state observation only; no mode or gameplay behavior was changed during the audit.
