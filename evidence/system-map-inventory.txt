@@ -1,0 +1,738 @@
+# System map inventory
+commit=eaf129a37492313bc166436c17a3c063a221f47b
+## Source files
+src/App.jsx
+src/components/ActiveMatchRecoveryCard.jsx
+src/components/ConnectionRecoveryBanner.jsx
+src/components/RoomLeaveDialog.jsx
+src/components/SessionRouteRestore.jsx
+src/components/game/CompetitiveChatPanel.jsx
+src/components/game/MatchTimeline.jsx
+src/components/game/OpponentTargetCard.jsx
+src/components/game/RoundRevealPanel.jsx
+src/components/game/VoiceRoomPanel.jsx
+src/components/layout/BottomNavBar.jsx
+src/components/layout/ModeSwitcher.jsx
+src/components/layout/NavigationDrawer.jsx
+src/components/layout/TopAppBar.jsx
+src/context/CompetitiveModeContext.jsx
+src/context/GameStateContext.jsx
+src/data/gameData.js
+src/firebase/auth.js
+src/firebase/competitiveFirebase.js
+src/firebase/config.js
+src/firebase/database.js
+src/firebase/firebasePublicConfig.js
+src/firebase/gameSync.js
+src/firebase/joinDiagnostics.js
+src/firebase/roomService.js
+src/firebase/voiceRoom.js
+src/game/gameEngine.js
+src/game/revealTiming.js
+src/game/roomManager.js
+src/game/scoring.js
+src/game/targetSelector.js
+src/hooks/useGameTimer.js
+src/hooks/useVoiceRoom.js
+src/index.css
+src/main.jsx
+src/modes/modeTypes.js
+src/modes/teamBattleEngine.js
+src/modes/teamBattleTargetPlan.js
+src/modes/tournamentEngine.js
+src/modes/tournamentTargetPlan.js
+src/pages/AdminGateway.jsx
+src/pages/CompetitiveModePage.jsx
+src/pages/DailyGuessPage.jsx
+src/pages/GameBoardPage.jsx
+src/pages/GameResultsPage.jsx
+src/pages/HowToPlayPage.jsx
+src/pages/LobbyPage.jsx
+src/pages/TeamBattlePage.jsx
+src/pages/TournamentPage.jsx
+src/ui/playerAvatars.js
+src/utils/dailyChallenge.js
+src/utils/sessionStorage.js
+## Scripts
+scripts/abs-marker.txt
+scripts/atomic-join-poc-emulator.test.mjs
+scripts/atomic-join-poc.rules.json
+scripts/atomic-join-single-step-diagnostic.mjs
+scripts/avatar-contract-check.mjs
+scripts/check-auth-diagnostics.mjs
+scripts/check-built-image-paths.mjs
+scripts/check-image-paths.mjs
+scripts/check-removed-player.mjs
+scripts/competitive-fixed-slots-emulator.test.mjs
+scripts/copy-pages-fallback.mjs
+scripts/four-natural-guess-flow.test.mjs
+scripts/generate-public-firebase-config.mjs
+scripts/import-new-football-players.py
+scripts/migrate-images.mjs
+scripts/migration-results.json
+scripts/multi-client-isolation-emulator.test.mjs
+scripts/onevone-category-selection.test.mjs
+scripts/patch-team-battle-ui.ps1
+scripts/patch-team-identity-disconnect.ps1
+scripts/qa-connection-recovery.mjs
+scripts/qa-guessed-correct-repair.mjs
+scripts/qa-problem-repair.mjs
+scripts/qa-route-splitting.mjs
+scripts/qa-smoke.mjs
+scripts/qa-team-battle-engine.mjs
+scripts/qa-team-battle-flow.mjs
+scripts/qa-team-battle-target-freshness.mjs
+scripts/qa-team-battle-ui.mjs
+scripts/restore-tournament-guess-grid.ps1
+scripts/reveal-timing.test.mjs
+scripts/room-code-contract.test.mjs
+scripts/run-marker.txt
+scripts/run-team-battle-qa.mjs
+scripts/security-rules-contract.test.mjs
+scripts/security-rules-emulator.test.mjs
+scripts/team-seat-race-emulator.test.mjs
+scripts/team-switch-remove-emulator.test.mjs
+scripts/test-wait.mjs
+scripts/tournament-firebase-confirmation.test.mjs
+scripts/tournament-json-progression.test.mjs
+scripts/tournament-lifecycle.test.mjs
+scripts/tournament-natural-guess-flow.test.mjs
+scripts/tournament-randomization-no-timer.test.mjs
+scripts/tournament-runtime-contract.test.mjs
+scripts/tournament-target-continuity.test.mjs
+scripts/tournament-target-isolation.test.mjs
+scripts/unmatched-items.json
+scripts/voice-reliability-contract.test.mjs
+scripts/voice-room-competitive-scope.test.mjs
+scripts/voice-room-lifecycle.test.mjs
+scripts/voice-room-sdp-contract.test.mjs
+## Config/deployment files
+./.git/index
+./.github/workflows/deploy.yml
+./database-debug.log
+./database.rules.json
+./dist/assets/index-DidoB5ws.js
+./dist/assets/index-QR9G8Hy8.css
+./dist/index.html
+./evidence/firebase-not-configured-engineering-task.md
+./firebase.json
+./index.html
+./node_modules/ansi-regex/index.d.ts
+./node_modules/ansi-regex/index.js
+./node_modules/ansi-regex/package.json
+./node_modules/ansi-styles/index.d.ts
+./node_modules/ansi-styles/index.js
+./node_modules/ansi-styles/package.json
+./node_modules/any-promise/README.md
+./node_modules/any-promise/index.d.ts
+./node_modules/any-promise/index.js
+./node_modules/any-promise/package.json
+./node_modules/anymatch/README.md
+./node_modules/anymatch/index.d.ts
+./node_modules/anymatch/index.js
+./node_modules/anymatch/package.json
+./node_modules/arg/README.md
+./node_modules/arg/index.d.ts
+./node_modules/arg/index.js
+./node_modules/arg/package.json
+./node_modules/autoprefixer/README.md
+./node_modules/autoprefixer/package.json
+./node_modules/baseline-browser-mapping/README.md
+./node_modules/baseline-browser-mapping/package.json
+./node_modules/binary-extensions/index.d.ts
+./node_modules/binary-extensions/index.js
+./node_modules/binary-extensions/package.json
+./node_modules/braces/README.md
+./node_modules/braces/index.js
+./node_modules/braces/package.json
+./node_modules/browserslist/README.md
+./node_modules/browserslist/index.d.ts
+./node_modules/browserslist/index.js
+./node_modules/browserslist/package.json
+./node_modules/camelcase-css/README.md
+./node_modules/camelcase-css/index-es5.js
+./node_modules/camelcase-css/index.js
+./node_modules/camelcase-css/package.json
+./node_modules/caniuse-lite/README.md
+./node_modules/caniuse-lite/package.json
+./node_modules/chokidar/README.md
+./node_modules/chokidar/index.js
+./node_modules/chokidar/package.json
+./node_modules/cliui/README.md
+./node_modules/cliui/index.mjs
+./node_modules/cliui/package.json
+./node_modules/clsx/package.json
+./node_modules/color-convert/README.md
+./node_modules/color-convert/index.js
+./node_modules/color-convert/package.json
+./node_modules/color-name/README.md
+./node_modules/color-name/index.js
+./node_modules/color-name/package.json
+./node_modules/commander/index.js
+./node_modules/commander/package.json
+./node_modules/convert-source-map/README.md
+./node_modules/convert-source-map/index.js
+./node_modules/convert-source-map/package.json
+./node_modules/cssesc/README.md
+./node_modules/cssesc/package.json
+./node_modules/debug/README.md
+./node_modules/debug/package.json
+./node_modules/detect-libc/README.md
+./node_modules/detect-libc/index.d.ts
+./node_modules/detect-libc/package.json
+./node_modules/didyoumean/README.md
+./node_modules/didyoumean/package.json
+./node_modules/dlv/README.md
+./node_modules/dlv/index.js
+./node_modules/dlv/package.json
+./node_modules/electron-to-chromium/README.md
+./node_modules/electron-to-chromium/index.js
+./node_modules/electron-to-chromium/package.json
+./node_modules/emoji-regex/README.md
+./node_modules/emoji-regex/index.d.ts
+./node_modules/emoji-regex/index.js
+./node_modules/emoji-regex/package.json
+./node_modules/es-errors/README.md
+./node_modules/es-errors/index.d.ts
+./node_modules/es-errors/index.js
+./node_modules/es-errors/package.json
+./node_modules/esbuild/README.md
+./node_modules/esbuild/package.json
+./node_modules/escalade/index.d.mts
+./node_modules/escalade/index.d.ts
+./node_modules/escalade/package.json
+./node_modules/fast-glob/README.md
+./node_modules/fast-glob/package.json
+./node_modules/fastq/README.md
+./node_modules/fastq/index.d.ts
+./node_modules/fastq/package.json
+./node_modules/faye-websocket/README.md
+./node_modules/faye-websocket/package.json
+./node_modules/fill-range/README.md
+./node_modules/fill-range/index.js
+./node_modules/fill-range/package.json
+./node_modules/firebase/README.md
+./node_modules/firebase/firebase-ai.js
+./node_modules/firebase/firebase-ai.js.map
+./node_modules/firebase/firebase-analytics-compat.js
+./node_modules/firebase/firebase-analytics-compat.js.map
+./node_modules/firebase/firebase-analytics.js
+./node_modules/firebase/firebase-analytics.js.map
+./node_modules/firebase/firebase-app-check-compat.js
+./node_modules/firebase/firebase-app-check-compat.js.map
+./node_modules/firebase/firebase-app-check.js
+./node_modules/firebase/firebase-app-check.js.map
+./node_modules/firebase/firebase-app-compat.js
+./node_modules/firebase/firebase-app-compat.js.map
+./node_modules/firebase/firebase-app.js
+./node_modules/firebase/firebase-app.js.map
+./node_modules/firebase/firebase-auth-compat.js
+./node_modules/firebase/firebase-auth-compat.js.map
+./node_modules/firebase/firebase-auth-cordova.js
+./node_modules/firebase/firebase-auth-cordova.js.map
+./node_modules/firebase/firebase-auth-web-extension.js
+./node_modules/firebase/firebase-auth-web-extension.js.map
+./node_modules/firebase/firebase-auth.js
+./node_modules/firebase/firebase-auth.js.map
+./node_modules/firebase/firebase-compat.js
+./node_modules/firebase/firebase-compat.js.map
+./node_modules/firebase/firebase-data-connect.js
+./node_modules/firebase/firebase-data-connect.js.map
+./node_modules/firebase/firebase-database-compat.js
+./node_modules/firebase/firebase-database-compat.js.map
+./node_modules/firebase/firebase-database.js
+./node_modules/firebase/firebase-database.js.map
+./node_modules/firebase/firebase-firestore-compat.js
+./node_modules/firebase/firebase-firestore-compat.js.map
+./node_modules/firebase/firebase-firestore-lite-pipelines.js
+./node_modules/firebase/firebase-firestore-lite-pipelines.js.map
+./node_modules/firebase/firebase-firestore-lite.js
+./node_modules/firebase/firebase-firestore-lite.js.map
+./node_modules/firebase/firebase-firestore-pipelines.js
+./node_modules/firebase/firebase-firestore-pipelines.js.map
+./node_modules/firebase/firebase-firestore.js
+./node_modules/firebase/firebase-firestore.js.map
+./node_modules/firebase/firebase-functions-compat.js
+./node_modules/firebase/firebase-functions-compat.js.map
+./node_modules/firebase/firebase-functions.js
+./node_modules/firebase/firebase-functions.js.map
+./node_modules/firebase/firebase-installations-compat.js
+./node_modules/firebase/firebase-installations-compat.js.map
+./node_modules/firebase/firebase-installations.js
+./node_modules/firebase/firebase-installations.js.map
+./node_modules/firebase/firebase-messaging-compat.js
+./node_modules/firebase/firebase-messaging-compat.js.map
+./node_modules/firebase/firebase-messaging-sw.js
+./node_modules/firebase/firebase-messaging-sw.js.map
+./node_modules/firebase/firebase-messaging.js
+./node_modules/firebase/firebase-messaging.js.map
+./node_modules/firebase/firebase-performance-compat.js
+./node_modules/firebase/firebase-performance-compat.js.map
+./node_modules/firebase/firebase-performance-standalone-compat.js
+./node_modules/firebase/firebase-performance-standalone-compat.js.map
+./node_modules/firebase/firebase-performance.js
+./node_modules/firebase/firebase-performance.js.map
+./node_modules/firebase/firebase-remote-config-compat.js
+./node_modules/firebase/firebase-remote-config-compat.js.map
+./node_modules/firebase/firebase-remote-config.js
+./node_modules/firebase/firebase-remote-config.js.map
+./node_modules/firebase/firebase-storage-compat.js
+./node_modules/firebase/firebase-storage-compat.js.map
+./node_modules/firebase/firebase-storage.js
+./node_modules/firebase/firebase-storage.js.map
+./node_modules/firebase/package.json
+./node_modules/fraction.js/README.md
+./node_modules/fraction.js/package.json
+./node_modules/framer-motion/README.md
+./node_modules/framer-motion/package.json
+./node_modules/function-bind/README.md
+./node_modules/function-bind/index.js
+./node_modules/function-bind/package.json
+./node_modules/gensync/README.md
+./node_modules/gensync/index.js
+./node_modules/gensync/index.js.flow
+./node_modules/gensync/package.json
+./node_modules/get-caller-file/README.md
+./node_modules/get-caller-file/index.d.ts
+./node_modules/get-caller-file/index.js
+./node_modules/get-caller-file/index.js.map
+./node_modules/get-caller-file/package.json
+./node_modules/glob-parent/README.md
+./node_modules/glob-parent/index.js
+./node_modules/glob-parent/package.json
+./node_modules/hasown/README.md
+./node_modules/hasown/index.d.ts
+./node_modules/hasown/index.js
+./node_modules/hasown/package.json
+./node_modules/http-parser-js/README.md
+./node_modules/http-parser-js/package.json
+./node_modules/idb/README.md
+./node_modules/idb/package.json
+./node_modules/is-binary-path/index.d.ts
+./node_modules/is-binary-path/index.js
+./node_modules/is-binary-path/package.json
+./node_modules/is-core-module/README.md
+./node_modules/is-core-module/index.js
+./node_modules/is-core-module/package.json
+./node_modules/is-extglob/README.md
+./node_modules/is-extglob/index.js
+./node_modules/is-extglob/package.json
+./node_modules/is-fullwidth-code-point/index.d.ts
+./node_modules/is-fullwidth-code-point/index.js
+./node_modules/is-fullwidth-code-point/package.json
+./node_modules/is-glob/README.md
+./node_modules/is-glob/index.js
+./node_modules/is-glob/package.json
+./node_modules/is-number/README.md
+./node_modules/is-number/index.js
+./node_modules/is-number/package.json
+./node_modules/jiti/README.md
+./node_modules/jiti/package.json
+./node_modules/js-tokens/README.md
+./node_modules/js-tokens/index.js
+./node_modules/js-tokens/package.json
+./node_modules/jsesc/README.md
+./node_modules/jsesc/package.json
+./node_modules/json5/README.md
+./node_modules/json5/package.json
+./node_modules/lilconfig/package.json
+./node_modules/lines-and-columns/README.md
+./node_modules/lines-and-columns/package.json
+./node_modules/lodash.camelcase/README.md
+./node_modules/lodash.camelcase/index.js
+./node_modules/lodash.camelcase/package.json
+./node_modules/long/README.md
+./node_modules/long/index.d.ts
+./node_modules/long/index.js
+./node_modules/long/package.json
+./node_modules/loose-envify/README.md
+./node_modules/loose-envify/index.js
+./node_modules/loose-envify/package.json
+./node_modules/lru-cache/README.md
+./node_modules/lru-cache/index.js
+./node_modules/lru-cache/package.json
+./node_modules/lucide-react/README.md
+./node_modules/lucide-react/package.json
+./node_modules/merge2/README.md
+./node_modules/merge2/index.js
+./node_modules/merge2/package.json
+./node_modules/micromatch/README.md
+./node_modules/micromatch/index.js
+./node_modules/micromatch/package.json
+./node_modules/motion-dom/package.json
+./node_modules/motion-utils/package.json
+./node_modules/ms/index.js
+./node_modules/ms/package.json
+./node_modules/mz/README.md
+./node_modules/mz/index.js
+./node_modules/mz/package.json
+./node_modules/nanoid/README.md
+./node_modules/nanoid/index.browser.cjs
+./node_modules/nanoid/index.browser.js
+./node_modules/nanoid/index.cjs
+./node_modules/nanoid/index.d.cts
+./node_modules/nanoid/index.d.ts
+./node_modules/nanoid/index.js
+./node_modules/nanoid/package.json
+./node_modules/node-releases/README.md
+./node_modules/node-releases/package.json
+./node_modules/normalize-path/README.md
+./node_modules/normalize-path/index.js
+./node_modules/normalize-path/package.json
+./node_modules/object-assign/index.js
+./node_modules/object-assign/package.json
+./node_modules/object-hash/index.js
+./node_modules/object-hash/package.json
+./node_modules/path-parse/README.md
+./node_modules/path-parse/index.js
+./node_modules/path-parse/package.json
+./node_modules/picocolors/README.md
+./node_modules/picocolors/package.json
+./node_modules/picomatch/README.md
+./node_modules/picomatch/index.js
+./node_modules/picomatch/package.json
+./node_modules/pirates/README.md
+./node_modules/pirates/index.d.ts
+./node_modules/pirates/package.json
+./node_modules/postcss-import/LICENSE
+./node_modules/postcss-import/README.md
+./node_modules/postcss-import/index.js
+./node_modules/postcss-import/package.json
+./node_modules/postcss-js/LICENSE
+./node_modules/postcss-js/README.md
+./node_modules/postcss-js/async.js
+./node_modules/postcss-js/index.js
+./node_modules/postcss-js/index.mjs
+./node_modules/postcss-js/objectifier.js
+./node_modules/postcss-js/package.json
+./node_modules/postcss-js/parser.js
+./node_modules/postcss-js/process-result.js
+./node_modules/postcss-js/sync.js
+./node_modules/postcss-load-config/LICENSE
+./node_modules/postcss-load-config/README.md
+./node_modules/postcss-load-config/package.json
+./node_modules/postcss-nested/LICENSE
+./node_modules/postcss-nested/README.md
+./node_modules/postcss-nested/index.d.ts
+./node_modules/postcss-nested/index.js
+./node_modules/postcss-nested/package.json
+./node_modules/postcss-selector-parser/API.md
+./node_modules/postcss-selector-parser/CHANGELOG.md
+./node_modules/postcss-selector-parser/LICENSE-MIT
+./node_modules/postcss-selector-parser/README.md
+./node_modules/postcss-selector-parser/package.json
+./node_modules/postcss-selector-parser/postcss-selector-parser.d.ts
+./node_modules/postcss-value-parser/LICENSE
+./node_modules/postcss-value-parser/README.md
+./node_modules/postcss-value-parser/package.json
+./node_modules/postcss/LICENSE
+./node_modules/postcss/README.md
+./node_modules/postcss/package.json
+./node_modules/protobufjs/README.md
+./node_modules/protobufjs/index.d.ts
+./node_modules/protobufjs/index.js
+./node_modules/protobufjs/package.json
+./node_modules/queue-microtask/README.md
+./node_modules/queue-microtask/index.d.ts
+./node_modules/queue-microtask/index.js
+./node_modules/queue-microtask/package.json
+./node_modules/re2js/README.md
+./node_modules/re2js/package.json
+./node_modules/react-dom/README.md
+./node_modules/react-dom/index.js
+./node_modules/react-dom/package.json
+./node_modules/react-refresh/README.md
+./node_modules/react-refresh/package.json
+./node_modules/react-router-dom/README.md
+./node_modules/react-router-dom/package.json
+./node_modules/react-router/README.md
+./node_modules/react-router/package.json
+./node_modules/react/README.md
+./node_modules/react/index.js
+./node_modules/react/package.json
+./node_modules/read-cache/README.md
+./node_modules/read-cache/index.js
+./node_modules/read-cache/package.json
+./node_modules/readdirp/README.md
+./node_modules/readdirp/index.d.ts
+./node_modules/readdirp/index.js
+./node_modules/readdirp/package.json
+./node_modules/require-directory/README.markdown
+./node_modules/require-directory/index.js
+./node_modules/require-directory/package.json
+./node_modules/resolve/index.js
+./node_modules/resolve/package.json
+./node_modules/reusify/README.md
+./node_modules/reusify/package.json
+./node_modules/rollup/README.md
+./node_modules/rollup/package.json
+./node_modules/run-parallel/README.md
+./node_modules/run-parallel/index.js
+./node_modules/run-parallel/package.json
+./node_modules/safe-buffer/README.md
+./node_modules/safe-buffer/index.d.ts
+./node_modules/safe-buffer/index.js
+./node_modules/safe-buffer/package.json
+./node_modules/scheduler/README.md
+./node_modules/scheduler/index.js
+./node_modules/scheduler/package.json
+./node_modules/semver/README.md
+./node_modules/semver/package.json
+./node_modules/sharp/README.md
+./node_modules/sharp/package.json
+./node_modules/source-map-js/README.md
+./node_modules/source-map-js/package.json
+./node_modules/string-width/index.d.ts
+./node_modules/string-width/index.js
+./node_modules/string-width/package.json
+./node_modules/strip-ansi/index.d.ts
+./node_modules/strip-ansi/index.js
+./node_modules/strip-ansi/package.json
+./node_modules/sucrase/README.md
+./node_modules/sucrase/package.json
+./node_modules/supports-preserve-symlinks-flag/README.md
+./node_modules/supports-preserve-symlinks-flag/index.js
+./node_modules/supports-preserve-symlinks-flag/package.json
+./node_modules/tailwind-merge/LICENSE.md
+./node_modules/tailwind-merge/README.md
+./node_modules/tailwind-merge/package.json
+./node_modules/tailwindcss/LICENSE
+./node_modules/tailwindcss/README.md
+./node_modules/tailwindcss/base.css
+./node_modules/tailwindcss/colors.d.ts
+./node_modules/tailwindcss/colors.js
+./node_modules/tailwindcss/components.css
+./node_modules/tailwindcss/defaultConfig.d.ts
+./node_modules/tailwindcss/defaultConfig.js
+./node_modules/tailwindcss/defaultTheme.d.ts
+./node_modules/tailwindcss/defaultTheme.js
+./node_modules/tailwindcss/loadConfig.d.ts
+./node_modules/tailwindcss/loadConfig.js
+./node_modules/tailwindcss/package.json
+./node_modules/tailwindcss/plugin.d.ts
+./node_modules/tailwindcss/plugin.js
+./node_modules/tailwindcss/prettier.config.js
+./node_modules/tailwindcss/resolveConfig.d.ts
+./node_modules/tailwindcss/resolveConfig.js
+./node_modules/tailwindcss/screens.css
+./node_modules/tailwindcss/tailwind.css
+./node_modules/tailwindcss/utilities.css
+./node_modules/tailwindcss/variants.css
+./node_modules/thenify-all/README.md
+./node_modules/thenify-all/index.js
+./node_modules/thenify-all/package.json
+./node_modules/thenify/README.md
+./node_modules/thenify/index.js
+./node_modules/thenify/package.json
+./node_modules/tinyglobby/README.md
+./node_modules/tinyglobby/package.json
+./node_modules/to-regex-range/README.md
+./node_modules/to-regex-range/index.js
+./node_modules/to-regex-range/package.json
+./node_modules/ts-interface-checker/README.md
+./node_modules/ts-interface-checker/package.json
+./node_modules/tslib/README.md
+./node_modules/tslib/package.json
+./node_modules/undici-types/README.md
+./node_modules/undici-types/index.d.ts
+./node_modules/undici-types/package.json
+./node_modules/update-browserslist-db/README.md
+./node_modules/update-browserslist-db/index.d.ts
+./node_modules/update-browserslist-db/index.js
+./node_modules/update-browserslist-db/package.json
+./node_modules/util-deprecate/README.md
+./node_modules/util-deprecate/package.json
+./node_modules/vite/LICENSE.md
+./node_modules/vite/README.md
+./node_modules/vite/client.d.ts
+./node_modules/vite/index.cjs
+./node_modules/vite/index.d.cts
+./node_modules/vite/package.json
+./node_modules/web-vitals/README.md
+./node_modules/web-vitals/package.json
+./node_modules/websocket-driver/README.md
+./node_modules/websocket-driver/package.json
+./node_modules/websocket-extensions/README.md
+./node_modules/websocket-extensions/package.json
+./node_modules/wrap-ansi/index.js
+./node_modules/wrap-ansi/package.json
+./node_modules/y18n/README.md
+./node_modules/y18n/index.mjs
+./node_modules/y18n/package.json
+./node_modules/yallist/README.md
+./node_modules/yallist/package.json
+./node_modules/yargs-parser/README.md
+./node_modules/yargs-parser/package.json
+./node_modules/yargs/README.md
+./node_modules/yargs/index.cjs
+./node_modules/yargs/index.mjs
+./node_modules/yargs/package.json
+./package-lock.json
+./package.json
+./postcss.config.js
+./src/firebase/auth.js
+./src/firebase/competitiveFirebase.js
+./src/firebase/config.js
+./src/firebase/database.js
+./src/firebase/firebasePublicConfig.js
+./src/firebase/gameSync.js
+./src/firebase/joinDiagnostics.js
+./src/firebase/roomService.js
+./src/firebase/voiceRoom.js
+./src/index.css
+./tailwind.config.js
+./vite.config.js
+## Route declarations
+src/App.jsx:2:import { Routes, Route, useLocation } from 'react-router-dom';
+src/App.jsx:157:            <Routes>
+src/App.jsx:158:            <Route path="/" element={<LobbyPage />} />
+src/App.jsx:159:            <Route path="/one-v-one" element={<LobbyPage />} />
+src/App.jsx:160:            <Route path="/game" element={<GameBoardPage />} />
+src/App.jsx:161:            <Route path="/results" element={<GameResultsPage />} />
+src/App.jsx:162:            <Route path="/admin" element={<AdminGateway />} />
+src/App.jsx:163:            <Route path="/tournament" element={<TournamentPage />} />
+src/App.jsx:164:            <Route path="/team-battle" element={<TeamBattlePage />} />
+src/App.jsx:165:            <Route path="/daily" element={<DailyGuessPage />} />
+src/App.jsx:166:            <Route path="/how-to-play" element={<HowToPlayPage />} />
+src/App.jsx:167:            </Routes>
+src/components/SessionRouteRestore.jsx:25:        navigate('/game', { replace: true });
+src/components/SessionRouteRestore.jsx:34:        navigate('/results', { replace: true });
+src/components/SessionRouteRestore.jsx:40:        navigate(lobbyPath, { replace: true });
+src/components/layout/BottomNavBar.jsx:29:    navigate(destination.path);
+src/components/layout/BottomNavBar.jsx:49:            to={item.path}
+src/components/layout/BottomNavBar.jsx:60:                navigate(item.path);
+src/components/layout/NavigationDrawer.jsx:63:              to={item.path}
+src/components/layout/NavigationDrawer.jsx:81:          to="/admin"
+src/components/layout/TopAppBar.jsx:48:        to="/admin"
+src/main.jsx:5:import { BrowserRouter } from 'react-router-dom'
+src/main.jsx:10:    <BrowserRouter basename={import.meta.env.BASE_URL}>
+src/main.jsx:14:    </BrowserRouter>
+src/pages/AdminGateway.jsx:43:          <Link to="/" className="font-body-sm text-body-sm text-on-surface-variant hover:text-primary-fixed transition-colors">
+src/pages/CompetitiveModePage.jsx:93:function TournamentBoard({ state, actions, category, setCategory, run, navigate, pendingAction }) { const playerMatches = Object.values(state.matches || {}).filter((match) => match.playerIds?.includes(actions.playerId)); const activeMatches = playerMatches.filter((match) => match.status === 'playing'); const revealMatches = playerMatches.filter((match) => match.status === 'round_result'); const activeMatch = activeMatches.length === 1 ? activeMatches[0] : null; const revealMatch = revealMatches.length === 1 ? revealMatches[0] : null; if (state.phase === MODE_PHASES.TRANSITION) return <TournamentTransition state={state} />; if (activeMatches.length > 1 || revealMatches.length > 1) return <section role="alert" className="ng-tournament-phase-card ng-tournament-conflict glass-panel rounded-2xl p-6 text-center"><span className="ng-tournament-waiting__icon material-symbols-outlined" aria-hidden="true">sync_problem</span><h2 className="font-headline-sm text-headline-sm text-error">MATCH STATE CONFLICT</h2><p className="mt-2 text-on-surface-variant">Your player identity is attached to more than one active tournament branch. Waiting for synchronized state instead of showing another match&apos;s target.</p></section>; if (revealMatch) return <TournamentRoundReveal state={state} match={revealMatch} />; if (state.phase === MODE_PHASES.RESULTS && state.status === 'finished') return <TournamentFinal state={state} actions={actions} category={category || state.category} setCategory={setCategory} isHost={state.hostId === actions.playerId} onRetry={(nextCategory) => run(() => actions.resetTournament(nextCategory), 'retry')} onLobby={() => run(actions.leave, 'leave')} onHome={() => run(async () => { await actions.leave(); navigate('/'); }, 'leave')} pendingAction={pendingAction} />; const completedMatch = Object.values(state.matches || {}).find((match) => match.status === 'finished' && match.playerIds.includes(actions.playerId) && match.result); const finishedSemis = [state.matches.semi_a, state.matches.semi_b].every((match) => match.status === 'finished'); return <div className="ng-tournament-board space-y-6"><div className="ng-tournament-bracket ng-tournament-bracket--semifinals grid sm:grid-cols-2 gap-4"><BracketMatch match={state.matches.semi_a} state={state} active={activeMatch?.matchId === 'semi_a'} /><BracketMatch match={state.matches.semi_b} state={state} active={activeMatch?.matchId === 'semi_b'} /></div><div className="ng-tournament-flow-divider flex justify-center text-secondary-fixed font-label-caps" role="note">WINNERS ADVANCE · LOSERS PLAY FOR 3RD</div><div className="ng-tournament-bracket ng-tournament-bracket--next ng-tournament-bracket--progression grid sm:grid-cols-2 gap-4"><BracketMatch match={state.matches.final} state={state} active={activeMatch?.matchId === 'final'} /><BracketMatch match={state.matches.consolation} state={state} active={activeMatch?.matchId === 'consolation'} /></div>{activeMatch ? <TournamentGameplay state={state} actions={actions} match={activeMatch} /> : completedMatch ? <TournamentMatchResult state={state} match={completedMatch} /> : finishedSemis ? <TournamentTransition state={state} actions={actions} /> : <div className="ng-tournament-phase-card ng-tournament-waiting glass-panel rounded-xl p-5 text-center text-on-surface-variant"><span className="ng-tournament-waiting__icon material-symbols-outlined" aria-hidden="true">hourglass_top</span><div className="ng-tournament-phase-eyebrow font-label-caps text-label-caps text-primary-fixed">MATCH HANDOFF</div><p className="ng-tournament-waiting__copy mt-2">You are waiting for your assigned match to begin. The bracket is synchronized by Firebase.</p></div>}</div>; }
+src/pages/CompetitiveModePage.jsx:96:      <TeamResult state={state} actions={actions} onDashboard={() => navigate('/')} />
+src/pages/DailyGuessPage.jsx:103:            <button type="button" onClick={() => navigate('/')} className="ng-interactive min-h-11 w-full sm:w-auto px-3 sm:px-5 py-3 rounded-lg text-sm sm:text-base border border-white/20 text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-dim">BACK TO LOBBY</button>
+src/pages/DailyGuessPage.jsx:132:          <button type="button" onClick={() => navigate('/')} aria-label="Back to lobby" className="ng-interactive rounded-lg border border-white/15 p-2 text-on-surface-variant hover:text-white hover:bg-white/10">
+src/pages/GameBoardPage.jsx:108:    if (phase === GAME_PHASES.ROUND_END) navigate('/results');
+src/pages/GameBoardPage.jsx:109:    if (phase === GAME_PHASES.VOTING)    navigate('/results');
+src/pages/GameBoardPage.jsx:110:    if (phase === GAME_PHASES.RESULTS)   navigate('/results');
+src/pages/GameBoardPage.jsx:111:    if (phase === GAME_PHASES.LOBBY)     navigate(mode === GAME_MODES.ONE_V_ONE ? '/one-v-one' : '/');
+src/pages/GameBoardPage.jsx:118:      navigate('/results');
+src/pages/GameBoardPage.jsx:190:      navigate('/');
+src/pages/GameResultsPage.jsx:61:    if (phase === GAME_PHASES.PREVIEW) navigate('/game');
+src/pages/GameResultsPage.jsx:62:    if (phase === GAME_PHASES.LOBBY) navigate(mode === GAME_MODES.ONE_V_ONE ? '/one-v-one' : '/');
+src/pages/GameResultsPage.jsx:139:      navigate(mode === GAME_MODES.ONE_V_ONE ? '/one-v-one' : '/');
+src/pages/GameResultsPage.jsx:153:      navigate(mode === GAME_MODES.ONE_V_ONE ? '/one-v-one' : '/');
+src/pages/HowToPlayPage.jsx:171:          <button type="button" onClick={() => navigate('/')} aria-label={isArabic ? 'العودة إلى الردهة' : 'Back to lobby'} className="ng-interactive rounded-lg border border-white/15 p-2 text-on-surface-variant hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed/70">
+src/pages/HowToPlayPage.jsx:229:      <button type="button" onClick={() => navigate('/')} className="ng-interactive mt-6 min-h-11 w-full rounded-lg border border-primary-fixed/40 px-4 py-3 font-label-caps text-label-caps text-primary-fixed hover:bg-primary-fixed/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed/70">{isArabic ? 'العودة إلى الردهة' : 'BACK TO LOBBY'}</button>
+src/pages/LobbyPage.jsx:42:      navigate('/one-v-one');
+src/pages/LobbyPage.jsx:46:      navigate('/team-battle');
+src/pages/LobbyPage.jsx:49:    navigate('/tournament');
+src/pages/LobbyPage.jsx:196:        navigate('/game');
+src/pages/LobbyPage.jsx:202:        navigate('/results');
+src/pages/LobbyPage.jsx:251:      navigate('/game');
+src/pages/LobbyPage.jsx:310:          <button type="button" onClick={() => navigate('/team-battle')} className="premium-cta touch-feedback min-h-12 w-full lg:w-auto shrink-0 bg-secondary-fixed/15 border border-secondary-fixed/50 text-secondary-fixed hover:bg-secondary-fixed/25 transition-colors" aria-label="Open 2v2 Team Battle">
+src/pages/LobbyPage.jsx:333:            <button type="button" onClick={() => navigate('/one-v-one')} className="premium-cta touch-feedback min-h-12 w-full lg:w-auto shrink-0 bg-primary-fixed/15 border border-primary-fixed/50 text-primary-fixed hover:bg-primary-fixed/25 transition-colors" aria-label="Open 1v1 Guess Who" aria-pressed={mode === GAME_MODES.ONE_V_ONE}>
+src/pages/LobbyPage.jsx:354:          <button type="button" onClick={() => navigate('/daily')} className="premium-cta touch-feedback shrink-0 w-full sm:w-auto bg-secondary-fixed/15 border border-secondary-fixed/40 text-secondary-fixed hover:bg-secondary-fixed/25 transition-colors">
+src/pages/LobbyPage.jsx:359:      <button type="button" onClick={() => navigate('/how-to-play')} className="group mx-auto flex min-h-11 items-center gap-2 rounded-full border border-primary-fixed/25 bg-primary-fixed/5 px-4 py-2.5 text-primary-fixed shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-primary-fixed/55 hover:bg-primary-fixed/10 hover:shadow-[0_12px_30px_rgba(0,0,0,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed/70">
+## Firebase/auth writers and listeners
+src/context/CompetitiveModeContext.jsx:60:      const roundOffset = tournamentTargetOffset(match.matchId, match.roundNumber);
+src/context/CompetitiveModeContext.jsx:282:      next = startMatch(next, TOURNAMENT_MATCH_IDS.SEMI_A, targetMapForTournament(category, next.matches[TOURNAMENT_MATCH_IDS.SEMI_A].playerIds, { roomSeed: getTournamentRoomSeed(next, roomId), offset: tournamentTargetOffset(TOURNAMENT_MATCH_IDS.SEMI_A, 1) ?? 0 }));
+src/context/CompetitiveModeContext.jsx:283:      next = startMatch(next, TOURNAMENT_MATCH_IDS.SEMI_B, targetMapForTournament(category, next.matches[TOURNAMENT_MATCH_IDS.SEMI_B].playerIds, { roomSeed: getTournamentRoomSeed(next, roomId), offset: tournamentTargetOffset(TOURNAMENT_MATCH_IDS.SEMI_B, 1) ?? 0 }));
+src/context/CompetitiveModeContext.jsx:300:  const resetTournament = useCallback(async (category = state?.category) => { if (mode !== COMPETITIVE_MODES.TOURNAMENT) throw new Error('Tournament retry is only available in Four-player mode.'); if (!state || state.hostId !== playerId) throw new Error('Only the host can retry this tournament.'); const rawPlayers = Object.values(state.players || {}).sort((a, b) => (Number(a.joinOrder) || 999) - (Number(b.joinOrder) || 999)); if (rawPlayers.length !== 4) throw new Error('Exactly four players are required to retry.'); let next = createTournamentState({ tournamentId: roomId, roomId, players: rawPlayers, category, hostId: playerId }); next = startMatch(next, TOURNAMENT_MATCH_IDS.SEMI_A, targetMapForTournament(category, next.matches[TOURNAMENT_MATCH_IDS.SEMI_A].playerIds, { roomSeed: getTournamentRoomSeed(next, roomId), offset: tournamentTargetOffset(TOURNAMENT_MATCH_IDS.SEMI_A, 1) ?? 0 })); next = startMatch(next, TOURNAMENT_MATCH_IDS.SEMI_B, targetMapForTournament(category, next.matches[TOURNAMENT_MATCH_IDS.SEMI_B].playerIds, { roomSeed: getTournamentRoomSeed(next, roomId), offset: tournamentTargetOffset(TOURNAMENT_MATCH_IDS.SEMI_B, 1) ?? 0 })); await writeCompetitiveState({ mode, roomId, state: next }); await writePrivateTargets(mode, roomId, next); saveSession(mode, { roomId, playerId, playerName, resumeAfterRefresh: true }); }, [mode, playerId, playerName, roomId, state]);
+src/context/CompetitiveModeContext.jsx:335:        : targetMapForTournament(resolved.category, currentMatch.playerIds, { roomSeed: getTournamentRoomSeed(resolved, roomId), offset: tournamentTargetOffset(matchId, currentMatch.roundNumber) ?? 0 });
+src/context/CompetitiveModeContext.jsx:360:        const targets = targetMapForTournament(current.category, match.playerIds, { roomSeed: getTournamentRoomSeed(current, roomId), offset: tournamentTargetOffset(matchId, Number(match.roundNumber) + 1) ?? 0 });
+src/context/CompetitiveModeContext.jsx:377:      return startNextTournamentMatches(current, { [TOURNAMENT_MATCH_IDS.FINAL]: targetMapForTournament(current.category, finalIds, { roomSeed: getTournamentRoomSeed(current, roomId), offset: tournamentTargetOffset(TOURNAMENT_MATCH_IDS.FINAL, 1) ?? 0 }), [TOURNAMENT_MATCH_IDS.CONSOLATION]: targetMapForTournament(current.category, consolationIds, { roomSeed: getTournamentRoomSeed(current, roomId), offset: tournamentTargetOffset(TOURNAMENT_MATCH_IDS.CONSOLATION, 1) ?? 0 }) });
+src/context/CompetitiveModeContext.jsx:449:    revealDeadlineRef.current.set(revealKey, effectiveRevealEndTimestamp);
+src/context/CompetitiveModeContext.jsx:483:      revealDeadlineRef.current.set(revealKey, effectiveRevealEndTimestamp);
+src/firebase/auth.js:10:import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+src/firebase/auth.js:114:        await signInAnonymously(auth);
+src/firebase/competitiveFirebase.js:1:import { child, get, onDisconnect, onValue, ref, remove, runTransaction, set, update } from 'firebase/database';
+src/firebase/competitiveFirebase.js:67:  return onValue(ref(db, '.info/connected'), (snapshot) => {
+src/firebase/competitiveFirebase.js:101:  onDisconnect(presenceRef).set(false);
+src/firebase/competitiveFirebase.js:110:    const result = await runTransaction(target, (current) => {
+src/firebase/competitiveFirebase.js:122:    const result = await runTransaction(child(roomRef(mode, roomId), `teamSeats/${seatId}`), (current) => {
+src/firebase/competitiveFirebase.js:133:  await runTransaction(child(roomRef(mode, roomId), `teamSeats/${seatId}`), (current) => {
+src/firebase/competitiveFirebase.js:142:  await runTransaction(target, (current) => {
+src/firebase/competitiveFirebase.js:154:  const result = await runTransaction(target, (current) => current || {
+src/firebase/competitiveFirebase.js:194:      await update(child(target, `players/${player.id}`), { connected: true });
+src/firebase/competitiveFirebase.js:216:    await set(child(target, `players/${player.id}`), nextPlayer);
+src/firebase/competitiveFirebase.js:247:    await set(child(target, `players/${playerId}/teamId`), teamId);
+src/firebase/competitiveFirebase.js:268:    await update(target, { [`players/${playerId}`]: null, [`removedPlayers/${playerId}`]: true });
+src/firebase/competitiveFirebase.js:273:    await update(target, { [`players/${playerId}`]: null, [`removedPlayers/${playerId}`]: true });
+src/firebase/competitiveFirebase.js:275:  if (db) await remove(ref(db, `${PRIVATE_ROOTS[mode]}/${roomId}/${playerId}`));
+src/firebase/competitiveFirebase.js:284:    await remove(target);
+src/firebase/competitiveFirebase.js:285:    if (db) await remove(ref(db, `${PRIVATE_ROOTS[mode]}/${roomId}`));
+src/firebase/competitiveFirebase.js:291:    await update(target, {
+src/firebase/competitiveFirebase.js:296:    if (db) await remove(ref(db, `${PRIVATE_ROOTS[mode]}/${roomId}/${playerId}`));
+src/firebase/competitiveFirebase.js:299:  const result = await runTransaction(target, (current) => {
+src/firebase/competitiveFirebase.js:306:  if (db) await remove(ref(db, `${PRIVATE_ROOTS[mode]}/${roomId}/${playerId}`));
+src/firebase/competitiveFirebase.js:340:  const result = await runTransaction(guessRef, (current) => current || {
+src/firebase/competitiveFirebase.js:355:  const result = await runTransaction(confirmationRef, (current) => current || {
+src/firebase/competitiveFirebase.js:369:  const result = await runTransaction(target, (current) => (current ? sanitizePublicState(mutate(clone(current))) : current));
+src/firebase/competitiveFirebase.js:376:  await set(target, { ...sanitizePublicState(state), roomId, mode, updatedAt: Date.now() });
+src/firebase/competitiveFirebase.js:382:  await set(targetRef, clone({ ...target, playerId, targetId: target.targetId || target.id, matchId, targetReady: true }));
+src/firebase/competitiveFirebase.js:388:  return onValue(target, (snapshot) => onTarget(snapshot.exists() ? snapshot.val() : null), onError);
+src/firebase/competitiveFirebase.js:394:  return onValue(target, (snapshot) => onState(snapshot.exists() ? snapshot.val() : null), onError);
+src/firebase/competitiveFirebase.js:402:  return onValue(messagesTarget, (snapshot) => {
+src/firebase/competitiveFirebase.js:418:  await set(child(target, `messages/${messageId}`), {
+src/firebase/database.js:12:  onValue,
+src/firebase/database.js:14:  onDisconnect,
+src/firebase/database.js:17:  runTransaction,
+src/firebase/database.js:27:  onValue,
+src/firebase/database.js:29:  onDisconnect,
+src/firebase/database.js:32:  runTransaction,
+src/firebase/gameSync.js:16:import { ref, set, update, get, push, onValue, off, runTransaction } from 'firebase/database';
+src/firebase/gameSync.js:47:  await update(ref(db), updates);
+src/firebase/gameSync.js:59:  await runTransaction(roomRef, (current) => {
+src/firebase/gameSync.js:118:  if (Object.keys(privateUpdates).length) await update(ref(db), privateUpdates);
+src/firebase/gameSync.js:135:  await runTransaction(roomRef, (current) => {
+src/firebase/gameSync.js:155:  await set(msgRef, messageData);
+src/firebase/gameSync.js:166:  await set(msgRef, answer);
+src/firebase/gameSync.js:175:  await runTransaction(roomRef, (current) => {
+src/firebase/gameSync.js:270:    if (Object.keys(privateUpdates).length) await update(ref(db), privateUpdates);
+src/firebase/gameSync.js:280:  await runTransaction(roomRef, (current) => {
+src/firebase/gameSync.js:325:  await update(ref(db), updates);
+src/firebase/gameSync.js:335:  await set(elimRef, eliminatedCards);
+src/firebase/gameSync.js:343:  await set(voteRef, { voterId, targetId, timestamp: Date.now() });
+src/firebase/gameSync.js:355:  await update(ref(db), updates);
+src/firebase/gameSync.js:412:  await update(ref(db), updates);
+src/firebase/gameSync.js:419:  await update(ref(db), { [`rooms/${code}/category`]: category });
+src/firebase/gameSync.js:458:  await update(ref(db), updates);
+src/firebase/gameSync.js:481:  const roomUnsub = onValue(roomRef, (snap) => {
+src/firebase/gameSync.js:485:  const msgUnsub = onValue(messagesRef, (snap) => {
+src/firebase/gameSync.js:493:  const actionsUnsub = onValue(actionsRef, (snap) => {
+src/firebase/gameSync.js:515:  const unsub = onValue(displayRef, (snap) => {
+src/firebase/gameSync.js:543:  onValue(privateRef, handleSnap);
+src/firebase/roomService.js:6:import { getRoomRef, set, get, update, onDisconnect, runTransaction, db, ref } from './database.js';
+src/firebase/roomService.js:26:    const result = await runTransaction(slotRef, (current) => {
+src/firebase/roomService.js:150:  const result = await runTransaction(roomRef, (current) => current ?? roomData);
+src/firebase/roomService.js:240:    playerResult = await runTransaction(playerRef, (currentPlayer) => {
+src/firebase/roomService.js:257:      await update(ref(db), { [`rooms/${normalizedCode}/scores/${player.id}`]: 0 });
+src/firebase/roomService.js:318:  await update(ref(db), updates);
+src/firebase/roomService.js:330:  await remove(roomRef);
+src/firebase/roomService.js:338:  onDisconnect(playerConnectedRef).set(false);
+src/firebase/voiceRoom.js:3:  onValue,
+src/firebase/voiceRoom.js:4:  onDisconnect,
+src/firebase/voiceRoom.js:30:  return onValue(callsRef, (snapshot) => callback(snapshot.val() || {}));
+src/firebase/voiceRoom.js:43:  await set(callRef, {
+src/firebase/voiceRoom.js:67:  await onDisconnect(participantRef).remove();
+src/firebase/voiceRoom.js:69:  await set(participantRef, {
+src/firebase/voiceRoom.js:76:  return () => remove(participantRef);
+src/firebase/voiceRoom.js:85:  await onDisconnect(participantRef).cancel().catch(() => {});
+src/firebase/voiceRoom.js:86:  await remove(participantRef);
+src/firebase/voiceRoom.js:95:  return onValue(signalRef, (snapshot) => callback(snapshot.val() || {}));
+src/firebase/voiceRoom.js:113:  await remove(signalRef);
+src/firebase/voiceRoom.js:138:  await onDisconnect(signalRef).remove();
+src/firebase/voiceRoom.js:139:  await set(signalRef, { ...payload, createdAt: serverTimestamp() });
+src/hooks/useVoiceRoom.js:79:      audio.remove();
+src/hooks/useVoiceRoom.js:110:      audioElementsRef.current.set(remoteId, audio);
+src/hooks/useVoiceRoom.js:144:            recoveryAttemptsRef.current.set(remoteId, attempts + 1);
+src/hooks/useVoiceRoom.js:155:          recoveryTimersRef.current.set(remoteId, timer);
+src/hooks/useVoiceRoom.js:160:    peersRef.current.set(remoteId, peer);
+src/hooks/useVoiceRoom.js:162:      makingOfferRef.current.set(remoteId, true);
+src/hooks/useVoiceRoom.js:171:        makingOfferRef.current.set(remoteId, false);
+src/hooks/useVoiceRoom.js:220:          pendingCandidatesRef.current.set(senderId, pending);
+src/hooks/useVoiceRoom.js:270:        signalUnsubsRef.current.set(signalKey, unsubscribe);
+src/hooks/useVoiceRoom.js:288:    audioElementsRef.current.forEach((audio) => audio.remove());
+src/modes/tournamentEngine.js:10:export function tournamentTargetOffset(matchId, roundNumber = 1) {
+src/pages/CompetitiveModePage.jsx:78:function RoomCodeCard({ roomId, openSeats }) { const [feedback, setFeedback] = useState(''); const copyRoomCode = async () => { try { if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(roomId); else { const field = document.createElement('textarea'); field.value = roomId; field.setAttribute('readonly', ''); field.style.position = 'fixed'; field.style.opacity = '0'; document.body.appendChild(field); field.select(); document.execCommand('copy'); field.remove(); } setFeedback('COPIED'); window.setTimeout(() => setFeedback(''), 1800); } catch { setFeedback('COPY FAILED'); } }; const shareRoom = async () => { if (navigator.share) { try { await navigator.share({ title: 'NEON GUESS 2v2 Team Battle', text: `Join my NEON GUESS room with code ${roomId}.`, url: window.location.href }); setFeedback('SHARED'); window.setTimeout(() => setFeedback(''), 1800); return; } catch (error) { if (error?.name === 'AbortError') return; } } await copyRoomCode(); }; return <section className="ng-room-invite-card ng-competitive-surface rounded-2xl border border-primary-fixed/40 bg-primary-fixed/10 p-3 sm:p-4 space-y-3 shadow-[0_14px_44px_rgba(0,0,0,0.18)]" aria-label="Room invitation code"><div className="ng-room-invite-header flex flex-wrap items-start justify-between gap-2"><div className="ng-room-invite-copy"><p className="font-label-caps text-label-caps text-primary-fixed">INVITE YOUR SQUAD</p><h3 className="font-headline-sm text-white mt-1">ROOM CODE</h3><p className="text-sm text-on-surface-variant mt-1">Send this code to the other players, then they choose <span className="text-white">Join Room</span> and paste it.</p></div><span className="ng-room-invite-icon material-symbols-outlined text-primary-fixed text-2xl" aria-hidden="true">qr_code_2</span></div><div className="ng-room-invite-code-row flex flex-col sm:flex-row gap-2"><output className="ng-room-invite-code flex-1 min-h-14 rounded-xl bg-black/30 border border-primary-fixed/30 px-3 py-2 font-stats-num text-xl tracking-[0.22em] text-primary-fixed text-center" aria-label={`Room code ${roomId}`}>{roomId}</output><div className="ng-room-invite-actions ng-button-cluster flex gap-2"><button type="button" onClick={copyRoomCode} className="ng-interactive touch-feedback button-click-motion group min-h-12 flex-1 sm:flex-none rounded-xl border border-primary-fixed/50 bg-primary-fixed/5 px-4 py-3 text-primary-fixed font-label-caps text-label-caps shadow-[0_8px_24px_rgba(0,0,0,0.14)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-primary-fixed/80 hover:bg-primary-fixed/15 hover:shadow-[0_12px_30px_rgba(0,0,0,0.22)] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed focus-visible:ring-offset-2 focus-visible:ring-offset-surface" aria-label={`Copy room code ${roomId}`}><span className="material-symbols-outlined align-middle text-[18px]">content_copy</span> {feedback === 'COPIED' ? 'COPIED' : 'COPY'}</button><button type="button" onClick={shareRoom} className="ng-interactive touch-feedback button-click-motion min-h-12 flex-1 sm:flex-none rounded-xl bg-primary-fixed px-4 py-3 text-on-primary-fixed font-label-caps text-label-caps focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed" aria-label={`Share room ${roomId}`}><span className="material-symbols-outlined align-middle text-[18px]">share</span> SHARE</button></div></div><div className="ng-room-invite-footer flex items-center justify-between text-xs text-on-surface-variant" role="status" aria-live="polite"><span>{openSeats} {openSeats === 1 ? 'seat remains' : 'seats remain'}.</span>{feedback && <span className={feedback.includes('FAILED') ? 'text-error' : 'text-primary-fixed'}>{feedback}</span>}</div></section>; }

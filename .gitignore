@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Local browser QA captures may contain room/player/session identifiers.
+qa-*-state.json
+qa-*-state.txt
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

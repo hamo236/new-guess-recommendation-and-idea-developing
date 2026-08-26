@@ -163,7 +163,7 @@ A simple demonstration script is:
 
 ## Website Link
 
-**NEON GUESS:** [https://hamo236.github.io/neon-guess-game-public/](https://hamo236.github.io/neon-guess-game-public/)
+**NEON GUESS:** [https://hamo236.github.io/new-guess-recommendation-and-idea-developing/](https://hamo236.github.io/new-guess-recommendation-and-idea-developing/)
 
 ---
 

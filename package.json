@@ -9,6 +9,7 @@
     "test:image-paths": "node scripts/check-image-paths.mjs",
     "test:image-paths:built": "node scripts/check-built-image-paths.mjs",
     "test:removed-player": "node scripts/check-removed-player.mjs",
+    "test:pages-routes": "node scripts/pages-routes-contract.test.mjs",
     "dev": "vite",
     "build": "vite build && node scripts/copy-pages-fallback.mjs"
   },

@@ -48,3 +48,9 @@ The direct live REST probe showed anonymous Auth HTTP 200 and an authenticated i
 ## Remaining release gate
 
 The patched Rules are not live until the owner pastes this updated `database.rules.json` into the Realtime Database Rules tab for the Test project and clicks Publish. Live 1v1 Create Room verification therefore remains BLOCKED pending that manual publish; no claim of live success is made before it.
+
+## Post-publish verification attempt
+
+After the owner reported publishing the updated Rules, a fresh anonymous-authenticated Web SDK probe still received `permission_denied` on the fresh `rooms/<probe>` transaction. The probe confirmed Auth succeeded, but an authenticated REST GET of a nonexistent room returned HTTP 401 `Permission denied`; this is inconsistent with the newly committed `!data.exists()` read condition and indicates the live database/rules endpoint has not yet received the intended rule set, or the console publish targeted a different database instance. The live 1v1 browser flow also still displayed `permission_denied`.
+
+The Firebase Console Rules URL was opened, but the available browser session reached Google sign-in, so the active live Rules text could not be independently inspected in this session. No further live write was attempted.

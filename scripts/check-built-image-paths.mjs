@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const expectedBase = process.env.EXPECTED_IMAGE_BASE || '/neon-guess-game-public/';
+const expectedBase = process.env.EXPECTED_IMAGE_BASE || '/new-guess-recommendation-and-idea-developing/';
 const jsFiles = readdirSync('dist/assets').filter((file) => file.endsWith('.js'));
 const bundle = jsFiles.map((file) => readFileSync(join('dist/assets', file), 'utf8')).join('\n');
 const baseLiteral = JSON.stringify(expectedBase);

@@ -6692,3 +6692,31 @@
     transform: none;
   }
 }
+
+
+/* Readiness visual pass: focus clarity for room-entry controls. Presentation-only. */
+@layer utilities {
+  .ng-room-entry-actions > button:focus-visible,
+  .ng-lobby-setup-switch > button:focus-visible {
+    outline: 2px solid rgba(125, 244, 255, 0.92);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 4px rgba(125, 244, 255, 0.14), 0 0 22px rgba(125, 244, 255, 0.18);
+  }
+
+  .ng-room-name-field:focus-within,
+  .ng-room-category-field:focus-within,
+  .ng-room-join-field:focus-within {
+    border-color: rgba(125, 244, 255, 0.72);
+    box-shadow: 0 0 0 3px rgba(125, 244, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ng-room-entry-actions > button:focus-visible,
+    .ng-lobby-setup-switch > button:focus-visible,
+    .ng-room-name-field:focus-within,
+    .ng-room-category-field:focus-within,
+    .ng-room-join-field:focus-within {
+      transition: none;
+    }
+  }
+}
