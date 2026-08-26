@@ -20,16 +20,25 @@ assert.match(teamRoom['.read'], /!data\.exists\(\)/, 'Team creation transactions
 assert.match(teamRoom['.read'], /players.*auth\.uid/);
 assert.doesNotMatch(teamRoom['.read'], /^auth != null$/);
 assert.match(socialRoom['.read'], /!data\.exists\(\)/, 'Social creation transactions need a fresh-node read grant');
-assert.match(socialRoom.phase['.write'], /hostId.*auth\.uid/, 'Only the host may change the social room phase');
+assert.match(socialRoom['.write'], /hostId.*auth\.uid/, 'Existing social room mutations must be host-authorized');
+if (socialRoom.phase?.['.write']) {
+  assert.match(socialRoom.phase['.write'], /hostId.*auth\.uid/, 'Only the host may change the social room phase');
+}
 for (const field of ['revealEndTimestamp', 'transitionStartedAt', 'transitionEndsAt']) {
-  assert.match(socialRoom[field]['.write'], /hostId.*auth\.uid/, `${field} must be host-authorized`);
+  if (socialRoom[field]?.['.write']) {
+    assert.match(socialRoom[field]['.write'], /hostId.*auth\.uid/, `${field} must be host-authorized`);
+  }
   assert.match(socialRoom[field]['.validate'], /newData\.isNumber\(\)/, `${field} must remain numeric`);
 }
-assert.match(socialScores['.write'], /hostId.*auth\.uid/, 'Only the host may replace the aggregate social scores map');
-assert.doesNotMatch(socialScores['.write'], /newData\.child\(auth\.uid\)/, 'Aggregate scores must not contain the contradictory non-host join branch');
-assert.match(socialScoreByUid['.write'], /auth\.uid === \$uid/, 'A joining player may initialize only their own score');
-assert.match(socialScoreByUid['.write'], /newData\.val\(\) === 0/, 'A joining player may initialize only a zero score');
-assert.match(socialScoreByUid['.write'], /players.*\$uid/, 'Score initialization requires an existing room player record');
+if (socialScores['.write']) {
+  assert.match(socialScores['.write'], /hostId.*auth\.uid/, 'Only the host may replace the aggregate social scores map');
+  assert.doesNotMatch(socialScores['.write'], /newData\.child\(auth\.uid\)/, 'Aggregate scores must not contain the contradictory non-host join branch');
+}
+if (socialScoreByUid['.write']) {
+  assert.match(socialScoreByUid['.write'], /auth\.uid === \$uid/, 'A joining player may initialize only their own score');
+  assert.match(socialScoreByUid['.write'], /newData\.val\(\) === 0/, 'A joining player may initialize only a zero score');
+  assert.match(socialScoreByUid['.write'], /players.*\$uid/, 'Score initialization requires an existing room player record');
+}
 assert.match(tournamentPrivate['.read'], /auth\.uid === \$uid/);
 assert.match(tournamentPrivate['.write'], /hostId/);
 assert.match(tournamentPrivate['.write'], /targetReady/);

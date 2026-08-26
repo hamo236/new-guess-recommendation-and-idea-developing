@@ -5,8 +5,9 @@ import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebas
 const rules = readFileSync(new URL('../database.rules.json', import.meta.url), 'utf8');
 const testEnv = await initializeTestEnvironment({
   projectId: 'neon-guess-test-emulator',
-  database: { rules },
+    database: { rules, host: process.env.FIREBASE_DATABASE_EMULATOR_HOST || '127.0.0.1', port: Number(process.env.FIREBASE_DATABASE_EMULATOR_PORT || 9001) },
 });
+await testEnv.clearDatabase();
 
 try {
   const host = testEnv.authenticatedContext('host-a').database();
