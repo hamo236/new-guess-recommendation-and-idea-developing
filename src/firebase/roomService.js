@@ -3,12 +3,40 @@
  * Firebase Realtime Database room management: creation, joining, presence, disconnections.
  */
 
-import { getRoomRef, set, get, update, onDisconnect, runTransaction } from './database.js';
+import { getRoomRef, set, get, update, onDisconnect, runTransaction, db, ref } from './database.js';
 import { normalizeRoomCode } from '../game/roomManager.js';
 import { addJoinDiagnosticError, createJoinDiagnostic } from './joinDiagnostics.js';
 
 export const MAX_PLAYERS = 4;
 export const MIN_PLAYERS = 2;
+const SOCIAL_JOIN_SLOT_IDS = ['slot-1', 'slot-2', 'slot-3', 'slot-4'];
+
+function socialSlotCapacity(room) {
+  return room?.mode === '1v1' ? 2 : MAX_PLAYERS;
+}
+
+async function reserveSocialSlot({ roomCode, playerId, room }) {
+  const slots = room?.joinSlots || {};
+  const existing = SOCIAL_JOIN_SLOT_IDS.find((slotId) => slots[slotId]?.playerId === playerId);
+  if (existing) return { slotId: existing, committed: false, reconnect: true };
+  const capacity = socialSlotCapacity(room);
+  for (const slotId of SOCIAL_JOIN_SLOT_IDS.slice(0, capacity)) {
+    if (slotId === 'slot-1') continue;
+    const slotRef = getRoomRef(roomCode, `joinSlots/${slotId}`);
+    const result = await runTransaction(slotRef, (current) => {
+      if (current?.playerId) return;
+      return { playerId, joinOrder: Number(slotId.replace('slot-', '')), reservedAt: Date.now() };
+    });
+    if (result.committed && result.snapshot.val()?.playerId === playerId) {
+      return { slotId, committed: true, reconnect: false };
+    }
+  }
+  return { slotId: null, committed: false, reconnect: false };
+}
+
+function socialSlotForPlayer(room, playerId) {
+  return SOCIAL_JOIN_SLOT_IDS.find((slotId) => room?.joinSlots?.[slotId]?.playerId === playerId) || null;
+}
 
 function normalizedCodeForMatch(code) {
   return normalizeRoomCode(code);
@@ -90,6 +118,12 @@ export async function createFirebaseRoom({ code, hostPlayer, mode, category }) {
     currentTurnPlayerId: hostPlayer.id,
     timerEndTimestamp: 0,
     createdAt: Date.now(),
+    joinSlots: {
+      'slot-1': { playerId: hostPlayer.id, joinOrder: 1, reservedAt: Date.now() },
+      'slot-2': null,
+      'slot-3': null,
+      'slot-4': null,
+    },
     players: {
       [hostPlayer.id]: {
         id: hostPlayer.id,
@@ -180,6 +214,16 @@ export async function reconnectOrJoinFirebaseRoom({ code, player, onDiagnostic }
     throw addJoinDiagnosticError(error, createJoinDiagnostic({ stage: 'room-policy', error }));
   }
 
+  let reservedSlot = null;
+  if (!isReconnect) {
+    reservedSlot = await reserveSocialSlot({ roomCode: normalizedCode, playerId: player.id, room: initialRoom });
+    if (!reservedSlot.slotId) {
+      const error = new Error('Room is full.');
+      error.code = 'room/full';
+      throw addJoinDiagnosticError(error, createJoinDiagnostic({ stage: 'join-capacity', error }));
+    }
+  }
+
   const newPlayer = {
     id: player.id,
     name: player.name,
@@ -190,54 +234,37 @@ export async function reconnectOrJoinFirebaseRoom({ code, player, onDiagnostic }
   };
 
   onDiagnostic?.(createJoinDiagnostic({ stage: 'join-transaction', status: 'attempt', detail: 'Join transaction started.' }));
-  let result;
+  let playerResult;
   try {
-    result = await runTransaction(roomRef, (current) => {
-    if (!current) return current;
-    const players = current.players || {};
-
-    if (current.removedPlayers?.[player.id]) return current;
-
-    // Reconnects are identity-preserving and allowed in every phase.
-    if (players[player.id]) {
+    const playerRef = getRoomRef(normalizedCode, `players/${player.id}`);
+    playerResult = await runTransaction(playerRef, (currentPlayer) => {
+      if (initialRoom.removedPlayers?.[player.id]) return currentPlayer;
+      if (currentPlayer) {
+        return {
+          ...currentPlayer,
+          connected: true,
+          name: currentPlayer.name ?? player.name,
+        };
+      }
+      if (initialRoom.phase !== 'lobby' && initialRoom.phase !== 'results') return currentPlayer;
       return {
-        ...current,
-        players: {
-          ...players,
-          [player.id]: {
-            ...players[player.id],
-            connected: true,
-            name: players[player.id].name ?? player.name,
-          },
-        },
+        ...newPlayer,
+        joinOrder: reservedSlot?.slotId ? Number(reservedSlot.slotId.replace('slot-', '')) : currentPlayer?.joinOrder,
       };
-    }
-
-    // New identities can join only before play starts and only below capacity.
-    if (current.phase !== 'lobby' && current.phase !== 'results') return current;
-    const maxForRoom = current.mode === '1v1' ? 2 : MAX_PLAYERS;
-    if (Object.keys(players).length >= maxForRoom) return current;
-
-    return {
-      ...current,
-      players: {
-        ...players,
-        [player.id]: {
-          ...newPlayer,
-          joinOrder: Object.keys(players).length + 1,
-        },
-      },
-      scores: { ...(current.scores || {}), [player.id]: 0 },
-    }
     });
+
+    if (playerResult.committed && !isReconnect) {
+      await update(ref(db), { [`rooms/${normalizedCode}/scores/${player.id}`]: 0 });
+    }
   } catch (error) {
     onDiagnostic?.(createJoinDiagnostic({ stage: 'join-transaction', error }));
     throw addJoinDiagnosticError(error, createJoinDiagnostic({ stage: 'join-transaction', error }));
   }
 
-  const finalRoom = result.snapshot.val();
+  const finalSnapshot = await get(roomRef);
+  const finalRoom = finalSnapshot.val();
   onDiagnostic?.(createJoinDiagnostic({ stage: 'join-transaction', status: 'passed', detail: 'Firebase acknowledged the join transaction.' }));
-  if (!result.committed || !finalRoom?.players?.[player.id]) {
+  if (!playerResult.committed || !finalRoom?.players?.[player.id]) {
     const latestPhase = finalRoom?.phase ?? initialRoom.phase;
     const latestCount = Object.keys(finalRoom?.players || {}).length;
     if (latestPhase !== 'lobby' && latestPhase !== 'results') {
@@ -275,14 +302,20 @@ export async function joinFirebaseRoom(params) {
  */
 export async function removeFirebasePlayer(code, playerId) {
   const roomRef = getRoomRef(code);
-  if (!roomRef || !playerId) return;
-  await update(roomRef, {
-    [`players/${playerId}`]: null,
-    [`private/${playerId}`]: null,
-    [`scores/${playerId}`]: null,
-    [`eliminatedCards/${playerId}`]: null,
-    [`removedPlayers/${playerId}`]: true,
-  });
+  if (!roomRef || !playerId || !db) return;
+  const snapshot = await get(roomRef);
+  const room = snapshot.val() || {};
+  const slotId = socialSlotForPlayer(room, playerId);
+  const updates = {
+    [`rooms/${code}/players/${playerId}`]: null,
+    [`privateRooms/${code}/${playerId}/ownTarget`]: null,
+    [`privateRooms/${code}/${playerId}/displayTarget`]: null,
+    [`rooms/${code}/scores/${playerId}`]: null,
+    [`rooms/${code}/eliminatedCards/${playerId}`]: null,
+    [`rooms/${code}/removedPlayers/${playerId}`]: true,
+  };
+  if (slotId) updates[`rooms/${code}/joinSlots/${slotId}`] = null;
+  await update(ref(db), updates);
 }
 
 /**
@@ -323,7 +356,7 @@ export async function handleHostMigration(code, players, currentHostId) {
   const updates = {};
   updates[`rooms/${code}/hostId`] = newHost.id;
   updates[`rooms/${code}/players/${newHost.id}/isHost`] = true;
-  
+
   // Set current host's host status to false (if still in players map)
   if (players[currentHostId]) {
     updates[`rooms/${code}/players/${currentHostId}/isHost`] = false;

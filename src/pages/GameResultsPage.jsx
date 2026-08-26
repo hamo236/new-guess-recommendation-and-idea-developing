@@ -5,6 +5,7 @@ import RoundRevealPanel from '../components/game/RoundRevealPanel';
 import MatchTimeline from '../components/game/MatchTimeline';
 import RoomLeaveDialog from '../components/RoomLeaveDialog';
 import { getPlayerAvatar, getPlayerAvatarLabel, getRosterAvatarIndex } from '../ui/playerAvatars.js';
+import { getStableRevealDeadline } from '../game/revealTiming.js';
 
 const GameResultsPage = () => {
   const { state, actions, myPlayerId, GAME_PHASES, GAME_MODES, CATEGORIES, isHost, isFirebaseConfigured } = useGameContext();
@@ -20,6 +21,7 @@ const GameResultsPage = () => {
   const [selectedReaction, setSelectedReaction] = useState(null);
   const [reactionNotice, setReactionNotice] = useState('');
   const autoAdvancedRef = useRef(null);
+  const revealDeadlineRef = useRef({ key: null, deadline: 0 });
 
   const {
     phase, round, totalRounds, players, scores, roundResult,
@@ -67,8 +69,13 @@ const GameResultsPage = () => {
       return;
     }
 
+    const revealKey = `${mode}:${round}:${revealTs}`;
+    if (revealDeadlineRef.current.key !== revealKey) {
+      revealDeadlineRef.current = { key: revealKey, deadline: getStableRevealDeadline(revealTs) };
+    }
+    const effectiveRevealTs = revealDeadlineRef.current.deadline;
     const tick = () => {
-      const remaining = Math.max(0, Math.ceil((revealTs - Date.now()) / 1000));
+      const remaining = Math.max(0, Math.ceil((effectiveRevealTs - Date.now()) / 1000));
       setRevealSecondsLeft(remaining);
 
       if (remaining === 0 && autoAdvancedRef.current !== round && (isHost || !isFirebaseConfigured)) {

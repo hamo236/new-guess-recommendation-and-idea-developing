@@ -69,11 +69,81 @@ export function subscribeCompetitiveConnection({ onConnection, onError }) {
   }, onError);
 }
 
+const JOIN_SLOT_IDS = ['slot-1', 'slot-2', 'slot-3', 'slot-4'];
+const TEAM_SEAT_IDS = ['team_a_1', 'team_a_2', 'team_b_1', 'team_b_2'];
+
+function teamSeatIds(teamId) {
+  return teamId === 'team_a' ? ['team_a_1', 'team_a_2'] : ['team_b_1', 'team_b_2'];
+}
+
+function teamSeatForJoinSlot(slotId) {
+  return { 'slot-1': 'team_a_1', 'slot-2': 'team_a_2', 'slot-3': 'team_b_1', 'slot-4': 'team_b_2' }[slotId] || null;
+}
+
+function joinSlotsRef(mode, roomId) {
+  const target = roomRef(mode, roomId);
+  return target ? child(target, 'joinSlots') : null;
+}
+
+function slotNumber(slotId) {
+  return Number(String(slotId).replace('slot-', ''));
+}
+
+function teamForSlot(mode, slotId) {
+  if (mode !== 'team_battle') return null;
+  return slotNumber(slotId) <= 2 ? 'team_a' : 'team_b';
+}
+
 function setupPresence(mode, roomId, playerId) {
   const target = roomRef(mode, roomId);
   if (!target) return;
   const presenceRef = child(target, `players/${playerId}/connected`);
   onDisconnect(presenceRef).set(false);
+}
+
+async function reserveCompetitiveSlot({ mode, roomId, playerId, roomSnapshot }) {
+  const slots = roomSnapshot?.joinSlots || {};
+  const existing = JOIN_SLOT_IDS.find((slotId) => slots[slotId]?.playerId === playerId);
+  if (existing) return { slotId: existing, committed: false, reconnect: true };
+  for (const slotId of JOIN_SLOT_IDS.slice(1)) {
+    const target = child(joinSlotsRef(mode, roomId), slotId);
+    const result = await runTransaction(target, (current) => {
+      if (current?.playerId) return;
+      return { playerId, joinOrder: slotNumber(slotId), reservedAt: Date.now() };
+    });
+    if (result.committed && result.snapshot.val()?.playerId === playerId) return { slotId, committed: true, reconnect: false };
+  }
+  return { slotId: null, committed: false, reconnect: false };
+}
+
+async function claimTeamSeat({ mode, roomId, teamId, playerId }) {
+  const seats = teamSeatIds(teamId);
+  for (const seatId of seats) {
+    const result = await runTransaction(child(roomRef(mode, roomId), `teamSeats/${seatId}`), (current) => {
+      if (current?.playerId) return;
+      return { playerId, claimedAt: Date.now() };
+    });
+    if (result.committed && result.snapshot.val()?.playerId === playerId) return seatId;
+  }
+  return null;
+}
+
+async function releaseTeamSeat({ mode, roomId, seatId, playerId, allowHostRelease = false }) {
+  if (!seatId) return;
+  await runTransaction(child(roomRef(mode, roomId), `teamSeats/${seatId}`), (current) => {
+    if (current?.playerId === playerId || (allowHostRelease && current?.playerId)) return null;
+    return current;
+  });
+}
+
+async function releaseCompetitiveSlot({ mode, roomId, slotId, playerId, allowHostRelease = false }) {
+  if (!slotId) return;
+  const target = child(joinSlotsRef(mode, roomId), slotId);
+  await runTransaction(target, (current) => {
+    if (current?.playerId === playerId) return null;
+    if (allowHostRelease && current?.playerId) return null;
+    return current;
+  });
 }
 
 export async function createCompetitiveRoom({ mode, roomId, player, category }) {
@@ -90,7 +160,8 @@ export async function createCompetitiveRoom({ mode, roomId, player, category }) 
     roundNumber: 0,
     hostId: player.id,
     players: { [player.id]: playerRecord },
-    ...(mode === 'team_battle' ? { teams: { team_a: { teamId: 'team_a', playerIds: [player.id] }, team_b: { teamId: 'team_b', playerIds: [] } } } : {}),
+    joinSlots: Object.fromEntries(JOIN_SLOT_IDS.map((slotId) => [slotId, slotId === 'slot-1' ? { playerId: player.id, joinOrder: 1, reservedAt: Date.now() } : null])),
+    ...(mode === 'team_battle' ? { teams: { team_a: { teamId: 'team_a', playerIds: [player.id] }, team_b: { teamId: 'team_b', playerIds: [] } }, teamSeats: Object.fromEntries(TEAM_SEAT_IDS.map((seatId) => [seatId, seatId === 'team_a_1' ? { playerId: player.id, claimedAt: Date.now() } : null])) } : {}),
     updatedAt: Date.now(),
   });
   if (!result.committed) throw new Error('Room already exists.');
@@ -118,7 +189,7 @@ export async function joinCompetitiveRoom({ mode, roomId, player }) {
   if (!isReconnect && (initialRoom.status !== 'lobby' || initialRoom.phase !== 'lobby')) throw policyJoinError('room-policy', 'room/game-in-progress', 'This room has already started. Only returning players can reconnect.');
   if (!isReconnect && Object.keys(initialRoom.players || {}).length >= 4) throw policyJoinError('room-policy', 'room/full', 'Room is full. Ask the host to create a new room.');
 
-  if (isReconnect) {
+    if (isReconnect) {
     try {
       await update(child(target, `players/${player.id}`), { connected: true });
       const reconnectedSnapshot = await get(target);
@@ -128,26 +199,28 @@ export async function joinCompetitiveRoom({ mode, roomId, player }) {
       throw competitiveJoinError(error, 'post-join-verify', error?.code || 'room/reconnect-failed');
     }
   }
-
-  let result;
+  let reservation;
   try {
-    result = await runTransaction(target, (current) => {
-      if (!current || current.removedPlayers?.[player.id]) return current;
-      const players = current.players || {};
-      if (players[player.id]) return { ...current, players: { ...players, [player.id]: { ...players[player.id], connected: true } }, updatedAt: Date.now() };
-      if (current.status !== 'lobby' || current.phase !== 'lobby' || Object.keys(players).length >= 4) return current;
-      const nextJoinOrder = Object.values(players).reduce((maxOrder, existing) => Math.max(maxOrder, Number(existing.joinOrder) || 0), 0) + 1;
-      const assignedTeam = current.mode === 'team_battle' ? (nextJoinOrder <= 2 ? 'team_a' : 'team_b') : null;
-      const nextPlayer = { ...clone(player), isHost: false, connected: true, joinOrder: nextJoinOrder, teamId: assignedTeam };
-      const nextTeams = current.mode === 'team_battle' ? { team_a: { ...(current.teams?.team_a || { teamId: 'team_a', playerIds: [] }), playerIds: assignedTeam === 'team_a' ? [...(current.teams?.team_a?.playerIds || []), player.id] : [...(current.teams?.team_a?.playerIds || [])] }, team_b: { ...(current.teams?.team_b || { teamId: 'team_b', playerIds: [] }), playerIds: assignedTeam === 'team_b' ? [...(current.teams?.team_b?.playerIds || []), player.id] : [...(current.teams?.team_b?.playerIds || [])] } } : current.teams;
-      return { ...current, players: { ...players, [player.id]: nextPlayer }, ...(nextTeams ? { teams: nextTeams } : {}), updatedAt: Date.now() };
-    });
+    reservation = await reserveCompetitiveSlot({ mode, roomId: normalizedRoomId, playerId: player.id, roomSnapshot: initialRoom });
   } catch (error) {
-    throw competitiveJoinError(error, 'join-transaction', error?.code || 'room/join-transaction-failed');
+    throw competitiveJoinError(error, 'join-slot', error?.code || 'room/join-slot-failed');
   }
-
-  const finalRoom = result.snapshot.val();
-  if (!result.committed || !finalRoom?.players?.[player.id]) {
+  if (!reservation.slotId) throw policyJoinError('join-slot', 'room/full', 'Room is full. Ask the host to create a new room.');
+  const nextPlayer = { ...clone(player), isHost: false, connected: true, joinOrder: slotNumber(reservation.slotId), teamId: teamForSlot(mode, reservation.slotId) };
+  const teamSeat = mode === 'team_battle' ? await claimTeamSeat({ mode, roomId: normalizedRoomId, teamId: nextPlayer.teamId, playerId: player.id }) : null;
+  if (mode === 'team_battle' && !teamSeat) {
+    await releaseCompetitiveSlot({ mode, roomId: normalizedRoomId, slotId: reservation.slotId, playerId: player.id }).catch(() => {});
+    throw policyJoinError('join-slot', 'room/team-full', 'No seat is available in the assigned team. Please retry.');
+  }
+  try {
+    await set(child(target, `players/${player.id}`), nextPlayer);
+  } catch (error) {
+    if (teamSeat) await releaseTeamSeat({ mode, roomId: normalizedRoomId, seatId: teamSeat, playerId: player.id }).catch(() => {});
+    if (reservation.committed) await releaseCompetitiveSlot({ mode, roomId: normalizedRoomId, slotId: reservation.slotId, playerId: player.id }).catch(() => {});
+    throw competitiveJoinError(error, 'join-player-record', error?.code || 'room/join-player-record-failed');
+  }
+  const finalRoom = (await get(target)).val();
+  if (!finalRoom?.players?.[player.id]) {
     if (!finalRoom) throw policyJoinError('post-join-verify', 'room/not-found', `Room ${normalizedRoomId} was not found on the server. Check the code and try again.`);
     if (finalRoom.status !== 'lobby' || finalRoom.phase !== 'lobby') throw policyJoinError('post-join-verify', 'room/game-in-progress', 'This room has already started. Only returning players can reconnect.');
     if (Object.keys(finalRoom.players || {}).length >= 4) throw policyJoinError('post-join-verify', 'room/full', 'Room is full. Ask the host to create a new room.');
@@ -162,19 +235,23 @@ export async function setCompetitiveTeam({ mode, roomId, playerId, teamId }) {
   if (mode !== 'team_battle' || !['team_a', 'team_b'].includes(teamId)) throw new Error('Team switching is only available in 2v2 lobby.');
   const target = roomRef(mode, roomId);
   if (!target) throw new Error('Firebase not configured');
-  const result = await runTransaction(target, (current) => {
-    if (!current || current.status !== 'lobby' || current.phase !== 'lobby') return current;
-    const player = current.players?.[playerId];
-    if (!player) return current;
-    const currentTeamId = player.teamId || Object.keys(current.teams || {}).find((id) => (current.teams?.[id]?.playerIds || []).includes(playerId));
-    if (currentTeamId === teamId) return current;
-    const destination = current.teams?.[teamId]?.playerIds || [];
-    if (destination.length >= 3) return current;
-    const nextTeams = Object.fromEntries(['team_a', 'team_b'].map((id) => [id, { ...(current.teams?.[id] || { teamId: id, playerIds: [] }), playerIds: (current.teams?.[id]?.playerIds || []).filter((id) => id !== playerId).concat(id === teamId ? [playerId] : []) }]));
-    return { ...current, players: { ...current.players, [playerId]: { ...player, teamId } }, teams: nextTeams, updatedAt: Date.now() };
-  });
-  const next = result.snapshot.val();
-  if (!result.committed || next?.players?.[playerId]?.teamId !== teamId) throw new Error('That team is full or the room has already started.');
+  const current = (await get(target)).val();
+  if (!current || current.status !== 'lobby' || current.phase !== 'lobby' || !current.players?.[playerId]) throw new Error('Team switching is available only for lobby players.');
+  const previousTeamId = current.players[playerId].teamId;
+  if (previousTeamId === teamId) return current;
+  const seatSnapshot = await get(child(target, 'teamSeats'));
+  const previousSeatId = seatSnapshot.exists() ? Object.entries(seatSnapshot.val() || {}).find(([, seat]) => seat?.playerId === playerId)?.[0] : null;
+  const claimedSeatId = await claimTeamSeat({ mode, roomId, teamId, playerId });
+  if (!claimedSeatId) throw new Error('That team is full or the room has already started.');
+  try {
+    await set(child(target, `players/${playerId}/teamId`), teamId);
+    await releaseTeamSeat({ mode, roomId, seatId: previousSeatId, playerId });
+  } catch (error) {
+    await releaseTeamSeat({ mode, roomId, seatId: claimedSeatId, playerId }).catch(() => {});
+    throw error;
+  }
+  const next = (await get(target)).val();
+  if (next?.players?.[playerId]?.teamId !== teamId) throw new Error('The team change was not confirmed by the server.');
   return next;
 }
 
@@ -182,15 +259,16 @@ export async function removeCompetitivePlayer({ mode, roomId, playerId }) {
   const target = roomRef(mode, roomId);
   if (!target) throw new Error('Firebase not configured');
   if (mode === 'team_battle') {
-    const result = await runTransaction(target, (current) => {
-      if (!current || current.status !== 'lobby' || current.phase !== 'lobby') return current;
-      const players = { ...(current.players || {}) };
-      delete players[playerId];
-      const teams = Object.fromEntries(Object.entries(current.teams || {}).map(([teamId, team]) => [teamId, { ...team, playerIds: (team.playerIds || []).filter((id) => id !== playerId) }]));
-      return { ...current, players, teams, removedPlayers: { ...(current.removedPlayers || {}), [playerId]: true }, updatedAt: Date.now() };
-    });
-    const next = result.snapshot.val();
-    if (!result.committed || next?.players?.[playerId]) throw new Error('Player removal was rejected because the lobby changed. Refresh and try again.');
+    const current = (await get(target)).val();
+    if (!current || current.status !== 'lobby' || current.phase !== 'lobby' || !current.players?.[playerId]) throw new Error('Player removal is available only in the active lobby.');
+    const slotSnapshot = await get(joinSlotsRef(mode, roomId));
+    const ownedSlotId = slotSnapshot.exists() ? JOIN_SLOT_IDS.find((slotId) => slotSnapshot.val()?.[slotId]?.playerId === playerId) : null;
+    const seatSnapshot = await get(child(target, 'teamSeats'));
+    const ownedSeatId = seatSnapshot.exists() ? Object.entries(seatSnapshot.val() || {}).find(([, seat]) => seat?.playerId === playerId)?.[0] : null;
+    await update(target, { [`players/${playerId}`]: null, [`removedPlayers/${playerId}`]: true });
+    await releaseCompetitiveSlot({ mode, roomId, slotId: ownedSlotId, playerId, allowHostRelease: true });
+    await releaseTeamSeat({ mode, roomId, seatId: ownedSeatId, playerId, allowHostRelease: true });
+    if ((await get(child(target, `players/${playerId}`))).exists()) throw new Error('Player removal was not confirmed by the server.');
   } else {
     await update(target, { [`players/${playerId}`]: null, [`removedPlayers/${playerId}`]: true });
   }
@@ -200,18 +278,31 @@ export async function removeCompetitivePlayer({ mode, roomId, playerId }) {
 export async function leaveCompetitiveRoom({ mode, roomId, playerId, isHost }) {
   const target = roomRef(mode, roomId);
   if (!target) return;
-  if (isHost || mode === 'tournament') {
+  const slotsSnapshot = !isHost ? await get(joinSlotsRef(mode, roomId)) : null;
+  const ownedSlotId = slotsSnapshot?.exists() ? JOIN_SLOT_IDS.find((slotId) => slotsSnapshot.val()?.[slotId]?.playerId === playerId) : null;
+  if (isHost) {
     await remove(target);
     if (db) await remove(ref(db, `${PRIVATE_ROOTS[mode]}/${roomId}`));
     return;
   }
+  if (mode === 'tournament') {
+    // A non-host must never delete or rewrite the tournament root. Use only the
+    // member-scoped paths authorized by Rules, preserving the room for others.
+    await update(target, {
+      [`players/${playerId}`]: null,
+      [`leftPlayers/${playerId}`]: true,
+    });
+    await releaseCompetitiveSlot({ mode, roomId, slotId: ownedSlotId, playerId });
+    if (db) await remove(ref(db, `${PRIVATE_ROOTS[mode]}/${roomId}/${playerId}`));
+    return;
+  }
   const result = await runTransaction(target, (current) => {
     if (!current || !current.players?.[playerId]) return current;
-    if (mode === 'tournament') return { ...current, status: 'closed', phase: 'lobby', players: { ...current.players, [playerId]: null }, leftPlayers: { ...(current.leftPlayers || {}), [playerId]: true }, updatedAt: Date.now() };
     return { ...current, players: { ...current.players, [playerId]: null }, leftPlayers: { ...(current.leftPlayers || {}), [playerId]: true }, updatedAt: Date.now() };
   });
   const next = result.snapshot.val();
   if (!result.committed || next?.players?.[playerId]) throw new Error('Leaving the lobby was rejected because the match changed. Refresh and try again.');
+  await releaseCompetitiveSlot({ mode, roomId, slotId: ownedSlotId, playerId });
   if (db) await remove(ref(db, `${PRIVATE_ROOTS[mode]}/${roomId}/${playerId}`));
 }
 

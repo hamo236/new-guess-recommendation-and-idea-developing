@@ -82,7 +82,7 @@ assert(bottomNav.includes("{ name: '2v2', icon: 'groups', path: '/team-battle' }
 assert(bottomNav.includes('touch-feedback') && bottomNav.includes('min-h-11'), 'Mobile 2v2 navigation target is not touch-safe.');
 assert(lobby.includes('Shared team targets') && lobby.includes('Host starts'), '2v2 Lobby entry is missing its core player-facing promises.');
 assert(!lobby.includes('Choose a competitive circuit'), 'Legacy competitive-circuit selector should be replaced by the 2v2 entry.');
-assert(competitiveFirebase.includes('nextJoinOrder') && competitiveFirebase.includes('joinOrder: nextJoinOrder'), 'Competitive join order is not assigned transactionally.');
+assert(competitiveFirebase.includes('joinSlots') && competitiveFirebase.includes('reserveCompetitiveSlot') && competitiveFirebase.includes('joinOrder: slotNumber(reservation.slotId)'), 'Competitive join order must come from an atomic Fixed Slot reservation.');
 assert(competitivePage.includes('pendingAction'), 'Competitive mode duplicate-action guard is missing.');
 assert(competitivePage.includes("run = async (fn, actionKey = 'action')"), 'Competitive action runner contract is missing.');
 assert(competitivePage.includes("pendingAction === 'leave'"), 'Competitive leave pending feedback is missing.');

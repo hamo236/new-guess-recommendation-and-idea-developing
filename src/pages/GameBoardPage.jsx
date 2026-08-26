@@ -8,6 +8,7 @@ import RoundRevealPanel from '../components/game/RoundRevealPanel';
 import MatchTimeline from '../components/game/MatchTimeline';
 import CompetitiveChatPanel from '../components/game/CompetitiveChatPanel';
 import RoomLeaveDialog from '../components/RoomLeaveDialog';
+import { getStableRevealDeadline } from '../game/revealTiming';
 
 function formatChatTime(timestamp) {
   if (!timestamp) return '';
@@ -64,16 +65,22 @@ const GameBoardPage = () => {
   const activeMatchRoundResult = isFourPlayerSocial ? (activeMatch?.roundResult ?? null) : null;
   const [matchRevealSeconds, setMatchRevealSeconds] = useState(null);
   const matchRevealEndTimestamp = activeMatchRoundResult?.revealEndTimestamp ?? 0;
+  const [transitionSeconds, setTransitionSeconds] = useState(null);
+  const knockoutAutoStartRef = useRef(null);
+  const matchRevealDeadlineRef = useRef({ key: null, deadline: 0 });
+  const matchRevealKey = `${state.roomCode || 'local'}:${activeMatchId || 'none'}:${activeMatchRound}:${matchRevealEndTimestamp}`;
+  if (matchRevealDeadlineRef.current.key !== matchRevealKey) {
+    matchRevealDeadlineRef.current = { key: matchRevealKey, deadline: getStableRevealDeadline(matchRevealEndTimestamp) };
+  }
+  const effectiveMatchRevealEndTimestamp = matchRevealDeadlineRef.current.deadline;
   const matchRevealActive = isFourPlayerSocial
     && phase === GAME_PHASES.PLAYING
     && !!activeMatchRoundResult
-    && matchRevealEndTimestamp > Date.now();
+    && effectiveMatchRevealEndTimestamp > Date.now();
   const isKnockoutTransition = isFourPlayerSocial && isPreview && round > 1 && bracket?.stage === 'finals';
   const finalMatch = bracket?.matches?.final;
   const thirdPlaceMatch = bracket?.matches?.third_place;
   const playerName = (playerId) => players.find((player) => player.id === playerId)?.name ?? 'Player';
-  const [transitionSeconds, setTransitionSeconds] = useState(null);
-  const knockoutAutoStartRef = useRef(null);
   const beginRoundRef = useRef(actions.beginRound);
   beginRoundRef.current = actions.beginRound;
 
@@ -118,13 +125,13 @@ const GameBoardPage = () => {
       return;
     }
     const tick = () => {
-      const remaining = Math.max(0, Math.ceil((matchRevealEndTimestamp - Date.now()) / 1000));
+      const remaining = Math.max(0, Math.ceil((effectiveMatchRevealEndTimestamp - Date.now()) / 1000));
       setMatchRevealSeconds(remaining);
     };
     tick();
     const intervalId = setInterval(tick, 250);
     return () => clearInterval(intervalId);
-  }, [isFourPlayerSocial, matchRevealEndTimestamp]);
+  }, [isFourPlayerSocial, effectiveMatchRevealEndTimestamp]);
 
   // After both semifinals resolve, Firebase persists the finals bracket in PREVIEW.
   // Only this isolated four-player knockout path auto-enters the next round.

@@ -65,9 +65,10 @@ export async function joinVoiceCall({ roomType, roomId, callId, participantId, d
   // Register disconnect cleanup before writing presence so abrupt tab/network
   // termination does not leave a stale participant when Firebase can process it.
   await onDisconnect(participantRef).remove();
+  const safeDisplayName = String(displayName || 'Player').trim().slice(0, 40) || 'Player';
   await set(participantRef, {
     participantId,
-    displayName: displayName || 'Player',
+    displayName: safeDisplayName,
     joinedAt: Date.now(),
     active: true,
   });
@@ -114,10 +115,22 @@ export async function removeVoiceSignal({ roomType, roomId, callId, senderId, re
 
 export async function writeVoiceSignal({ roomType, roomId, callId, senderId, receiverId, signal }) {
   if (!db || !roomType || !roomId || !callId || !senderId || !receiverId || !signal) return;
-  const payload = { ...signal };
-  if (payload.type === 'offer' || payload.type === 'answer') {
-    payload.description = serializeSessionDescription(payload.description);
-    if (!payload.description) return;
+  const signalType = String(signal.type || '');
+  if (!['offer', 'answer', 'candidate'].includes(signalType)) return;
+  const payload = { type: signalType };
+  if (signalType === 'candidate') {
+    const candidate = signal.candidate?.toJSON ? signal.candidate.toJSON() : signal.candidate;
+    if (!candidate || typeof candidate !== 'object' || typeof candidate.candidate !== 'string' || candidate.candidate.length > 4096) return;
+    payload.candidate = {
+      candidate: candidate.candidate,
+      ...(candidate.sdpMid == null ? {} : { sdpMid: String(candidate.sdpMid).slice(0, 128) }),
+      ...(candidate.sdpMLineIndex == null ? {} : { sdpMLineIndex: Number(candidate.sdpMLineIndex) }),
+      ...(candidate.usernameFragment == null ? {} : { usernameFragment: String(candidate.usernameFragment).slice(0, 256) }),
+    };
+  }
+  if (signalType === 'offer' || signalType === 'answer') {
+    payload.description = serializeSessionDescription(signal.description);
+    if (!payload.description || payload.description.sdp.length > 20000) return;
   }
   const signalRef = push(
     ref(db, `${voiceCallsPath(roomType, roomId)}/${callId}/signals/${senderId}/${receiverId}`),

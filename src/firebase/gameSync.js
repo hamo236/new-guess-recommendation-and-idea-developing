@@ -7,8 +7,9 @@
  *   UI ط£آ¢أ¢â‚¬آ أ¢â‚¬â„¢ GameStateContext (local reducer) ط£آ¢أ¢â‚¬آ أ¢â‚¬â„¢ gameSync ط£آ¢أ¢â‚¬آ أ¢â‚¬â„¢ Firebase
  *
  * SECRET TARGET PROTECTION:
- *   Each player's target is written to: rooms/{code}/private/{playerId}/target
- *   The database.rules.json ensures only that player can read their own private path.
+ *   Each player's hidden assignment is retained at: privateRooms/{code}/{playerId}/ownTarget
+ *   The viewer-facing opponent card is written to: privateRooms/{code}/{viewerId}/displayTarget
+ *   Clients read only their own displayTarget; ownTarget is never client-readable.
  *   The shared room state does NOT contain any player's secret target.
  */
 
@@ -66,30 +67,7 @@ export const syncBeginPlaying = firebaseOp(async (code, gameData, targets, displ
       ? Date.now() + (gameData.timerSeconds * 1000)
       : 0;
 
-    const updatedPrivate = { ...(current.private || {}) };
-    const oneVOneReveal = current.mode === '1v1' && gameData.roundId ? Object.fromEntries(Object.entries(displayTargets).map(([playerId, item]) => [playerId, { id: item.id, name: item.name, category: item.category, round: gameData.round, roundId: gameData.roundId, targetReady: true }])) : null;
-    for (const [playerId, item] of Object.entries(targets)) {
-      const itemData = { id: item.id, name: item.name, image: item.image, category: item.category, round: gameData.round, roundId: gameData.roundId, targetReady: true };
-      updatedPrivate[playerId] = {
-        ...(updatedPrivate[playerId] || {}),
-        ownTarget: itemData,
-        target: itemData,
-      };
-    }
-    for (const [playerId, item] of Object.entries(displayTargets)) {
-      updatedPrivate[playerId] = {
-        ...(updatedPrivate[playerId] || {}),
-        displayTarget: {
-          id: item.id,
-          name: item.name,
-          image: item.image,
-          category: item.category,
-          round: gameData.round,
-          roundId: gameData.roundId,
-          targetReady: true,
-        },
-      };
-    }
+
 
     return {
       ...current,
@@ -111,10 +89,33 @@ export const syncBeginPlaying = firebaseOp(async (code, gameData, targets, displ
       transitionStartedAt: 0,
       transitionEndsAt: 0,
       timerEndTimestamp,
-      private: updatedPrivate,
-      roundRevealTargets: oneVOneReveal ? { ...(current.roundRevealTargets || {}), [gameData.roundId]: oneVOneReveal } : (current.roundRevealTargets || {}),
     };
   });
+
+  const privateUpdates = {};
+  for (const [playerId, item] of Object.entries(targets || {})) {
+    privateUpdates[`privateRooms/${code}/${playerId}/ownTarget`] = {
+      id: item.id,
+      name: item.name,
+      image: item.image,
+      category: item.category,
+      round: gameData.round,
+      roundId: gameData.roundId,
+      targetReady: true,
+    };
+  }
+  for (const [playerId, item] of Object.entries(displayTargets || {})) {
+    privateUpdates[`privateRooms/${code}/${playerId}/displayTarget`] = {
+      id: item.id,
+      name: item.name,
+      image: item.image,
+      category: item.category,
+      round: gameData.round,
+      roundId: gameData.roundId,
+      targetReady: true,
+    };
+  }
+  if (Object.keys(privateUpdates).length) await update(ref(db), privateUpdates);
 });
 
 /** @deprecated Use syncEnterPreview + syncBeginPlaying */
@@ -191,7 +192,7 @@ export const syncResolveKnockoutMatch = firebaseOp(async (code, nextState, match
     completedPlayerIds.forEach((playerId) => {
       const snapshot = isOpeningFinalsRound
         ? roundResult.revealedTargets?.[playerId]
-        : current.private?.[playerId]?.displayTarget;
+        : roundResult.revealedTargets?.[playerId];
       if (snapshot) completedRevealedTargets[playerId] = snapshot;
     });
     const completedRoundResult = {
@@ -213,7 +214,7 @@ export const syncResolveKnockoutMatch = firebaseOp(async (code, nextState, match
         }
       : nextState.bracket;
     const resolvedMatch = nextState.bracket?.matches?.[matchId]?.status === 'resolved';
-    const nextPrivate = { ...(current.private || {}) }; if (nextState.phase === 'playing' && nextState.targets) { const activeMatch = nextState.bracket?.matches?.[matchId]; [activeMatch?.playerA, activeMatch?.playerB].filter(Boolean).forEach((playerId) => { const item = nextState.targets[playerId]; if (!item) return; const assignment = nextState.playerAssignments?.[playerId]; const itemMatch = nextState.bracket?.matches?.[assignment?.matchId]; const itemData = { id: item.id, name: item.name, image: item.image, category: item.category, round: nextState.round, roundId: nextState.roundId, matchId: assignment?.matchId ?? null, matchRound: itemMatch?.matchRound ?? null, targetReady: true }; nextPrivate[playerId] = { ...(nextPrivate[playerId] || {}), ownTarget: itemData, target: itemData }; const displayItem = nextState.displayTargets?.[playerId]; if (displayItem) nextPrivate[playerId].displayTarget = { id: displayItem.id, name: displayItem.name, image: displayItem.image, category: displayItem.category, round: nextState.round, roundId: nextState.roundId, targetReady: true }; }); }    const nextMatchResults = { ...(current.matchResults || {}) };
+    const nextMatchResults = { ...(current.matchResults || {}) };
     if (resolvedMatch) {
       nextMatchResults[matchId] = completedRoundResult;
     } else {
@@ -240,13 +241,34 @@ export const syncResolveKnockoutMatch = firebaseOp(async (code, nextState, match
       roundId: nextState.roundId,
       transitionStartedAt: nextState.transitionStartedAt ?? 0,
       transitionEndsAt: nextState.transitionEndsAt ?? 0,
-       private: nextPrivate,
        revealEndTimestamp: isKnockoutRoom ? 0 : (roundResult.revealEndTimestamp ?? 0),
       timerEndTimestamp: isKnockoutRoom
         ? (keepPlayingForIndependentMatch ? (current.timerEndTimestamp ?? 0) : 0)
         : (nextState.phase === 'preview' ? 0 : current.timerEndTimestamp ?? 0),
-    };
+        };
   });
+
+  if (nextState.phase === 'playing' && nextState.targets) {
+    const privateUpdates = {};
+    const activeMatch = nextState.bracket?.matches?.[matchId];
+    [activeMatch?.playerA, activeMatch?.playerB].filter(Boolean).forEach((playerId) => {
+      const item = nextState.targets[playerId];
+      if (!item) return;
+      const assignment = nextState.playerAssignments?.[playerId];
+      const itemMatch = nextState.bracket?.matches?.[assignment?.matchId];
+      privateUpdates[`privateRooms/${code}/${playerId}/ownTarget`] = {
+        id: item.id, name: item.name, image: item.image, category: item.category,
+        round: nextState.round, roundId: nextState.roundId,
+        matchId: assignment?.matchId ?? null, matchRound: itemMatch?.matchRound ?? null, targetReady: true,
+      };
+      const displayItem = nextState.displayTargets?.[playerId];
+      if (displayItem) privateUpdates[`privateRooms/${code}/${playerId}/displayTarget`] = {
+        id: displayItem.id, name: displayItem.name, image: displayItem.image, category: displayItem.category,
+        round: nextState.round, roundId: nextState.roundId, targetReady: true,
+      };
+    });
+    if (Object.keys(privateUpdates).length) await update(ref(db), privateUpdates);
+  }
 });
 
 /**
@@ -260,23 +282,12 @@ export const syncConfirmOpponentGuess = firebaseOp(async (code, newScores, round
       return current;
     }
     const roomPlayers = Object.values(current.players || {});
-    const persistedReveal = current.roundRevealTargets?.[roundResult.roundId];
-    const privateReveal = persistedReveal && Object.keys(persistedReveal).length === 2
-      ? persistedReveal
-      : {};
-    if (Object.keys(privateReveal).length !== 2) {
-      roomPlayers.forEach((player) => {
-        const target = current.private?.[player.id]?.displayTarget;
-        if (target && (!target.roundId || target.roundId === roundResult.roundId)) {
-          privateReveal[player.id] = target;
-        }
-      });
-    }
+    const revealedTargets = roundResult.revealedTargets || {};
     const persistedRoundResult = {
       ...roundResult,
-      revealedTargets: roomPlayers.length === 2 && Object.keys(privateReveal).length === 2
-        ? privateReveal
-        : (roundResult.revealedTargets || {}),
+      revealedTargets: roomPlayers.length === 2 && Object.keys(revealedTargets).length === 2
+        ? revealedTargets
+        : {},
     };
 
     return {
@@ -380,12 +391,11 @@ export const syncAdvanceRound = firebaseOp(async (code, nextState) => {
   if (nextState.phase === 'playing' && nextState.targets) {
     for (const [playerId, item] of Object.entries(nextState.targets)) {
       const assignment = nextState.playerAssignments?.[playerId]; const itemMatch = nextState.bracket?.matches?.[assignment?.matchId]; const itemData = { id: item.id, name: item.name, image: item.image, category: item.category, round: nextState.round, roundId: nextState.roundId, matchId: assignment?.matchId ?? null, matchRound: itemMatch?.matchRound ?? null, targetReady: true };
-      updates[`rooms/${code}/private/${playerId}/ownTarget`] = itemData;
-      updates[`rooms/${code}/private/${playerId}/target`] = itemData;
+      updates[`privateRooms/${code}/${playerId}/ownTarget`] = itemData;
     }
     if (nextState.displayTargets) {
       for (const [playerId, item] of Object.entries(nextState.displayTargets)) {
-        updates[`rooms/${code}/private/${playerId}/displayTarget`] = {
+        updates[`privateRooms/${code}/${playerId}/displayTarget`] = {
           id: item.id,
           name: item.name,
           image: item.image,
@@ -397,21 +407,6 @@ export const syncAdvanceRound = firebaseOp(async (code, nextState) => {
       }
     }
 
-    // 1v1 only: persist the exact opponent target map for this round before
-    // any later private-target update can replace the live display target.
-    if (nextState.mode === '1v1' && nextState.roundId && nextState.displayTargets) {
-      updates[`rooms/${code}/roundRevealTargets/${nextState.roundId}`] = Object.fromEntries(
-        Object.entries(nextState.displayTargets).map(([playerId, item]) => [playerId, {
-          id: item.id,
-          name: item.name,
-          image: item.image,
-          category: item.category,
-          round: nextState.round,
-          roundId: nextState.roundId,
-          targetReady: true,
-        }]),
-      );
-    }
   }
 
   await update(ref(db), updates);
@@ -456,6 +451,10 @@ export const syncResetMatch = firebaseOp(async (code, players, category) => {
   updates[`rooms/${code}/revealEndTimestamp`] = 0;
   updates[`rooms/${code}/timerEndTimestamp`] = 0;
   updates[`rooms/${code}/messages`] = {};
+  Object.keys(players || {}).forEach((playerId) => {
+    updates[`privateRooms/${code}/${playerId}/ownTarget`] = null;
+    updates[`privateRooms/${code}/${playerId}/displayTarget`] = null;
+  });
   await update(ref(db), updates);
 });
 
@@ -511,7 +510,7 @@ export function subscribeToRoom(code, { onRoomUpdate, onMessagesUpdate, onAction
 export function subscribeToDisplayTarget(code, playerId, onTarget) {
   if (!isFirebaseConfigured || !db) return () => {};
 
-  const displayRef = ref(db, `rooms/${code}/private/${playerId}/displayTarget`);
+  const displayRef = ref(db, `privateRooms/${code}/${playerId}/displayTarget`);
 
   const unsub = onValue(displayRef, (snap) => {
     if (snap.exists()) {
@@ -534,19 +533,18 @@ export function subscribeToDisplayTarget(code, playerId, onTarget) {
 export function subscribeToPrivateTarget(code, playerId, onTarget) {
   if (!isFirebaseConfigured || !db) return () => {};
 
-  const privateRef = ref(db, `rooms/${code}/private/${playerId}/ownTarget`);
-  const legacyRef = ref(db, `rooms/${code}/private/${playerId}/target`);
+  const privateRef = ref(db, `privateRooms/${code}/${playerId}/ownTarget`);
+
 
   const handleSnap = (snap) => {
     if (snap.exists()) onTarget(snap.val());
   };
 
   onValue(privateRef, handleSnap);
-  onValue(legacyRef, handleSnap);
 
   return () => {
     off(privateRef);
-    off(legacyRef);
+
   };
 }
 

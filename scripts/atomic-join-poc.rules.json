@@ -1,0 +1,17 @@
+{
+  "rules": {
+    "pocRooms": {
+      "$roomCode": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists() && newData.child('status').val() === 'lobby' && newData.child('capacity').val() === 4",
+        "slots": {
+          "$slotId": {
+            ".read": "auth != null",
+            ".write": "auth != null && ($slotId === 'slot-2' || $slotId === 'slot-3' || $slotId === 'slot-4') && (!data.exists() || data.child('playerId').val() === '') && newData.child('playerId').val() === auth.uid",
+            ".validate": "newData.hasChildren(['playerId']) && newData.child('playerId').isString()"
+          }
+        }
+      }
+    }
+  }
+}

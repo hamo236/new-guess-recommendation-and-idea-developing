@@ -92,7 +92,6 @@ import {
   syncImpostorAction,
   syncResolveKnockoutMatch,
   subscribeToRoom,
-  subscribeToPrivateTarget,
   subscribeToDisplayTarget,
 } from '../firebase/gameSync.js';
 
@@ -479,19 +478,14 @@ const subscribeToMyTarget = useCallback((roomCode, playerId, roundId = null) => 
     if (unsubscribeDisplayTargetRef.current) {
       unsubscribeDisplayTargetRef.current();
     }
-    const unsubOwn = subscribeToPrivateTarget(roomCode, playerId, (target) => {
-      dispatch({
-        type: A.FB_TARGET_RECEIVED,
-        payload: { playerId, target },
-      });
-    });
+    // The device reads only its viewer-scoped opponent target; it never reads ownTarget.
     const unsubDisplay = subscribeToDisplayTarget(roomCode, playerId, (target) => {
       dispatch({
         type: A.FB_DISPLAY_TARGET_RECEIVED,
         payload: { playerId, target },
       });
     });
-    unsubscribeTargetRef.current = unsubOwn;
+    unsubscribeTargetRef.current = null;
     unsubscribeDisplayTargetRef.current = unsubDisplay;
   }, []);
   subscribeToMyTargetRef.current = subscribeToMyTarget;

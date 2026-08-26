@@ -10,15 +10,18 @@ import { assignTeamTargets, createTeamBattleState, finishTeamRound, advanceTeamR
 import { targetMapForTeams } from '../modes/teamBattleTargetPlan.js';
 import { generateRoomCode, normalizeRoomCode } from '../game/roomManager.js';
 import { createJoinTrace, getSafeClientNetworkSnapshot } from '../firebase/joinDiagnostics.js';
+import { getStableRevealDeadline } from '../game/revealTiming.js';
 
 const CompetitiveModeContext = createContext(null);
+// Session recovery is intentionally tab-scoped. Shared localStorage could let two tabs overwrite
+// each other's room identity and reconnect the wrong player into the wrong room.
 const sessionKey = (mode) => `neon_guess_${mode}_session`;
-
-function readSession(mode) { try { return JSON.parse(localStorage.getItem(sessionKey(mode)) || 'null'); } catch { return null; } }
+function sessionStore() { return typeof window !== 'undefined' ? window.sessionStorage : null; }
+function readSession(mode) { try { return JSON.parse(sessionStore()?.getItem(sessionKey(mode)) || 'null'); } catch { return null; } }
 const GENERATED_PLAYER_NAMES = new Set(['NeonPlayer', 'CyberPlayer_01', 'Player']);
 function manualPlayerName(value) { const name = String(value || '').trim(); return GENERATED_PLAYER_NAMES.has(name) ? '' : name; }
-function saveSession(mode, value) { try { localStorage.setItem(sessionKey(mode), JSON.stringify(value)); } catch { /* local-only fallback */ } }
-function clearSession(mode) { try { localStorage.removeItem(sessionKey(mode)); } catch { /* no-op */ } }
+function saveSession(mode, value) { try { sessionStore()?.setItem(sessionKey(mode), JSON.stringify(value)); } catch { /* tab-local fallback */ } }
+function clearSession(mode) { try { sessionStore()?.removeItem(sessionKey(mode)); } catch { /* no-op */ } }
 function makeRoomId() { return generateRoomCode(); }
 function getTournamentRoomSeed(state, fallbackRoomId = '') {
   return `${state?.roomId || fallbackRoomId}:${state?.createdAt || 'legacy'}`;
@@ -63,11 +66,10 @@ async function writePrivateTargets(mode, roomId, state, writerPlayerId = null) {
     }));
   } else if (state.match?.status === 'playing') {
     state.playerIds.forEach((playerId) => {
-      const ownTarget = state.match.targets?.[playerId];
       const ownTeamId = state.teamByPlayer?.[playerId];
       const opponentTeamId = ownTeamId === TEAM_IDS.A ? TEAM_IDS.B : TEAM_IDS.A;
       const opponentTarget = state.match.teamTargets?.[opponentTeamId];
-      if (ownTarget && opponentTarget) writes.push(writeCompetitiveTarget({ mode, roomId, matchId: state.match.matchId, playerId, target: { ...clone(opponentTarget), playerId, teamId: opponentTeamId, targetOwnerTeamId: opponentTeamId, ownedTarget: { ...clone(ownTarget), playerId, teamId: ownTeamId, targetOwnerTeamId: ownTeamId }, roundNumber: state.match.roundNumber || state.roundNumber } }));
+      if (opponentTarget) writes.push(writeCompetitiveTarget({ mode, roomId, matchId: state.match.matchId, playerId, target: { ...clone(opponentTarget), playerId, teamId: opponentTeamId, targetOwnerTeamId: opponentTeamId, roundNumber: state.match.roundNumber || state.roundNumber } }));
     });
   }
   await Promise.all(writes);
@@ -97,6 +99,7 @@ export function CompetitiveModeProvider({ mode, children }) {
   const tournamentResolutionInFlightRef = useRef(new Set());
   const tournamentAdvanceInFlightRef = useRef(new Set());
   const tournamentBracketAdvanceInFlightRef = useRef(false);
+  const revealDeadlineRef = useRef(new Map());
 
   useEffect(() => {
     let active = true;
@@ -279,7 +282,10 @@ export function CompetitiveModeProvider({ mode, children }) {
       next = startMatch(next, TOURNAMENT_MATCH_IDS.SEMI_A, targetMapForTournament(category, next.matches[TOURNAMENT_MATCH_IDS.SEMI_A].playerIds, { roomSeed: getTournamentRoomSeed(next, roomId), offset: tournamentTargetOffset(TOURNAMENT_MATCH_IDS.SEMI_A, 1) ?? 0 }));
       next = startMatch(next, TOURNAMENT_MATCH_IDS.SEMI_B, targetMapForTournament(category, next.matches[TOURNAMENT_MATCH_IDS.SEMI_B].playerIds, { roomSeed: getTournamentRoomSeed(next, roomId), offset: tournamentTargetOffset(TOURNAMENT_MATCH_IDS.SEMI_B, 1) ?? 0 }));
     } else {
-      const lobbyAssignments = state.teams || undefined;
+      const lobbyAssignments = {
+        team_a: { teamId: 'team_a', playerIds: players.filter((player) => player.teamId === 'team_a').map((player) => player.id) },
+        team_b: { teamId: 'team_b', playerIds: players.filter((player) => player.teamId === 'team_b').map((player) => player.id) },
+      };
       if (!validateTeamAssignments(lobbyAssignments, players.map((player) => player.id))) throw new Error('Both teams must have exactly two players before the host can start.');
       const teamState = createTeamBattleState({ teamRoomId: roomId, players, category, hostId: playerId, teamAssignments: lobbyAssignments });
       next = assignTeamTargets(teamState, targetMapForTeams(category, teamState.teams, { roomSeed: `${teamState.teamRoomId}:${teamState.createdAt}`, roundNumber: teamState.roundNumber }));
@@ -378,9 +384,9 @@ export function CompetitiveModeProvider({ mode, children }) {
     const team = getPlayerTeam(state, playerId);
     const currentRoundNumber = Number(state.match.roundNumber || state.roundNumber);
     const deterministicTargets = targetMapForTeams(state.category, state.teams, { roomSeed: `${state.teamRoomId}:${state.createdAt}`, roundNumber: currentRoundNumber });
-    const ownedTarget = privateTarget?.ownedTarget || state.match?.targets?.[playerId] || deterministicTargets?.[playerId] || null;
-    const targetMatchesCurrentRound = privateTarget?.matchId === state.match.matchId && Number(privateTarget?.roundNumber) === currentRoundNumber;
-    const fallbackTargetMatchesCurrentRound = !privateTarget?.ownedTarget && Number(state.match?.roundNumber || state.roundNumber) === currentRoundNumber && Boolean(ownedTarget?.id);
+    const ownedTarget = deterministicTargets?.[playerId] || null;
+    const targetMatchesCurrentRound = Number(state.match?.roundNumber || state.roundNumber) === currentRoundNumber && Boolean(ownedTarget?.id);
+    const fallbackTargetMatchesCurrentRound = targetMatchesCurrentRound;
     if (!team?.teamId || !canMutateCompetitive) return;
     const targetSnapshot = ownedTarget?.id && (targetMatchesCurrentRound || fallbackTargetMatchesCurrentRound)
       ? { id: ownedTarget.id, targetId: ownedTarget.targetId || ownedTarget.id, name: ownedTarget.name, image: ownedTarget.image, teamId: team.teamId }
@@ -406,7 +412,6 @@ export function CompetitiveModeProvider({ mode, children }) {
       }).filter(([, snapshot]) => snapshot));
       const privateSnapshots = {};
       if (privateTarget?.teamId && privateTarget?.name) privateSnapshots[privateTarget.teamId] = { id: privateTarget.id, targetId: privateTarget.targetId || privateTarget.id, name: privateTarget.name, image: privateTarget.image, teamId: privateTarget.teamId };
-      if (privateTarget?.ownedTarget?.teamId && privateTarget.ownedTarget?.name) privateSnapshots[privateTarget.ownedTarget.teamId] = { id: privateTarget.ownedTarget.id, targetId: privateTarget.ownedTarget.targetId || privateTarget.ownedTarget.id, name: privateTarget.ownedTarget.name, image: privateTarget.ownedTarget.image, teamId: privateTarget.ownedTarget.teamId };
       const targetSnapshots = { ...privateSnapshots, ...confirmationSnapshots };
       const winningTeamIds = confirmingTeamIds.map((teamId) => teamId === TEAM_IDS.A ? TEAM_IDS.B : TEAM_IDS.A);
       const points = { [TEAM_IDS.A]: winningTeamIds.includes(TEAM_IDS.A) ? 1 : 0, [TEAM_IDS.B]: winningTeamIds.includes(TEAM_IDS.B) ? 1 : 0 };
@@ -439,7 +444,10 @@ export function CompetitiveModeProvider({ mode, children }) {
 
   useEffect(() => {
     if (mode !== COMPETITIVE_MODES.TEAM_BATTLE || !state || !canMutateCompetitive || state.status !== 'round_result' || !state.match?.revealEndTimestamp || teamAdvanceInFlightRef.current) return undefined;
-    const remaining = state.match.revealEndTimestamp - Date.now();
+    const revealKey = `team:${state.roomId || roomId}:${state.roundNumber || state.round}:${state.match.revealEndTimestamp}`;
+    const effectiveRevealEndTimestamp = revealDeadlineRef.current.get(revealKey) || getStableRevealDeadline(state.match.revealEndTimestamp);
+    revealDeadlineRef.current.set(revealKey, effectiveRevealEndTimestamp);
+    const remaining = effectiveRevealEndTimestamp - Date.now();
     const runAdvance = () => {
       if (teamAdvanceInFlightRef.current) return;
       teamAdvanceInFlightRef.current = true;
@@ -469,14 +477,19 @@ export function CompetitiveModeProvider({ mode, children }) {
 
   useEffect(() => {
     if (mode !== COMPETITIVE_MODES.TOURNAMENT || !state || !canMutateCompetitive) return undefined;
-    const revealMatches = Object.values(state.matches || {}).filter((match) => match.status === 'round_result' && Number.isFinite(Number(match.revealEndTimestamp)));
-    const dueMatches = revealMatches.filter((match) => Number(match.revealEndTimestamp) <= Date.now());
+    const revealMatches = Object.values(state.matches || {}).filter((match) => match.status === 'round_result' && Number.isFinite(Number(match.revealEndTimestamp))).map((match) => {
+      const revealKey = `tournament:${state.roomId || roomId}:${match.matchId}:${match.roundNumber}:${match.revealEndTimestamp}`;
+      const effectiveRevealEndTimestamp = revealDeadlineRef.current.get(revealKey) || getStableRevealDeadline(match.revealEndTimestamp);
+      revealDeadlineRef.current.set(revealKey, effectiveRevealEndTimestamp);
+      return { ...match, effectiveRevealEndTimestamp };
+    });
+    const dueMatches = revealMatches.filter((match) => match.effectiveRevealEndTimestamp <= Date.now());
     dueMatches.forEach((match) => {
       if (tournamentAdvanceInFlightRef.current.has(match.matchId)) return;
       tournamentAdvanceInFlightRef.current.add(match.matchId);
       advanceTournamentRound(match.matchId).catch((advanceError) => setError(advanceError?.message || 'Tournament round advance failed.')).finally(() => tournamentAdvanceInFlightRef.current.delete(match.matchId));
     });
-    const nextDeadline = revealMatches.map((match) => Number(match.revealEndTimestamp)).filter((timestamp) => timestamp > Date.now()).sort((a, b) => a - b)[0];
+    const nextDeadline = revealMatches.map((match) => Number(match.effectiveRevealEndTimestamp)).filter((timestamp) => timestamp > Date.now()).sort((a, b) => a - b)[0];
     if (!nextDeadline) return undefined;
     const timerId = window.setTimeout(() => setState((current) => current ? { ...current } : current), Math.max(0, nextDeadline - Date.now()) + 10);
     return () => window.clearTimeout(timerId);

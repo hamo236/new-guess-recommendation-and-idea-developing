@@ -54,7 +54,7 @@ if (!adapter.includes('players: { ...current.players, [playerId]: null }') || !a
 
 if (!page.includes('TEAM ASSIGNMENT PREVIEW') || !page.includes('Keep both teams balanced.')) throw new Error('2v2 lobby must explain balanced team assignment.');
 if (!page.includes('const TEAM_LOBBY_SEATS = 3') || !page.includes('Array.from({ length: TEAM_LOBBY_SEATS }') || !page.includes('{team.players.length}/{TEAM_LOBBY_SEATS} READY')) throw new Error('2v2 lobby must expose three selectable seats per team.');
-if (!adapter.includes('if (destination.length >= 3) return current;') || !adapter.includes('Object.keys(players).length >= 4')) throw new Error('2v2 switching must allow three destination seats while preserving the four-player room cap.');
+if (!adapter.includes('claimTeamSeat') || !adapter.includes('teamSeats') || !adapter.includes('No seat is available in the assigned team')) throw new Error('2v2 switching must use atomic team-seat claims while preserving the four-player room cap.');
 if (!page.includes('min-h-10 min-w-10') || !page.includes('min-h-12 flex-1 sm:flex-none')) throw new Error('2v2 lobby actions must preserve comfortable touch targets.');
 if (!gameplay.includes('rounded-3xl border border-white/10 bg-gradient-to-r') || !gameplay.includes('2v2 TEAM BATTLE') || !gameplay.includes('ROUND {state.roundNumber} / 3')) throw new Error('2v2 gameplay must preserve the distinct round header.');
 if (!gameplay.includes('rounded-3xl p-4 sm:p-5') || !gameplay.includes('focus-visible:ring-2')) throw new Error('2v2 gameplay panels and controls must retain visual focus affordances.');
