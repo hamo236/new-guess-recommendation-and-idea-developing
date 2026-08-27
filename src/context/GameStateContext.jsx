@@ -65,8 +65,8 @@ import { createJoinTrace, getSafeClientNetworkSnapshot } from '../firebase/joinD
 
 function classifyRecoveryFailure(error) {
   const message = error?.message || 'We could not restore the active match.';
-  if (/Room not found|removed from this room|Game already in progress|Room is full/i.test(message)) {
-    return { status: 'terminal', message };
+  if (/Room not found|removed from this room|Game already in progress|Room is full|room has expired/i.test(message)) {
+    return { status: 'terminal', code: error?.code || '', message };
   }
   if (/Not authenticated|identity|authentication/i.test(message)) {
     return { status: 'identity-error', message: 'We could not verify your player identity for this room.' };
@@ -548,7 +548,7 @@ const attachToRoom = useCallback((roomCode, playerId, roomPhase, roundId = null)
       const failure = classifyRecoveryFailure(err);
       console.warn('[Session] Auto-rejoin failed:', err.message);
       if (failure.status === 'terminal') clearSession();
-      setRecovery({ status: failure.status, session, message: failure.message });
+      setRecovery({ status: failure.status, code: failure.code || '', session, message: failure.message });
       rejoinAttemptedRef.current = false;
     }
   }, [fbStatus, state.roomCode, attachToRoom]);

@@ -34,9 +34,12 @@ export default function ActiveMatchRecoveryCard({
 
   const isRestoring = recovery.status === 'restoring';
   const isRetryable = recovery.status === 'retryable-error';
-  const statusCopy = STATUS_COPY[recovery.status];
+  const isExpired = recovery.code === 'room/stale';
+  const statusCopy = isExpired
+    ? { ...STATUS_COPY.terminal, title: 'ROOM HAS EXPIRED', eyebrow: 'ROOM EXPIRED', icon: 'event_busy' }
+    : STATUS_COPY[recovery.status];
   const roomCode = recovery.session?.roomCode?.toUpperCase();
-  const stageLabel = isRestoring ? 'CHECKING SESSION' : isRetryable ? 'RECONNECT OR RESET' : 'SESSION CLOSED';
+  const stageLabel = isRestoring ? 'CHECKING SESSION' : isRetryable ? 'RECONNECT OR RESET' : isExpired ? 'CREATE A NEW ROOM' : 'SESSION CLOSED';
 
   return (
     <section
@@ -69,12 +72,14 @@ export default function ActiveMatchRecoveryCard({
               )}
             </div>
             <h2 className="mt-2 font-headline-md text-headline-md leading-tight text-white">
-              {isRestoring ? 'Checking your saved room…' : 'Your match session is still on this device.'}
+              {isRestoring ? 'Checking your saved room…' : isExpired ? 'This room is no longer available.' : 'Your match session is still on this device.'}
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-on-surface-variant">
               {isRestoring
                 ? 'We are reconnecting using the existing player identity. No new room or match is created.'
-                : recovery.message || 'You can retry without changing the current room state.'}
+                : isExpired
+                  ? 'This room was inactive for too long and has expired. Create a new room to continue.'
+                  : recovery.message || 'You can retry without changing the current room state.'}
             </p>
           </div>
         </div>

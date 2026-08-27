@@ -30,7 +30,7 @@ function getTournamentRoomSeed(state, fallbackRoomId = '') {
 function getPlayerTeam(state, playerId) { return Object.values(state.teams || {}).find((team) => team.playerIds.includes(playerId)); }
 function classifyRecoveryFailure(error) {
   const message = error?.message || 'We could not restore the active room.';
-  if (/not found|removed from this room|already started|room is full/i.test(message)) return { status: 'terminal', message };
+  if (/not found|removed from this room|already started|room is full|room has expired/i.test(message)) return { status: 'terminal', code: error?.code || '', message };
   if (/authenticated|identity/i.test(message)) return { status: 'identity-error', message: 'We could not verify your saved player identity for this room.' };
   return { status: 'retryable-error', message };
 }
@@ -222,7 +222,7 @@ export function CompetitiveModeProvider({ mode, children }) {
     } catch (err) {
       const failure = classifyRecoveryFailure(err);
       if (failure.status === 'terminal') clearSession(mode);
-      setRecovery({ status: failure.status, roomId: saved.roomId, message: failure.message });
+      setRecovery({ status: failure.status, code: failure.code || '', roomId: saved.roomId, message: failure.message });
       recoveryAttemptedRef.current = false;
     }
   }, [mode, playerId, playerName, roomId]);
