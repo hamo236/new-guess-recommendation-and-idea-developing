@@ -284,6 +284,22 @@ const LobbyPage = () => {
         <h2 id="home-gateway-title" className={`ng-home-gateway__title text-on-surface ${isOneVOneLobby ? 'font-display-lg text-display-lg' : 'font-headline-md text-headline-md'}`}>{isOneVOneLobby ? '1V1 GUESS WHO' : 'CHOOSE YOUR MODE'}</h2>
         <p className="ng-home-gateway__subcopy font-body-sm text-body-sm text-on-surface-variant">{isOneVOneLobby ? 'A private duel for two players.' : 'Pick a mode to start.'}</p>
       </div>
+      {isHomeRoute && (
+        <section className="ng-home-how-to-play" aria-labelledby="home-how-to-play-title">
+          <div className="ng-home-how-to-play__copy">
+            <span className="ng-home-how-to-play__icon material-symbols-outlined" aria-hidden="true">auto_stories</span>
+            <div>
+              <p className="ng-home-how-to-play__eyebrow font-label-caps">NEW HERE?</p>
+              <h2 id="home-how-to-play-title" className="ng-home-how-to-play__title">Learn the game in one minute</h2>
+              <p className="ng-home-how-to-play__subcopy">A quick guide to rooms, guesses, and the flow of every mode.</p>
+            </div>
+          </div>
+          <button type="button" onClick={() => navigate('/how-to-play')} className="ng-home-how-to-play__action touch-feedback" aria-label="Learn how to play NEON GUESS">
+            <span>HOW TO PLAY</span>
+            <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </button>
+        </section>
+      )}
 
       {/* Mobile Title */}
       <div className="md:hidden flex justify-center items-center mb-stack-md">
@@ -362,10 +378,6 @@ const LobbyPage = () => {
           </button>
         </div>
       </section>
-      <button type="button" onClick={() => navigate('/how-to-play')} className="group mx-auto flex min-h-11 items-center gap-2 rounded-full border border-primary-fixed/25 bg-primary-fixed/5 px-4 py-2.5 text-primary-fixed shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-primary-fixed/55 hover:bg-primary-fixed/10 hover:shadow-[0_12px_30px_rgba(0,0,0,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-fixed/70">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full border border-primary-fixed/35 bg-primary-fixed/10" aria-hidden="true"><span className="material-symbols-outlined text-[16px]">help</span></span>
-        <span className="font-label-caps text-[10px] tracking-[0.16em]">HOW TO PLAY</span>
-      </button>
       </>
       )}
 
