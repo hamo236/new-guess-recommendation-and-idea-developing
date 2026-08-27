@@ -285,20 +285,11 @@ const LobbyPage = () => {
         <p className="ng-home-gateway__subcopy font-body-sm text-body-sm text-on-surface-variant">{isOneVOneLobby ? 'A private duel for two players.' : 'Pick a mode to start.'}</p>
       </div>
       {isHomeRoute && (
-        <section className="ng-home-how-to-play" aria-labelledby="home-how-to-play-title">
-          <div className="ng-home-how-to-play__copy">
-            <span className="ng-home-how-to-play__icon material-symbols-outlined" aria-hidden="true">auto_stories</span>
-            <div>
-              <p className="ng-home-how-to-play__eyebrow font-label-caps">NEW HERE?</p>
-              <h2 id="home-how-to-play-title" className="ng-home-how-to-play__title">Learn the game in one minute</h2>
-              <p className="ng-home-how-to-play__subcopy">A quick guide to rooms, guesses, and the flow of every mode.</p>
-            </div>
-          </div>
-          <button type="button" onClick={() => navigate('/how-to-play')} className="ng-home-how-to-play__action touch-feedback" aria-label="Learn how to play NEON GUESS">
-            <span>HOW TO PLAY</span>
-            <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        <div className="ng-home-how-to-play" aria-label="How to Play">
+          <button type="button" onClick={() => navigate('/how-to-play')} className="ng-home-how-to-play__action touch-feedback">
+            How to Play
           </button>
-        </section>
+        </div>
       )}
 
       {/* Mobile Title */}
