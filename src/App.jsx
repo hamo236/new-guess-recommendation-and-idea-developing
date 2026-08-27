@@ -4,6 +4,7 @@ import LobbyPage from './pages/LobbyPage';
 import TopAppBar from './components/layout/TopAppBar';
 import NavigationDrawer from './components/layout/NavigationDrawer';
 import BottomNavBar from './components/layout/BottomNavBar';
+import UiSoundLayer from './components/layout/UiSoundLayer';
 import SessionRouteRestore from './components/SessionRouteRestore';
 import ConnectionRecoveryBanner from './components/ConnectionRecoveryBanner';
 import VoiceRoomPanel from './components/game/VoiceRoomPanel.jsx';
@@ -170,6 +171,7 @@ function App() {
       </div>
 
       {!hideBottomNav && <BottomNavBar />}
+      <UiSoundLayer />
     </div>
   );
 }
