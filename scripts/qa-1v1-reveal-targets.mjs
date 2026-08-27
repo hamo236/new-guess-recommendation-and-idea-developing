@@ -122,7 +122,17 @@ for (const [source, label] of [[appSource, 'classic'], [competitiveSource, 'comp
     /VoiceRoomPanel[\s\S]*compact/,
     `${label} voice panel usage and compact behavior must remain present`,
   );
+  assert.match(
+    source,
+    /ng-room-voice-container[\s\S]*role="group" aria-label="Room voice controls"/,
+    `${label} voice panel must remain inside the Room Comms visual container`,
+  );
 }
+assert.match(
+  competitiveSource,
+  /roomVoiceMatch = state\?\.phase === MODE_PHASES\.LOBBY[\s\S]*matchId: 'room'[\s\S]*players\.map\(\(player\) => player\.id\)/,
+  'Four/Tournament voice must remain available at room scope during the lobby',
+);
 assert.match(
   boardSource,
   /isPlaying && \([\s\S]*onClick=\{\(\) => setShowExitDialog\(true\)\}[\s\S]*aria-label="Exit game"[\s\S]*min-h-11 min-w-11[\s\S]*\)\}\s*\{timerDisplay \?/,

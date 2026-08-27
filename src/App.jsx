@@ -98,7 +98,7 @@ function PersistentClassicVoiceRoom() {
 
   return (
     <div className="pointer-events-none fixed left-3 right-3 top-[calc(env(safe-area-inset-top)+6.25rem)] z-[60] w-auto max-w-[16rem] sm:left-auto sm:right-4 sm:top-24 sm:w-[min(16rem,calc(100vw-2rem))]">
-      <div className="pointer-events-auto">
+      <div className="ng-room-voice-container pointer-events-auto rounded-[1.35rem] border border-primary-fixed/20 bg-surface/70 p-1 shadow-[0_10px_30px_rgba(0,0,0,0.24)] backdrop-blur-md" role="group" aria-label="Room voice controls">
         <VoiceRoomPanel
           key={`${voiceRoomId}:${voiceScopeId}`}
           roomType="classic"
