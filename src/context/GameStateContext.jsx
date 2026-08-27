@@ -246,9 +246,8 @@ function gameReducer(state, action) {
     case A.FB_TARGET_RECEIVED: {
       const target = action.payload.target;
       if (!target || target.targetReady !== true) return state;
-      const isOneVOne = state.mode === '1v1';
-      if (target.roundId && target.roundId !== state.roundId && !isOneVOne) return state;
-      if (target.round != null && target.round !== state.round && !(isOneVOne && target.round > state.round)) return state;
+      if (target.roundId && target.roundId !== state.roundId) return state;
+      if (target.round != null && target.round !== state.round) return state;
       const expectedAssignment = state.playerAssignments?.[action.payload.playerId];
       const expectedMatch = state.bracket?.matches?.[expectedAssignment?.matchId];
       if (target.matchId && expectedAssignment?.matchId !== target.matchId) return state;
@@ -274,9 +273,8 @@ function gameReducer(state, action) {
         return { ...state, displayTargets: nextDisplayTargets };
       }
       if (target.targetReady !== true) return state;
-      const isOneVOne = state.mode === '1v1';
-      if (target.roundId && target.roundId !== state.roundId && !isOneVOne) return state;
-      if (target.round != null && target.round !== state.round && !(isOneVOne && target.round > state.round)) return state;
+      if (target.roundId && target.roundId !== state.roundId) return state;
+      if (target.round != null && target.round !== state.round) return state;
       const expectedAssignment = state.playerAssignments?.[action.payload.playerId];
       const expectedMatch = state.bracket?.matches?.[expectedAssignment?.matchId];
       if (target.matchId && expectedAssignment?.matchId !== target.matchId) return state;

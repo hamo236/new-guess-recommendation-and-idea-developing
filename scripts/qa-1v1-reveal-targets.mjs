@@ -28,6 +28,28 @@ assert.match(
   /displayTargets: state\.mode === GAME_MODES\.ONE_V_ONE && clearRoundSnapshot \? \{\} : state\.displayTargets/,
   'only 1v1 room round transitions may clear stale viewer-scoped targets',
 );
+assert.match(
+  contextSource,
+  /if \(target\.roundId && target\.roundId !== state\.roundId\) return state;/,
+  'private targets must match the active round id before entering 1v1 state',
+);
+assert.match(
+  contextSource,
+  /if \(target\.round != null && target\.round !== state\.round\) return state;/,
+  'private targets must match the active round number before entering 1v1 state',
+);
+assert.doesNotMatch(
+  contextSource,
+  /isOneVOne && target\.round > state\.round/,
+  '1v1 must not accept future-round private target events',
+);
+const boardSource = readFileSync(new URL('../src/pages/GameBoardPage.jsx', import.meta.url), 'utf8');
+assert.match(
+  boardSource,
+  /isFourPlayerSocial \? '' : '-mt-4 sm:-mt-3'/,
+  'only the non-Four target/Guess Correct stack receives the reduced visual gap',
+);
+assert.match(boardSource, /onClick=\{handleConfirmOpponentGuess\}/, 'Guess Correct handler must remain unchanged');
 const gameSyncSource = readFileSync(new URL('../src/firebase/gameSync.js', import.meta.url), 'utf8');
 assert.match(
   gameSyncSource,
