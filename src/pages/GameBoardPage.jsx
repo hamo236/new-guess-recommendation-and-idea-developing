@@ -42,6 +42,7 @@ const GameBoardPage = () => {
 
   const isPreview = phase === GAME_PHASES.PREVIEW;
   const isPlaying = phase === GAME_PHASES.PLAYING;
+  const isOneVsOne = mode === GAME_MODES.ONE_V_ONE;
   const isFourPlayerSocial = mode === GAME_MODES.SOCIAL && players.length > 2;
 
   const opponentTarget = myPlayerId ? displayTargets[myPlayerId] : null;
@@ -437,14 +438,14 @@ const GameBoardPage = () => {
                   </figure>
                 ) : null
               ) : (
-                <OpponentTargetCard target={opponentTarget} />
+                <OpponentTargetCard target={opponentTarget} compact={isOneVsOne} />
               )}
 
               {primaryOpponent && (
                 <button
                   onClick={handleConfirmOpponentGuess}
                   disabled={roundLocked || !knockoutActionReady}
-                  className={`${isFourPlayerSocial ? '' : '-mt-4 sm:-mt-3'} w-full max-w-xs bg-secondary text-on-secondary font-headline-sm text-headline-sm px-4 py-4 rounded-lg shadow-[0_0_20px_rgba(233,179,255,0.4)] hover:shadow-[0_0_30px_rgba(233,179,255,0.6)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 uppercase tracking-wider min-h-[52px] text-center leading-tight` }
+                  className={`${isFourPlayerSocial ? '' : isOneVsOne ? '-mt-2 sm:-mt-1' : '-mt-4 sm:-mt-3'} w-full max-w-xs bg-secondary text-on-secondary font-headline-sm text-headline-sm px-4 py-4 rounded-lg shadow-[0_0_20px_rgba(233,179,255,0.4)] hover:shadow-[0_0_30px_rgba(233,179,255,0.6)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 uppercase tracking-wider min-h-[52px] text-center leading-tight` }
                 >
                   <span className="material-symbols-outlined shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>emoji_events</span>
                   {primaryOpponent.name} · GUESS CORRECT

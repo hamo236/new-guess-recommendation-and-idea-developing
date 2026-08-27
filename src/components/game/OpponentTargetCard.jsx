@@ -4,7 +4,7 @@ import React from 'react';
  * Displays the opponent's secret target (from displayTargets — never ownTarget).
  * Display-only intelligence card; no interaction.
  */
-const OpponentTargetCard = ({ target }) => {
+const OpponentTargetCard = ({ target, compact = false }) => {
   if (!target) {
     return (
       <div className="w-full max-w-[280px] glass-panel rounded-xl p-stack-md border border-white/10 flex flex-col items-center gap-3">
@@ -16,6 +16,23 @@ const OpponentTargetCard = ({ target }) => {
         </div>
         <span className="font-body-sm text-body-sm text-on-surface-variant">Assigning target…</span>
       </div>
+    );
+  }
+
+  if (compact) {
+    return (
+      <article
+        className="w-full max-w-[280px] flex flex-col items-center"
+        aria-label={`Your opponent's target is ${target.name}`}
+      >
+        <div className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl border-2 border-primary-fixed/40 bg-black/20 shadow-[0_0_24px_rgba(125,244,255,0.2)]">
+          <img
+            src={target.image}
+            alt={target.name}
+            className="block w-full h-full object-cover"
+          />
+        </div>
+      </article>
     );
   }
 

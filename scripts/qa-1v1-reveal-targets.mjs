@@ -73,10 +73,21 @@ assert.match(
   'Firebase begin-round sync must continue receiving the canonical nextState target maps',
 );
 const boardSource = readFileSync(new URL('../src/pages/GameBoardPage.jsx', import.meta.url), 'utf8');
+const targetCardSource = readFileSync(new URL('../src/components/game/OpponentTargetCard.jsx', import.meta.url), 'utf8');
 assert.match(
   boardSource,
-  /isFourPlayerSocial \? '' : '-mt-4 sm:-mt-3'/,
-  'only the non-Four target/Guess Correct stack receives the reduced visual gap',
+  /<OpponentTargetCard target=\{opponentTarget\} compact=\{isOneVsOne\} \/>/,
+  'only 1v1 receives the compact target-card presentation variant',
+);
+assert.match(
+  targetCardSource,
+  /if \(compact\)[\s\S]*aspect-\[4\/3\][\s\S]*object-cover/,
+  'the compact 1v1 card must prioritize the target image without surrounding metadata chrome',
+);
+assert.match(
+  boardSource,
+  /isFourPlayerSocial \? '' : isOneVsOne \? '-mt-2 sm:-mt-1' : '-mt-4 sm:-mt-3'/,
+  '1v1 receives its comfortable image-to-action gap while 2v2 retains the established gap',
 );
 assert.match(boardSource, /onClick=\{handleConfirmOpponentGuess\}/, 'Guess Correct handler must remain unchanged');
 const gameSyncSource = readFileSync(new URL('../src/firebase/gameSync.js', import.meta.url), 'utf8');
