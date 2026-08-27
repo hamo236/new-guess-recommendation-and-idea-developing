@@ -81,13 +81,23 @@ assert.match(
 );
 assert.match(
   targetCardSource,
-  /if \(compact\)[\s\S]*aspect-\[4\/3\][\s\S]*object-cover/,
-  'the compact 1v1 card must prioritize the target image without surrounding metadata chrome',
+  /if \(compact\)[\s\S]*max-w-\[220px\][\s\S]*h-32 w-32 sm:h-36 sm:w-36[\s\S]*object-contain/,
+  'the compact 1v1 card must keep the full target image in a smaller bounded well',
+);
+assert.match(
+  targetCardSource,
+  /if \(compact\)[\s\S]*rounded-\[1\.35rem\][\s\S]*bg-white\/\[0\.045\][\s\S]*backdrop-blur-sm/,
+  'the compact 1v1 card must use a smooth restrained translucent surface',
 );
 assert.match(
   boardSource,
-  /isFourPlayerSocial \? '' : isOneVsOne \? '-mt-2 sm:-mt-1' : '-mt-4 sm:-mt-3'/,
-  '1v1 receives its comfortable image-to-action gap while 2v2 retains the established gap',
+  /isFourPlayerSocial \? '' : isOneVsOne \? 'mt-3 sm:mt-4' : '-mt-4 sm:-mt-3'/,
+  '1v1 receives its intentional image-to-action gap while 2v2 retains the established gap',
+);
+assert.match(
+  boardSource,
+  /isOneVsOne \? 'rounded-full[\s\S]*transition-transform duration-150 ease-out motion-reduce:transition-none'/,
+  '1v1 Guess Correct must use a calm rounded action treatment with transform-only motion and reduced-motion support',
 );
 assert.match(boardSource, /onClick=\{handleConfirmOpponentGuess\}/, 'Guess Correct handler must remain unchanged');
 const gameSyncSource = readFileSync(new URL('../src/firebase/gameSync.js', import.meta.url), 'utf8');

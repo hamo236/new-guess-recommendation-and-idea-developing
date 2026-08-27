@@ -22,14 +22,14 @@ const OpponentTargetCard = ({ target, compact = false }) => {
   if (compact) {
     return (
       <article
-        className="w-full max-w-[280px] flex flex-col items-center"
+        className="w-full max-w-[220px] sm:max-w-[240px] flex flex-col items-center"
         aria-label={`Your opponent's target is ${target.name}`}
       >
-        <div className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl border-2 border-primary-fixed/40 bg-black/20 shadow-[0_0_24px_rgba(125,244,255,0.2)]">
+        <div className="relative flex h-32 w-32 sm:h-36 sm:w-36 items-center justify-center overflow-hidden rounded-[1.35rem] border border-white/15 bg-white/[0.045] p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.18)] backdrop-blur-sm">
           <img
             src={target.image}
             alt={target.name}
-            className="block w-full h-full object-cover"
+            className="block h-full w-full object-contain"
           />
         </div>
       </article>
