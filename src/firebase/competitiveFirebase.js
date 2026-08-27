@@ -3,6 +3,7 @@ import { db } from './config.js';
 import { clone } from '../modes/modeTypes.js';
 import { normalizeRoomCode } from '../game/roomManager.js';
 import { createJoinDiagnostic, addJoinDiagnosticError } from './joinDiagnostics.js';
+import { isStaleRoom, createStaleRoomError } from '../game/staleRoomPolicy.js';
 
 const ROOTS = { tournament: 'tournamentRooms', team_battle: 'teamRooms' };
 const PRIVATE_ROOTS = { tournament: 'tournamentPrivateTargets', team_battle: 'teamBattlePrivateTargets' };
@@ -184,6 +185,10 @@ export async function joinCompetitiveRoom({ mode, roomId, player }) {
   }
   if (!initialSnapshot.exists()) throw policyJoinError('room-read', 'room/not-found', `Room ${normalizedRoomId} was not found on the server. Check the code and try again.`);
   const initialRoom = initialSnapshot.val();
+  if (isStaleRoom(initialRoom)) {
+    const error = createStaleRoomError();
+    throw competitiveJoinError(error, 'room-policy', error.code);
+  }
   if (initialRoom.removedPlayers?.[player.id]) throw policyJoinError('room-policy', 'room/player-removed', 'You were removed from this room.');
 
   const existingPlayer = initialRoom.players?.[player.id];

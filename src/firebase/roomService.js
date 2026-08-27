@@ -6,6 +6,7 @@
 import { getRoomRef, set, get, update, onDisconnect, runTransaction, db, ref } from './database.js';
 import { normalizeRoomCode } from '../game/roomManager.js';
 import { addJoinDiagnosticError, createJoinDiagnostic } from './joinDiagnostics.js';
+import { isStaleRoom, createStaleRoomError } from '../game/staleRoomPolicy.js';
 
 export const MAX_PLAYERS = 4;
 export const MIN_PLAYERS = 2;
@@ -198,6 +199,12 @@ export async function reconnectOrJoinFirebaseRoom({ code, player, onDiagnostic }
     throw addJoinDiagnosticError(error, createJoinDiagnostic({ stage: 'room-read', error }));
   }
   onDiagnostic?.(createJoinDiagnostic({ stage: 'room-read', status: 'passed', detail: 'Room exists on the server.' }));
+
+  if (isStaleRoom(initialRoom)) {
+    const error = createStaleRoomError();
+    onDiagnostic?.(createJoinDiagnostic({ stage: 'room-policy', error }));
+    throw addJoinDiagnosticError(error, createJoinDiagnostic({ stage: 'room-policy', error }));
+  }
 
   const initialPlayers = initialRoom.players || {};
   if (initialRoom.removedPlayers?.[player.id]) {
