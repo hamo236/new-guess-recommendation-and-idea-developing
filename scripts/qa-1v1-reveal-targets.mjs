@@ -80,33 +80,38 @@ const classicVoiceSource = readFileSync(new URL('../src/components/game/ClassicR
 const competitiveSource = readFileSync(new URL('../src/pages/CompetitiveModePage.jsx', import.meta.url), 'utf8');
 assert.match(
   boardSource,
-  /<OpponentTargetCard target=\{opponentTarget\} compact=\{isOneVsOne\} playerName=\{isOneVsOne \? primaryOpponent\?\.name : ''\} \/>/,
-  'only 1v1 receives the compact target-card presentation variant',
+  /<OpponentTargetCard target=\{opponentTarget\} \/>/,
+  '1v1 must use the canonical non-compact Target presentation path',
 );
 assert.match(
   targetCardSource,
-  /if \(compact\)[\s\S]*max-w-\[250px\][\s\S]*h-40 w-40 sm:h-44 sm:w-44[\s\S]*object-contain/,
-  'the compact 1v1 card must keep the full target image in a smaller bounded well',
+  /className="w-full max-w-\[320px\] glass-panel rounded-2xl overflow-hidden[\s\S]*bg-primary-fixed\/5/,
+  'the canonical Target card surface must remain the shared 2v2/Four presentation',
 );
 assert.match(
   targetCardSource,
-  /if \(compact\)[\s\S]*rounded-2xl[\s\S]*bg-white\/\[0\.055\][\s\S]*backdrop-blur-sm/,
-  'the compact 1v1 card must use a smooth restrained translucent surface',
+  /className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-2xl overflow-hidden border-2 border-primary-fixed\/40[\s\S]*object-cover/,
+  'the canonical Target image dimensions and crop mode must remain shared',
 );
 assert.match(
   targetCardSource,
-  /if \(compact\)[\s\S]*playerName \|\| 'OPPONENT'[\s\S]*font-label-caps/,
-  'the compact 1v1 card must identify the opponent player beneath the target image',
+  /The character your opponent is trying to guess\./,
+  'the canonical Target guidance copy must remain shared',
+);
+assert.doesNotMatch(
+  boardSource,
+  /compact=\{isOneVsOne\}|playerName=\{isOneVsOne \? primaryOpponent\?\.name : ''\}/,
+  '1v1 must not retain a separate compact target presentation branch',
 );
 assert.match(
   boardSource,
-  /isFourPlayerSocial \? '' : isOneVsOne \? 'mt-3 sm:mt-4' : '-mt-4 sm:-mt-3'/,
-  '1v1 receives its intentional image-to-action gap while 2v2 retains the established gap',
+  /isFourPlayerSocial \? '' : '-mt-4 sm:-mt-3'/,
+  '1v1 must use the same target-to-action spacing path as the canonical non-Four presentation',
 );
-assert.match(
+assert.doesNotMatch(
   boardSource,
   /isOneVsOne \? 'rounded-full[\s\S]*transition-transform duration-150 ease-out motion-reduce:transition-none'/,
-  '1v1 Guess Correct must use a calm rounded action treatment with transform-only motion and reduced-motion support',
+  '1v1 Guess Correct must not retain a separate visual button treatment',
 );
 assert.match(
   boardSource,
