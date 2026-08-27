@@ -9,6 +9,7 @@ import { createTournamentState, finishMatch, recordMatchConfirmation, reconcileT
 import { assignTeamTargets, createTeamBattleState, finishTeamRound, advanceTeamRound, confirmTeamRound, hasResolvableTeamConfirmation, getCompletedConfirmationTeams, validateTeamAssignments, TEAM_IDS } from '../modes/teamBattleEngine.js';
 import { targetMapForTeams, targetSnapshotsForTeams } from '../modes/teamBattleTargetPlan.js';
 import { generateRoomCode, normalizeRoomCode } from '../game/roomManager.js';
+import { createRoomWithCollisionRetry } from '../game/roomCreationRetry.js';
 import { createJoinTrace, getSafeClientNetworkSnapshot } from '../firebase/joinDiagnostics.js';
 import { getStableRevealDeadline } from '../game/revealTiming.js';
 
@@ -228,7 +229,20 @@ export function CompetitiveModeProvider({ mode, children }) {
   useEffect(() => {
     if (!roomId && recovery.status === 'pending' && session?.resumeAfterRefresh === true && !recoveryAttemptedRef.current) retrySessionRecovery();
   }, [roomId, recovery.status, retrySessionRecovery]);
-  const createRoom = useCallback(async (category) => { if (!playerId) throw new Error('Authenticating player identity. Please try again in a moment.'); const trimmedName = playerName.trim(); if (!trimmedName) throw new Error('Enter your name before creating a room.'); setError(''); const player = createModePlayer({ id: playerId, name: trimmedName, isHost: true }); const id = makeRoomId(mode); await createCompetitiveRoom({ mode, roomId: id, player, category }); saveSession(mode, { roomId: id, playerId, playerName: trimmedName, resumeAfterRefresh: false }); setRecovery({ status: 'idle', roomId: '', message: '' }); setRoomId(id); }, [mode, playerId, playerName]);
+  const createRoom = useCallback(async (category) => {
+    if (!playerId) throw new Error('Authenticating player identity. Please try again in a moment.');
+    const trimmedName = playerName.trim();
+    if (!trimmedName) throw new Error('Enter your name before creating a room.');
+    setError('');
+    const player = createModePlayer({ id: playerId, name: trimmedName, isHost: true });
+    const id = await createRoomWithCollisionRetry({
+      generateCode: makeRoomId,
+      create: (candidateRoomId) => createCompetitiveRoom({ mode, roomId: candidateRoomId, player, category }),
+    });
+    saveSession(mode, { roomId: id, playerId, playerName: trimmedName, resumeAfterRefresh: false });
+    setRecovery({ status: 'idle', roomId: '', message: '' });
+    setRoomId(id);
+  }, [mode, playerId, playerName]);
     const joinRoom = useCallback(async (requestedId) => {
     const trace = createJoinTrace();
     setError('');

@@ -48,6 +48,8 @@ import {
   canStartGame,
 } from '../game/roomManager.js';
 import { CATEGORIES } from '../data/gameData.js';
+import { createRoomWithCollisionRetry } from '../game/roomCreationRetry.js';
+
 import { isFirebaseConfigured } from '../firebase/config.js';
 import { initAuth, getCurrentUserId } from '../firebase/auth.js';
 import {
@@ -581,19 +583,14 @@ const attachToRoom = useCallback((roomCode, playerId, roomPhase, roundId = null)
       if (isFirebaseConfigured && fbStatus === 'ready') {
         const uid = getCurrentUserId();
         if (!uid) throw new Error('Not authenticated');
-        let code;
-        let attempts = 0;
-        // Ensure unique code
-        do {
-          code = generateRoomCode();
-          attempts++;
-          if (attempts > 10) throw new Error('Could not generate unique room code.');
-        } while (false); // Uniqueness check could do a Firebase get() here but kept simple
-
         const trimmedName = String(name || '').trim();
         if (!trimmedName) throw new Error('Enter your name before creating a room.');
         const hostPlayer = createPlayer({ id: uid, name: trimmedName, isHost: true });
-        await createFirebaseRoom({ code, hostPlayer, mode: activeMode, category });
+        const code = await createRoomWithCollisionRetry({
+          generateCode: generateRoomCode,
+          create: (candidateCode) => createFirebaseRoom({ code: candidateCode, hostPlayer, mode: activeMode, category }),
+        });
+
         dispatch({
           type: A.CREATE_ROOM,
           payload: { roomCode: code, hostPlayer, mode: activeMode, category },
