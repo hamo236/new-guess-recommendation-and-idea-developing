@@ -5513,21 +5513,21 @@
 
   @media (max-width: 390px) {
     .ng-mobile-nav-dock {
-      height: 4.55rem;
+      height: 4.85rem;
     }
 
     .ng-mobile-nav-link {
-      padding-inline: 0;
+      padding-inline: 0.125rem;
     }
 
     .ng-mobile-nav-link > .material-symbols-outlined {
       margin-bottom: 0.15rem;
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       line-height: 1;
     }
 
     .ng-mobile-nav-link > span:last-child {
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: 0.05em;
       line-height: 1;
     }
