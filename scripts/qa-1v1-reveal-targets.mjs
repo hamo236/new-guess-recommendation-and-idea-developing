@@ -91,8 +91,8 @@ const nextState = confirmOpponentGuessed(state, {
 });
 
 assert.equal(nextState.phase, GAME_PHASES.ROUND_END, '1v1 confirmation must enter the existing round-end reveal phase');
-assert.equal(nextState.roundResult.revealedTargets['player-a'].id, targetB.id, 'Player A reveal must show the target Player A was trying to guess');
-assert.equal(nextState.roundResult.revealedTargets['player-b'].id, targetA.id, 'Player B reveal must show the target Player B was trying to guess');
+assert.equal(nextState.roundResult.revealedTargets['player-a'].id, targetA.id, 'Player A reveal must show Player A own hidden target');
+assert.equal(nextState.roundResult.revealedTargets['player-b'].id, targetB.id, 'Player B reveal must show Player B own hidden target');
 assert.equal(nextState.roundResult.winnerId, 'player-b', 'Reveal regression must not change the confirmed winner');
 assert.equal(nextState.scores['player-b'], 1, 'Reveal regression must not change existing 1v1 scoring');
 assert.ok(
@@ -109,7 +109,7 @@ const fallbackResult = confirmOpponentGuessed(fallbackState, {
   confirmerId: 'player-b',
   guessedPlayerId: 'player-a',
 });
-assert.equal(fallbackResult.roundResult.revealedTargets['player-a'].id, targetB.id, 'Fallback owner targets must preserve Player A reveal mapping');
-assert.equal(fallbackResult.roundResult.revealedTargets['player-b'].id, targetA.id, 'Fallback owner targets must preserve Player B reveal mapping');
+assert.equal(fallbackResult.roundResult.revealedTargets['player-a'].id, targetA.id, 'Fallback owner targets must preserve Player A own-target mapping');
+assert.equal(fallbackResult.roundResult.revealedTargets['player-b'].id, targetB.id, 'Fallback owner targets must preserve Player B own-target mapping');
 
 console.log('1v1 reveal target regression passed: owner-scoped snapshots remain authoritative and five-second timing is unchanged.');

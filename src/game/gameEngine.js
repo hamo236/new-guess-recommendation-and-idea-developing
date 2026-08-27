@@ -292,7 +292,7 @@ function captureRoundTargets(state, activeIds) {
       .map((playerId, index) => {
         const opponentId = activeIds.find((id) => id !== playerId);
         const target = isOneVOne
-          ? secretTargets[opponentId] ?? displayTargets[playerId]
+          ? secretTargets[playerId] ?? displayTargets[opponentId]
           : displayTargets[playerId]
           ?? (activeIds.length > 2
             ? secretTargets[activeIds[(index + 1) % activeIds.length]]
