@@ -513,9 +513,7 @@ export function subscribeToDisplayTarget(code, playerId, onTarget) {
   const displayRef = ref(db, `privateRooms/${code}/${playerId}/displayTarget`);
 
   const unsub = onValue(displayRef, (snap) => {
-    if (snap.exists()) {
-      onTarget(snap.val());
-    }
+    onTarget(snap.exists() ? snap.val() : null);
   });
 
   return () => off(displayRef);

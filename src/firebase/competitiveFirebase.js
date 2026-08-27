@@ -70,10 +70,12 @@ export function subscribeCompetitiveConnection({ onConnection, onError }) {
 }
 
 const JOIN_SLOT_IDS = ['slot-1', 'slot-2', 'slot-3', 'slot-4'];
-const TEAM_SEAT_IDS = ['team_a_1', 'team_a_2', 'team_b_1', 'team_b_2'];
+const TEAM_SEAT_IDS = ['team_a_1', 'team_a_2', 'team_a_3', 'team_b_1', 'team_b_2', 'team_b_3'];
 
 function teamSeatIds(teamId) {
-  return teamId === 'team_a' ? ['team_a_1', 'team_a_2'] : ['team_b_1', 'team_b_2'];
+  return teamId === 'team_a'
+    ? ['team_a_1', 'team_a_2', 'team_a_3']
+    : ['team_b_1', 'team_b_2', 'team_b_3'];
 }
 
 function teamSeatForJoinSlot(slotId) {

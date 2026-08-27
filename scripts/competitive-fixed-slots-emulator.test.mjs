@@ -6,8 +6,13 @@ import { ref, runTransaction, set, get } from 'firebase/database';
 const rules = readFileSync(new URL('../database.rules.json', import.meta.url), 'utf8');
 const testEnv = await initializeTestEnvironment({
   projectId: 'neon-guess-test-emulator',
-  database: { rules },
+  database: {
+    rules,
+    host: process.env.FIREBASE_DATABASE_EMULATOR_HOST || '127.0.0.1',
+    port: Number(process.env.FIREBASE_DATABASE_EMULATOR_PORT || 9001),
+  },
 });
+await testEnv.clearDatabase();
 
 const slotIds = ['slot-2', 'slot-3', 'slot-4'];
 const playerRecord = (id, joinOrder, teamId) => ({ id, name: id, isHost: false, connected: true, score: 0, joinOrder, teamId });

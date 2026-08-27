@@ -28,6 +28,16 @@
   --ng-space-page-stack-mobile: 20px;
   --ng-page-content-max: 72rem;
   --ng-page-content-gutter: clamp(1rem, 3vw, 2rem);
+  /* Premium material hierarchy: preserve the neon/glass signature while making emphasis explicit. */
+  --ng-material-rest-bg: rgba(255, 255, 255, 0.035);
+  --ng-material-elevated-bg: rgba(255, 255, 255, 0.075);
+  --ng-material-strong-bg: rgba(255, 255, 255, 0.12);
+  --ng-material-border: rgba(255, 255, 255, 0.14);
+  --ng-material-border-highlight: rgba(255, 255, 255, 0.22);
+  --ng-material-blur-rest: 12px;
+  --ng-material-blur-elevated: 20px;
+  --ng-touch-min: 44px;
+  --ng-ease-responsive: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @layer utilities {
@@ -59,44 +69,58 @@
   }
 
   .glass-panel {
-    background: var(--ng-color-surface);
+    background: var(--ng-material-rest-bg);
     box-shadow: var(--ng-shadow-surface);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(var(--ng-material-blur-rest));
+    -webkit-backdrop-filter: blur(var(--ng-material-blur-rest));
+    border-top: 1px solid var(--ng-material-border-highlight);
+    border-left: 1px solid var(--ng-material-border);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .glass-panel-1 {
-    background: var(--ng-color-surface-soft);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: var(--ng-material-rest-bg);
+    backdrop-filter: blur(var(--ng-material-blur-rest));
+    -webkit-backdrop-filter: blur(var(--ng-material-blur-rest));
   }
 
   .glass-panel-2 {
-    background: var(--ng-color-surface-elevated);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--ng-material-elevated-bg);
+    backdrop-filter: blur(var(--ng-material-blur-elevated));
+    -webkit-backdrop-filter: blur(var(--ng-material-blur-elevated));
+    border-top: 1px solid var(--ng-material-border-highlight);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 1px solid var(--ng-material-border);
+    border-right: 1px solid var(--ng-material-border);
   }
   
   .glass-panel-heavy {
-    background: var(--ng-color-surface-strong);
+    background: var(--ng-material-strong-bg);
     box-shadow: var(--ng-shadow-elevated);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(var(--ng-material-blur-elevated));
+    -webkit-backdrop-filter: blur(var(--ng-material-blur-elevated));
+    border: 1px solid var(--ng-material-border-highlight);
     border-top: 1px solid rgba(255, 255, 255, 0.3);
   }
 
   .glass-card {
-    background: linear-gradient(145deg, var(--ng-color-surface) 0%, var(--ng-color-surface-soft) 100%);
+    background: linear-gradient(145deg, var(--ng-material-rest-bg) 0%, rgba(255, 255, 255, 0.018) 100%);
     box-shadow: var(--ng-shadow-surface);
+  }
+
+  /* Keep the material hierarchy readable on engines without backdrop-filter. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass-panel,
+    .glass-panel-1,
+    .glass-card {
+      background: rgba(14, 21, 32, 0.92);
+    }
+
+    .glass-panel-2,
+    .glass-panel-heavy {
+      background: rgba(20, 29, 42, 0.96);
+    }
   }
 
 
@@ -235,11 +259,11 @@
   }
 
   .premium-cta {
-    min-height: 48px;
+    min-height: max(48px, var(--ng-touch-min));
     padding-inline: 20px;
     border-radius: var(--ng-radius-control);
     box-shadow: 0 0 20px rgba(233, 179, 255, 0.16);
-    transition: transform var(--ng-motion-fast) ease, background-color var(--ng-motion-fast) ease, border-color var(--ng-motion-fast) ease;
+    transition: transform var(--ng-motion-fast) var(--ng-ease-responsive), background-color var(--ng-motion-fast) var(--ng-ease-responsive), border-color var(--ng-motion-fast) var(--ng-ease-responsive);
   }
 
   .premium-cta:hover:not(:disabled),
@@ -475,14 +499,13 @@
   /* Addition 20: unified state ladder for existing interactive controls. */
   .ng-interactive {
     position: relative;
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-min);
     touch-action: manipulation;
-    transition: transform var(--ng-motion-fast) cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow var(--ng-motion-fast) ease,
-      border-color var(--ng-motion-fast) ease,
-      background-color var(--ng-motion-fast) ease,
-      color var(--ng-motion-fast) ease,
-      filter var(--ng-motion-fast) ease;
+    transition: transform var(--ng-motion-fast) var(--ng-ease-responsive),
+      box-shadow var(--ng-motion-fast) var(--ng-ease-responsive),
+      border-color var(--ng-motion-fast) var(--ng-ease-responsive),
+      background-color var(--ng-motion-fast) var(--ng-ease-responsive),
+      color var(--ng-motion-fast) var(--ng-ease-responsive);
   }
 
   .ng-interactive:hover:not(:disabled) {
@@ -6718,5 +6741,523 @@
     .ng-room-join-field:focus-within {
       transition: none;
     }
+  }
+}
+
+
+/* VISUAL EVOLUTION — HOME / LOBBY HIERARCHY PASS 2026-08-27
+   Presentation-only. Existing markup, handlers, routes, state, callbacks, and data flow remain unchanged. */
+
+/* Home mode entries become a calm two-card command grid on wide screens and a single scan path on mobile. */
+.ng-home-gateway > .contents {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.8rem, 1.8vw, 1.2rem);
+  align-items: stretch;
+}
+
+.ng-home-gateway > .contents > .ng-home-route-card {
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(145deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018));
+  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.ng-home-gateway > .contents > .ng-home-route-card > div {
+  flex: 1 1 auto;
+}
+
+/* Preserve premium depth: the image tile keeps the blur/glow, while the surrounding card stays quiet. */
+.ng-home-gateway > .contents > .ng-home-route-card > div > div:first-child {
+  background-color: rgba(8, 12, 28, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 28px rgba(0,0,0,0.14);
+}
+
+.ng-home-gateway > .contents > .ng-home-route-card .premium-kicker {
+  margin-top: 0.15rem;
+  color: color-mix(in srgb, var(--ng-color-primary, #7df4ff) 88%, white 12%) !important;
+}
+
+.ng-home-gateway > .contents > .ng-home-route-card p {
+  color: color-mix(in srgb, var(--ng-color-on-surface-variant, #aeb9ce) 92%, white 8%);
+}
+
+/* The CTA remains visually compact but keeps its existing mobile hit area. */
+.ng-home-gateway > .contents > .ng-home-route-card > div > button {
+  min-height: 3rem !important;
+  margin-top: 0.15rem;
+  border-radius: 0.8rem !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 28px rgba(0,0,0,0.16) !important;
+}
+
+/* Daily Drop becomes a secondary utility rail instead of competing with mode entry. */
+.ng-home-gateway > .premium-command-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.035), rgba(255,255,255,0.014));
+  box-shadow: 0 14px 42px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.ng-home-gateway > .premium-command-card + button {
+  min-height: 2.75rem;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  margin-top: -0.25rem;
+  padding-inline: 0.85rem;
+  border-color: rgba(125,244,255,0.22);
+  background: rgba(125,244,255,0.035);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.ng-home-gateway > .premium-command-card + button > span:last-child {
+  letter-spacing: 0.14em;
+}
+
+@media (max-width: 880px) {
+  .ng-home-gateway > .contents {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ng-home-gateway > .contents {
+    gap: 0.75rem;
+  }
+
+  .ng-home-gateway > .contents > .ng-home-route-card {
+    padding: 0.8rem !important;
+  }
+
+  .ng-home-gateway > .contents > .ng-home-route-card > div > div:first-child {
+    min-height: 4.25rem !important;
+  }
+
+  .ng-home-gateway > .contents > .ng-home-route-card .premium-pill {
+    min-height: 1.7rem !important;
+    padding-inline: 0.55rem !important;
+  }
+
+  .ng-home-gateway > .premium-command-card + button {
+    min-height: 2.7rem;
+    width: auto;
+    justify-self: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ng-home-gateway > .contents > .ng-home-route-card,
+  .ng-home-gateway > .contents > .ng-home-route-card > div > button,
+  .ng-home-gateway > .premium-command-card + button {
+    transition: none !important;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ng-home-gateway > .contents > .ng-home-route-card > div > button:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* Lobby command surfaces share one readable action lane without changing disabled/loading truth. */
+.ng-home-gateway .ng-room-entry-actions,
+.ng-home-gateway .ng-lobby-mobile-actions {
+  min-width: 0;
+}
+
+.ng-home-gateway .ng-room-entry-action__text {
+  overflow-wrap: anywhere;
+}
+
+.ng-home-gateway .ng-lobby-setup-switch {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 26px rgba(0,0,0,0.12);
+}
+
+@media (max-width: 640px) {
+  .ng-home-gateway .ng-room-entry-actions > button,
+  .ng-home-gateway .ng-lobby-mobile-actions .premium-cta,
+  .ng-home-gateway .ng-lobby-mobile-actions .ng-join-room-action {
+    min-height: 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ng-home-gateway .ng-lobby-setup-switch * {
+    transition: none !important;
+  }
+}
+
+
+
+/* Visual Evolution Addition 29: competitive command clarity. Presentation-only. */
+@layer utilities {
+  /* Keep the room command rail visually compact while preserving its existing actions. */
+  .ng-tournament-command-rail {
+    position: relative;
+    min-width: 0;
+    padding-block: 0.2rem;
+  }
+
+  .ng-tournament-command-rail > div:first-child {
+    min-width: 0;
+  }
+
+  .ng-tournament-command-rail h1 {
+    max-width: 22ch;
+    text-wrap: balance;
+  }
+
+  .ng-tournament-command-rail .ng-tournament-leave {
+    min-height: 2.75rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 115, 127, 0.05);
+    transition: border-color var(--ng-motion-fast) ease, background-color var(--ng-motion-fast) ease, transform var(--ng-motion-fast) ease;
+  }
+
+  .ng-tournament-command-rail .ng-tournament-leave:not(:disabled):hover {
+    background: rgba(255, 115, 127, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .ng-tournament-command-rail .ng-tournament-leave:not(:disabled):active {
+    transform: translateY(0);
+  }
+
+  /* Stable in-flow signal group: status first, optional voice second. */
+  .ng-tournament-session-signals {
+    min-width: 0;
+    align-items: stretch;
+  }
+
+  .ng-tournament-session-signals > * {
+    min-width: 0;
+  }
+
+  /* Reduce bracket competition through spacing and a clearer active-state ladder. */
+  .ng-tournament-bracket--semifinals,
+  .ng-tournament-bracket--progression {
+    gap: 0.85rem;
+  }
+
+  .ng-tournament-bracket-card {
+    transition: border-color var(--ng-motion-fast) ease, box-shadow var(--ng-motion-fast) ease, background-color var(--ng-motion-fast) ease;
+  }
+
+  .ng-tournament-bracket-card--active {
+    border-color: rgba(125, 244, 255, 0.48);
+    box-shadow: 0 0 0 1px rgba(125, 244, 255, 0.1), 0 14px 34px rgba(0, 0, 0, 0.2), 0 0 22px rgba(125, 244, 255, 0.08);
+  }
+
+  .ng-tournament-bracket-card__status {
+    line-height: 1.15;
+  }
+
+  .ng-tournament-flow-divider {
+    color: rgba(233, 179, 255, 0.78);
+    background: rgba(233, 179, 255, 0.025);
+  }
+
+  /* Four-player action rail: visually smaller, still touch-safe at 44px. */
+  .ng-tournament-action-card button {
+    min-height: 2.75rem;
+    padding-inline: 0.8rem;
+    transition: transform var(--ng-motion-fast) ease-out, box-shadow var(--ng-motion-fast) ease-out, background-color var(--ng-motion-fast) ease-out;
+  }
+
+  .ng-tournament-action-card button:not(:disabled):hover {
+    filter: none;
+    transform: translateY(-1px);
+  }
+
+  /* Voice remains recognizable as a capsule rather than competing with the match surface. */
+  .ng-tournament-shell .voice-room-panel {
+    min-height: 2.9rem;
+    border-radius: 0.9rem;
+  }
+
+  .ng-tournament-shell .voice-room-panel button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .ng-tournament-command-rail {
+      gap: 0.65rem;
+    }
+
+    .ng-tournament-command-rail h1 {
+      max-width: 18ch;
+      font-size: clamp(1.45rem, 7vw, 2.15rem);
+      line-height: 1.06;
+    }
+
+    .ng-tournament-command-rail .ng-tournament-leave {
+      align-self: flex-start;
+      padding-inline: 0.8rem;
+    }
+
+    .ng-tournament-session-signals {
+      gap: 0.5rem;
+    }
+
+    .ng-tournament-bracket--semifinals,
+    .ng-tournament-bracket--progression {
+      gap: 0.65rem;
+    }
+
+    .ng-tournament-bracket-card {
+      padding: 0.78rem;
+    }
+
+    .ng-tournament-bracket-card__header {
+      min-height: 2.45rem;
+    }
+
+    .ng-tournament-action-card {
+      padding: 0.9rem;
+    }
+
+    .ng-tournament-action-card button {
+      min-height: 2.75rem;
+      letter-spacing: 0.025em;
+    }
+  }
+
+  @media (max-height: 430px) and (orientation: landscape) {
+    .ng-tournament-command-rail {
+      padding-block: 0;
+    }
+
+    .ng-tournament-bracket--semifinals,
+    .ng-tournament-bracket--progression {
+      gap: 0.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ng-tournament-command-rail .ng-tournament-leave,
+    .ng-tournament-action-card button,
+    .ng-tournament-bracket-card {
+      transition: none;
+    }
+
+    .ng-tournament-command-rail .ng-tournament-leave:not(:disabled):hover,
+    .ng-tournament-command-rail .ng-tournament-leave:not(:disabled):active,
+    .ng-tournament-action-card button:not(:disabled):hover,
+    .ng-tournament-action-card button:not(:disabled):active {
+      transform: none;
+    }
+  }
+}
+
+
+/* Gameplay visual evolution — cycle 6: calm scan path and touch-safe controls.
+   Presentation only: no gameplay timing, state, target, round, or callback changes. */
+.bg-cyber-grid > header {
+  min-height: 4rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035));
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.14), inset 0 -1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.bg-cyber-grid > header > div:first-child {
+  min-width: 4.25rem;
+}
+
+.bg-cyber-grid > header > div:first-child > div {
+  min-width: 2.35rem;
+}
+
+.bg-cyber-grid > header h1 {
+  letter-spacing: 0.035em;
+}
+
+.bg-cyber-grid > header button,
+.bg-cyber-grid > header a {
+  min-height: 2.75rem;
+  touch-action: manipulation;
+  transition-property: transform, background-color, border-color, box-shadow, color, opacity;
+}
+
+.bg-cyber-grid > main > .flex-1 > .max-w-md {
+  gap: clamp(0.9rem, 2.5vw, 1.35rem);
+}
+
+.bg-cyber-grid > main > .flex-1 > .max-w-md > .glass-panel {
+  border-color: rgba(255, 255, 255, 0.13);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.032));
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+.bg-cyber-grid main > .flex-1 > .max-w-md > button {
+  min-height: 3.25rem;
+  padding-block: 0.75rem;
+  padding-inline: 1rem;
+  border-radius: 0.95rem;
+  touch-action: manipulation;
+  transition-property: transform, background-color, border-color, box-shadow, color, opacity;
+}
+
+.bg-cyber-grid article[aria-label^="Your opponent"] {
+  border-color: rgba(125, 244, 255, 0.26);
+  background: linear-gradient(155deg, rgba(125, 244, 255, 0.085), rgba(255, 255, 255, 0.035) 52%, rgba(7, 11, 18, 0.72));
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.2), 0 0 24px rgba(125, 244, 255, 0.075), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+}
+
+.bg-cyber-grid article[aria-label^="Your opponent"] img {
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22), 0 0 18px rgba(125, 244, 255, 0.1);
+}
+
+.ng-competitive-chat {
+  border-color: rgba(125, 244, 255, 0.22);
+  background: linear-gradient(180deg, rgba(12, 17, 24, 0.97), rgba(8, 13, 22, 0.96));
+  box-shadow: 0 -14px 42px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.ng-competitive-chat > button {
+  min-height: 3rem;
+  touch-action: manipulation;
+  transition-property: background-color, border-color, color, box-shadow, opacity;
+}
+
+.ng-competitive-chat form input,
+.ng-competitive-chat form button {
+  min-height: 2.75rem;
+  touch-action: manipulation;
+}
+
+.ng-1v1-leave-dialog {
+  backdrop-filter: blur(12px);
+}
+
+.ng-1v1-leave-dialog__panel {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: linear-gradient(145deg, rgba(20, 24, 36, 0.96), rgba(8, 13, 22, 0.94));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42), 0 0 34px rgba(233, 179, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.055);
+}
+
+.ng-1v1-leave-dialog__panel button {
+  min-height: 2.9rem;
+  touch-action: manipulation;
+  transition-property: transform, background-color, border-color, box-shadow, color, opacity;
+}
+
+@media (max-width: 640px) {
+  .bg-cyber-grid > header {
+    min-height: 4.25rem;
+    padding-block: 0.45rem;
+  }
+
+  .bg-cyber-grid > header > div:first-child {
+    gap: 0.4rem;
+  }
+
+  .bg-cyber-grid > header > div:first-child > div {
+    min-width: 2.1rem;
+  }
+
+  .bg-cyber-grid > header h1 {
+    font-size: clamp(0.88rem, 4.1vw, 1.12rem);
+  }
+
+  .bg-cyber-grid > header > div:nth-child(2) {
+    max-width: 45%;
+  }
+
+  .bg-cyber-grid > header > div:nth-child(2) > span,
+  .bg-cyber-grid > header > div:nth-child(2) > h1,
+  .bg-cyber-grid > header > div:nth-child(2) > span:last-child {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bg-cyber-grid > main > .flex-1 > .max-w-md {
+    gap: 0.9rem;
+  }
+
+  .bg-cyber-grid > main > .flex-1 > .max-w-md > .glass-panel {
+    border-radius: 1rem;
+    padding: 0.85rem;
+  }
+
+  .bg-cyber-grid article[aria-label^="Your opponent"] > div:last-child {
+    gap: 0.65rem;
+    padding: 0.9rem;
+  }
+
+  .bg-cyber-grid article[aria-label^="Your opponent"] > div:last-child > div {
+    width: min(9.5rem, 52vw);
+    height: min(9.5rem, 52vw);
+  }
+
+  .ng-competitive-chat {
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  .ng-competitive-chat form {
+    gap: 0.5rem;
+    padding: 0.65rem;
+  }
+
+  .ng-competitive-chat form input {
+    padding-inline: 0.7rem;
+  }
+
+  .ng-competitive-chat form button {
+    min-width: 4.25rem;
+    padding-inline: 0.7rem;
+  }
+
+  .ng-1v1-leave-dialog__panel {
+    padding: 1.15rem;
+    border-radius: 1.15rem;
+  }
+
+  .ng-1v1-leave-dialog__panel > div:last-child {
+    gap: 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-cyber-grid > header,
+  .bg-cyber-grid > header button,
+  .bg-cyber-grid > header a,
+  .bg-cyber-grid main > .flex-1 > .max-w-md > button,
+  .ng-competitive-chat,
+  .ng-competitive-chat > button,
+  .ng-1v1-leave-dialog__panel,
+  .ng-1v1-leave-dialog__panel button {
+    transition: none;
+  }
+}
+
+
+/* Final cross-screen polish: shared interaction language without behavior coupling. */
+:where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) :where(button, a, [role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+:where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) :where(input, select, textarea):focus-visible {
+  outline: 2px solid rgba(125, 244, 255, 0.9);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(125, 244, 255, 0.12), 0 0 22px rgba(125, 244, 255, 0.12);
+}
+
+:where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) :where(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+@media (max-width: 640px) {
+  :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) :where(button, a, [role="button"]) {
+    min-height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) :where(button, a, input, select, textarea) {
+    scroll-behavior: auto;
   }
 }

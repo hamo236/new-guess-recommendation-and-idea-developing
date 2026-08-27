@@ -18,6 +18,22 @@ assert.doesNotMatch(
   /roundTargets:/,
   'viewer-scoped display targets must not populate the owner-scoped round snapshot',
 );
+assert.match(
+  displayReducerBlock,
+  /if \(!target\)[\s\S]*delete nextDisplayTargets\[action\.payload\.playerId\]/,
+  'cleared display-target events must remove stale viewer-scoped targets',
+);
+assert.match(
+  contextSource,
+  /displayTargets: state\.mode === GAME_MODES\.ONE_V_ONE && clearRoundSnapshot \? \{\} : state\.displayTargets/,
+  'only 1v1 room round transitions may clear stale viewer-scoped targets',
+);
+const gameSyncSource = readFileSync(new URL('../src/firebase/gameSync.js', import.meta.url), 'utf8');
+assert.match(
+  gameSyncSource,
+  /onTarget\(snap\.exists\(\) \? snap\.val\(\) : null\)/,
+  'private display-target subscriptions must emit null when their node is cleared',
+);
 
 const targetA = { id: 'target-a', name: 'Target A', image: '/a.png', category: 'people' };
 const targetB = { id: 'target-b', name: 'Target B', image: '/b.png', category: 'people' };

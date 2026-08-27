@@ -230,7 +230,7 @@ function gameReducer(state, action) {
         hostId: fb.hostId ?? state.hostId,
         mode: fb.mode ?? state.mode,
         category: fb.category ?? state.category,
-        displayTargets: state.displayTargets,
+        displayTargets: state.mode === GAME_MODES.ONE_V_ONE && clearRoundSnapshot ? {} : state.displayTargets,
         roundTargets: clearRoundSnapshot ? {} : state.roundTargets,
       };
     }
@@ -266,7 +266,12 @@ function gameReducer(state, action) {
     // When opponent's target arrives for UI display
     case A.FB_DISPLAY_TARGET_RECEIVED: {
       const target = action.payload.target;
-      if (!target || target.targetReady !== true) return state;
+      if (!target) {
+        const nextDisplayTargets = { ...state.displayTargets };
+        delete nextDisplayTargets[action.payload.playerId];
+        return { ...state, displayTargets: nextDisplayTargets };
+      }
+      if (target.targetReady !== true) return state;
       const isOneVOne = state.mode === '1v1';
       if (target.roundId && target.roundId !== state.roundId && !isOneVOne) return state;
       if (target.round != null && target.round !== state.round && !(isOneVOne && target.round > state.round)) return state;
