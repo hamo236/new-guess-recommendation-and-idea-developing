@@ -5477,6 +5477,9 @@
 @layer utilities {
   /* 274 — bound frequent press feedback to a small, GPU-safe transform. */
   .ng-mobile-nav-link {
+    flex: 1 1 0%;
+    width: auto;
+    min-width: 0;
     transform: translateZ(0);
     will-change: transform;
   }
@@ -5514,7 +5517,19 @@
     }
 
     .ng-mobile-nav-link {
-      padding-inline: 0.15rem;
+      padding-inline: 0;
+    }
+
+    .ng-mobile-nav-link > .material-symbols-outlined {
+      margin-bottom: 0.15rem;
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+
+    .ng-mobile-nav-link > span:last-child {
+      font-size: 9px;
+      letter-spacing: 0.05em;
+      line-height: 1;
     }
 
     .ng-mobile-nav-link--active::after {
