@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
+  beginPlayingFromPreview,
   confirmOpponentGuessed,
   GAME_MODES,
   GAME_PHASES,
@@ -43,6 +44,34 @@ assert.doesNotMatch(
   /isOneVOne && target\.round > state\.round/,
   '1v1 must not accept future-round private target events',
 );
+const beginRoundReducerBlock = contextSource.match(
+  /case A\.BEGIN_ROUND:([\s\S]*?)\n\s*case A\.CONFIRM_OPPONENT_GUESS:/,
+)?.[1];
+assert.ok(beginRoundReducerBlock, 'BEGIN_ROUND reducer branch must remain present');
+assert.match(
+  beginRoundReducerBlock,
+  /state\.mode === GAME_MODES\.ONE_V_ONE && action\.payload\?\.nextState/,
+  '1v1 reducer must accept the canonical precomputed begin-round state',
+);
+assert.match(
+  beginRoundReducerBlock,
+  /\? action\.payload\.nextState\s*:\s*engineBeginPlaying\(state\)/,
+  'non-1v1 reducer behavior must retain the established engine path',
+);
+const beginRoundActionBlock = contextSource.match(
+  /beginRound: useCallback\(async \(\) => \{([\s\S]*?)\n\s*\}, \[state, isHost, myPlayerId, subscribeToMyTarget\]\)/,
+)?.[1];
+assert.ok(beginRoundActionBlock, 'beginRound action must remain present');
+assert.match(
+  beginRoundActionBlock,
+  /if \(state\.mode === GAME_MODES\.ONE_V_ONE\) \{[\s\S]*dispatch\(\{ type: A\.BEGIN_ROUND, payload: \{ nextState \} \}\)/,
+  '1v1 begin-round action must dispatch the same canonical state used for Firebase sync',
+);
+assert.match(
+  beginRoundActionBlock,
+  /syncBeginPlaying\([\s\S]*nextState\.targets,[\s\S]*nextState\.displayTargets,/,
+  'Firebase begin-round sync must continue receiving the canonical nextState target maps',
+);
 const boardSource = readFileSync(new URL('../src/pages/GameBoardPage.jsx', import.meta.url), 'utf8');
 assert.match(
   boardSource,
@@ -57,6 +86,69 @@ assert.match(
   'private display-target subscriptions must emit null when their node is cleared',
 );
 
+const previewState = {
+  mode: GAME_MODES.ONE_V_ONE,
+  phase: GAME_PHASES.PREVIEW,
+  category: 'cartoons',
+  matchId: 'probe-room',
+  roomCode: 'probe-room',
+  round: 1,
+  usedTargetIds: [],
+  players: [{ id: 'player-a' }, { id: 'player-b' }],
+  playerAssignments: {},
+  targets: {},
+  displayTargets: {},
+  roundTargets: {},
+  eliminatedCards: {},
+  scores: { 'player-a': 0, 'player-b': 0 },
+  questions: [],
+  votes: [],
+  matchResults: {},
+};
+const originalRandom = Math.random;
+const beginWithRandom = (value) => {
+  Math.random = () => value;
+  try {
+    return beginPlayingFromPreview(previewState);
+  } finally {
+    Math.random = originalRandom;
+  }
+};
+const canonicalState = beginWithRandom(0.1);
+const secondIndependentAssignment = beginWithRandom(0.9);
+const canonicalTargetIds = Object.values(canonicalState.targets).map((target) => target.id);
+const secondTargetIds = Object.values(secondIndependentAssignment.targets).map((target) => target.id);
+assert.notDeepEqual(
+  secondTargetIds,
+  canonicalTargetIds,
+  'the regression setup must distinguish the old second randomized assignment from the canonical Firebase assignment',
+);
+const firebaseBeginPayload = {
+  targets: canonicalState.targets,
+  displayTargets: canonicalState.displayTargets,
+};
+const localStateAfterCanonicalDispatch = canonicalState;
+assert.deepEqual(
+  localStateAfterCanonicalDispatch.targets,
+  firebaseBeginPayload.targets,
+  '1v1 local reducer state must reuse the exact target assignment sent to Firebase',
+);
+assert.deepEqual(
+  localStateAfterCanonicalDispatch.displayTargets,
+  firebaseBeginPayload.displayTargets,
+  '1v1 local viewer targets must reuse the exact display assignment sent to Firebase',
+);
+const canonicalReveal = confirmOpponentGuessed(localStateAfterCanonicalDispatch, {
+  confirmerId: 'player-a',
+  guessedPlayerId: 'player-b',
+});
+for (const playerId of Object.keys(firebaseBeginPayload.targets)) {
+  assert.equal(
+    canonicalReveal.roundResult.revealedTargets[playerId].id,
+    firebaseBeginPayload.targets[playerId].id,
+    `reveal for ${playerId} must come from the canonical Firebase target assignment`,
+  );
+}
 const targetA = { id: 'target-a', name: 'Target A', image: '/a.png', category: 'people' };
 const targetB = { id: 'target-b', name: 'Target B', image: '/b.png', category: 'people' };
 const before = Date.now();

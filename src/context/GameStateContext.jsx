@@ -162,7 +162,10 @@ function gameReducer(state, action) {
     case A.SET_CATEGORY:    return { ...state, category: action.payload.category };
     case A.SET_MODE:        return { ...state, mode: action.payload.mode };
     case A.START_GAME:      return engineEnterPreview(state);
-    case A.BEGIN_ROUND:     return engineBeginPlaying(state);
+    case A.BEGIN_ROUND:
+      return state.mode === GAME_MODES.ONE_V_ONE && action.payload?.nextState
+        ? action.payload.nextState
+        : engineBeginPlaying(state);
     case A.CONFIRM_OPPONENT_GUESS: return engineConfirmOpponentGuessed(state, action.payload);
     case A.SEND_CHAT:       return engineSendChatMessage(state, action.payload);
     case A.SUBMIT_QUESTION: return engineSubmitQuestion(state, action.payload);
@@ -719,7 +722,11 @@ const attachToRoom = useCallback((roomCode, playerId, roomPhase, roundId = null)
     beginRound: useCallback(async () => {
       if (!isHost && isFirebaseConfigured) return;
       const nextState = engineBeginPlaying(state);
-      dispatch({ type: A.BEGIN_ROUND });
+      if (state.mode === GAME_MODES.ONE_V_ONE) {
+        dispatch({ type: A.BEGIN_ROUND, payload: { nextState } });
+      } else {
+        dispatch({ type: A.BEGIN_ROUND });
+      }
 
       if (isFirebaseConfigured && state.roomCode) {
         await syncBeginPlaying(
