@@ -81,12 +81,12 @@ assert.match(
 );
 assert.match(
   targetCardSource,
-  /if \(compact\)[\s\S]*max-w-\[220px\][\s\S]*h-32 w-32 sm:h-36 sm:w-36[\s\S]*object-contain/,
+  /if \(compact\)[\s\S]*max-w-\[250px\][\s\S]*h-36 w-36 sm:h-40 sm:w-40[\s\S]*object-contain/,
   'the compact 1v1 card must keep the full target image in a smaller bounded well',
 );
 assert.match(
   targetCardSource,
-  /if \(compact\)[\s\S]*rounded-\[1\.35rem\][\s\S]*bg-white\/\[0\.045\][\s\S]*backdrop-blur-sm/,
+  /if \(compact\)[\s\S]*rounded-2xl[\s\S]*bg-white\/\[0\.055\][\s\S]*backdrop-blur-sm/,
   'the compact 1v1 card must use a smooth restrained translucent surface',
 );
 assert.match(
@@ -100,6 +100,16 @@ assert.match(
   '1v1 Guess Correct must use a calm rounded action treatment with transform-only motion and reduced-motion support',
 );
 assert.match(boardSource, /onClick=\{handleConfirmOpponentGuess\}/, 'Guess Correct handler must remain unchanged');
+assert.match(
+  boardSource,
+  /isPlaying && \([\s\S]*onClick=\{\(\) => setShowExitDialog\(true\)\}[\s\S]*aria-label="Exit game"[\s\S]*min-h-11 min-w-11[\s\S]*\)\}\s*\{timerDisplay \?/,
+  'the Exit trigger must remain visible beside timer/status content during every active gameplay round',
+);
+assert.match(
+  boardSource,
+  /actions\.leaveRoom\(\)[\s\S]*navigate\('\/'\)/,
+  'Exit confirmation must continue using the existing leaveRoom and root navigation path',
+);
 const gameSyncSource = readFileSync(new URL('../src/firebase/gameSync.js', import.meta.url), 'utf8');
 assert.match(
   gameSyncSource,

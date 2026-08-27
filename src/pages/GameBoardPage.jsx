@@ -259,34 +259,37 @@ const GameBoardPage = () => {
           )}
         </div>
 
-        {timerDisplay ? (
-          <div className="flex items-center gap-2">
-            <span className="font-label-caps text-[9px] tracking-widest text-on-surface-variant">
-              {isPreview ? 'STARTS IN' : 'TIME'}
-            </span>
-            <span className="material-symbols-outlined animate-pulse-neon text-primary-fixed" aria-hidden="true">timer</span>
-            <span className={`font-stats-num text-stats-num animate-pulse-neon ${timerCritical ? 'text-error' : 'text-primary-fixed'}`} aria-live="polite">
-              {timerDisplay}
-            </span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            {isPlaying && (
-              <button
-                type="button"
-                onClick={() => setShowExitDialog(true)}
-                className="font-label-caps text-[10px] text-error border border-error/50 rounded-md px-2 py-1 hover:bg-error/10 transition-colors"
-              >
-                EXIT GAME
-              </button>
-            )}
+        <div className="flex items-center justify-end gap-2 min-w-0">
+          {isPlaying && (
+            <button
+              type="button"
+              onClick={() => setShowExitDialog(true)}
+              aria-label="Exit game"
+              title="Exit game"
+              className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-full border border-error/35 bg-error/10 px-2.5 font-label-caps text-[10px] tracking-[0.08em] text-error transition-colors duration-150 hover:bg-error/15 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
+            >
+              <span className="material-symbols-outlined text-[17px]" aria-hidden="true">logout</span>
+              <span className="hidden sm:inline">EXIT</span>
+            </button>
+          )}
+          {timerDisplay ? (
+            <div className="flex items-center gap-2">
+              <span className="font-label-caps text-[9px] tracking-widest text-on-surface-variant">
+                {isPreview ? 'STARTS IN' : 'TIME'}
+              </span>
+              <span className="material-symbols-outlined animate-pulse-neon text-primary-fixed" aria-hidden="true">timer</span>
+              <span className={`font-stats-num text-stats-num animate-pulse-neon ${timerCritical ? 'text-error' : 'text-primary-fixed'}`} aria-live="polite">
+                {timerDisplay}
+              </span>
+            </div>
+          ) : (
             <span className={`font-label-caps text-label-caps px-2 py-1 rounded-full ${
               isPreview ? 'text-secondary bg-secondary/10' : 'text-primary-fixed bg-primary-fixed/10'
             }`}>
               {isPreview ? 'Preview' : 'Live'}
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </header>
 
       <MatchTimeline phase={phase} GAME_PHASES={GAME_PHASES} className="relative z-20 border-b border-white/5 bg-surface/30 backdrop-blur-md" />
