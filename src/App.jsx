@@ -97,7 +97,7 @@ function PersistentClassicVoiceRoom() {
     : state.players.map((player) => player.id);
 
   return (
-    <div className="pointer-events-none fixed left-1/2 top-[max(0.75rem,env(safe-area-inset-top))] z-[60] w-[calc(100vw-1rem)] max-w-[22rem] -translate-x-1/2 sm:left-auto sm:right-4 sm:top-4 sm:w-[min(22rem,calc(100vw-2rem))] sm:translate-x-0">
+    <div className="pointer-events-none fixed left-3 right-3 top-[calc(env(safe-area-inset-top)+6.25rem)] z-[60] w-auto max-w-[16rem] sm:left-auto sm:right-4 sm:top-24 sm:w-[min(16rem,calc(100vw-2rem))]">
       <div className="pointer-events-auto">
         <VoiceRoomPanel
           key={`${voiceRoomId}:${voiceScopeId}`}

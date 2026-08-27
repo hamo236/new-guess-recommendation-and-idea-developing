@@ -74,6 +74,8 @@ assert.match(
 );
 const boardSource = readFileSync(new URL('../src/pages/GameBoardPage.jsx', import.meta.url), 'utf8');
 const targetCardSource = readFileSync(new URL('../src/components/game/OpponentTargetCard.jsx', import.meta.url), 'utf8');
+const appSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
+const competitiveSource = readFileSync(new URL('../src/pages/CompetitiveModePage.jsx', import.meta.url), 'utf8');
 assert.match(
   boardSource,
   /<OpponentTargetCard target=\{opponentTarget\} compact=\{isOneVsOne\} playerName=\{isOneVsOne \? primaryOpponent\?\.name : ''\} \/>/,
@@ -104,7 +106,23 @@ assert.match(
   /isOneVsOne \? 'rounded-full[\s\S]*transition-transform duration-150 ease-out motion-reduce:transition-none'/,
   '1v1 Guess Correct must use a calm rounded action treatment with transform-only motion and reduced-motion support',
 );
-assert.match(boardSource, /onClick=\{handleConfirmOpponentGuess\}/, 'Guess Correct handler must remain unchanged');
+assert.match(
+  boardSource,
+  /onClick=\{handleConfirmOpponentGuess\}/,
+  'Guess Correct handler must remain unchanged',
+);
+for (const [source, label] of [[appSource, 'classic'], [competitiveSource, 'competitive']]) {
+  assert.match(
+    source,
+    /pointer-events-none fixed[\s\S]*top-\[calc\(env\(safe-area-inset-top\)\+6\.25rem\)\][\s\S]*max-w-\[16rem\][\s\S]*sm:top-24/,
+    `${label} voice panel must stay fixed in a compact below-header safe lane`,
+  );
+  assert.match(
+    source,
+    /VoiceRoomPanel[\s\S]*compact/,
+    `${label} voice panel usage and compact behavior must remain present`,
+  );
+}
 assert.match(
   boardSource,
   /isPlaying && \([\s\S]*onClick=\{\(\) => setShowExitDialog\(true\)\}[\s\S]*aria-label="Exit game"[\s\S]*min-h-11 min-w-11[\s\S]*\)\}\s*\{timerDisplay \?/,
