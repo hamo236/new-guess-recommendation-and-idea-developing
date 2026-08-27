@@ -7370,10 +7370,10 @@
   align-items: center;
   justify-content: center;
   padding: 0.65rem 1.05rem;
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--ng-color-secondary, #e9b3ff) 34%, transparent);
   border-radius: 999px;
   color: var(--ng-color-primary, #7df4ff);
-  background: color-mix(in srgb, var(--ng-color-primary, #7df4ff) 8%, transparent);
+  background: color-mix(in srgb, var(--ng-color-primary, #7df4ff) 8%, var(--ng-color-secondary, #e9b3ff) 3%, transparent);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   font-family: inherit;
   font-size: 0.72rem;
@@ -7392,7 +7392,8 @@
 }
 @media (hover: hover) and (pointer: fine) {
   .ng-home-how-to-play__action:hover {
-    background: color-mix(in srgb, var(--ng-color-primary, #7df4ff) 14%, transparent);
+    background: color-mix(in srgb, var(--ng-color-primary, #7df4ff) 14%, var(--ng-color-secondary, #e9b3ff) 6%, transparent);
+    border-color: color-mix(in srgb, var(--ng-color-secondary, #e9b3ff) 52%, transparent);
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
     transform: translateY(-1px);
   }
