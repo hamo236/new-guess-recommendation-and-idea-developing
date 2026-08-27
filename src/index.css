@@ -6932,9 +6932,11 @@
     transition: border-color var(--ng-motion-fast) ease, background-color var(--ng-motion-fast) ease, transform var(--ng-motion-fast) ease;
   }
 
-  .ng-tournament-command-rail .ng-tournament-leave:not(:disabled):hover {
-    background: rgba(255, 115, 127, 0.1);
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    .ng-tournament-command-rail .ng-tournament-leave:not(:disabled):hover {
+      background: rgba(255, 115, 127, 0.1);
+      transform: translateY(-1px);
+    }
   }
 
   .ng-tournament-command-rail .ng-tournament-leave:not(:disabled):active {
@@ -7003,9 +7005,11 @@
     transition: transform var(--ng-motion-fast) ease-out, box-shadow var(--ng-motion-fast) ease-out, background-color var(--ng-motion-fast) ease-out;
   }
 
-  .ng-tournament-action-card button:not(:disabled):hover {
-    filter: none;
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    .ng-tournament-action-card button:not(:disabled):hover {
+      filter: none;
+      transform: translateY(-1px);
+    }
   }
 
   /* Voice remains recognizable as a capsule rather than competing with the match surface. */
