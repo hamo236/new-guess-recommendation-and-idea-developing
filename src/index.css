@@ -37,6 +37,7 @@
   --ng-material-blur-rest: 12px;
   --ng-material-blur-elevated: 20px;
   --ng-touch-min: 44px;
+  --ng-touch-compact: 2.75rem;
   --ng-ease-responsive: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -466,7 +467,7 @@
   }
 
   .ng-segment-control > button {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     border-radius: calc(var(--ng-radius-control) - 2px);
   }
 
@@ -909,7 +910,7 @@
 
   /* Visual Evolution Addition 33: Lobby Connection Capsule. Presentation-only. */
   .ng-connection-capsule {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 22px rgba(0, 0, 0, 0.1);
   }
 
@@ -1700,7 +1701,7 @@
   }
 
   .ng-room-invite-actions > button {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     padding-block: 0.65rem;
   }
 
@@ -2854,13 +2855,13 @@
   .ng-1v1-reference-lobby .ng-host-identity-field input,
   .ng-1v1-reference-lobby .ng-join-code-input,
   .ng-1v1-reference-lobby #join-name {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     padding-block: 0.65rem;
   }
 
   .ng-1v1-reference-lobby .premium-cta,
   .ng-1v1-reference-lobby .ng-join-room-action {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     padding-block: 0.65rem;
     box-shadow: 0 0 12px rgba(125, 244, 255, 0.16);
   }
@@ -3382,7 +3383,7 @@
   min-height: 3.25rem !important;
   border-radius: 0.9rem !important;
   border-color: var(--ng-1v1-line-soft) !important;
-  background: rgba(255,255,255,0.035) !important;
+  background: var(--ng-material-rest-bg) !important;
   transition: border-color 180ms ease-out, background-color 180ms ease-out !important;
 }
 
@@ -3428,7 +3429,7 @@
 .ng-home-gateway {
   --ng-home-line: rgba(125,244,255,0.2);
   --ng-home-line-soft: rgba(255,255,255,0.1);
-  --ng-home-card: rgba(255,255,255,0.035);
+  --ng-home-card: var(--ng-material-rest-bg);
 }
 
 /* 167 — Equal Mode Card Rhythm: both primary modes share one visual grid language. */
@@ -3758,7 +3759,7 @@
   min-width: 0;
   overflow-wrap: anywhere;
   border-radius: var(--ng-radius-control, 12px);
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--ng-material-rest-bg);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .ng-page-shell > [role="alert"] strong,
@@ -3769,7 +3770,7 @@
 /* 180 — exit control: visually secondary, compact, and still easy to hit. */
 .ng-page-shell > div:first-child > button[aria-busy],
 .ng-page-shell > div:first-child > button.touch-feedback {
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   flex: 0 0 auto;
   white-space: nowrap;
   border-radius: var(--ng-radius-control, 12px);
@@ -3799,7 +3800,7 @@
   }
   .ng-page-shell > div:first-child > button[aria-busy],
   .ng-page-shell > div:first-child > button.touch-feedback {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     padding-inline: 0.8rem;
   }
 }
@@ -3817,7 +3818,7 @@
 /* 182 — compact primary actions: smaller visual mass while preserving mobile hit area. */
 .ng-lobby-mobile-actions .premium-cta,
 .ng-lobby-mobile-actions .ng-join-room-action {
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   padding-block: 0.68rem;
   padding-inline: 1rem;
   border-radius: 0.7rem;
@@ -3860,7 +3861,7 @@
 }
 .ng-room-code-copy {
   min-width: 2.75rem;
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   padding: 0.55rem;
   border-radius: 0.65rem;
   border: 1px solid rgba(125, 244, 255, 0.28);
@@ -4101,7 +4102,7 @@
 /* 201 — keep the compact control visually subordinate to the room identifier. */
 .ng-room-code-copy {
   min-width: 2.75rem;
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   white-space: nowrap;
 }
 /* 202 — make long status copy wrap without shifting the code lane. */
@@ -4160,7 +4161,7 @@
 /* 208 — keep the room action lane readable when controls stack on narrow phones. */
 @media (max-width: 390px) {
   .ng-1v1-reference-lobby .ng-room-share-action {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     padding-inline: 0.85rem;
   }
   .ng-1v1-reference-lobby .ng-room-code-copy {
@@ -4196,7 +4197,7 @@
 .ng-1v1-reference-lobby .ng-create-room-action,
 .ng-1v1-reference-lobby .ng-join-room-action,
 .ng-1v1-reference-lobby .ng-lobby-action-dock > button {
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   border-radius: 0.75rem;
   transition-property: transform, color, background-color, border-color, box-shadow;
   transition-duration: 180ms;
@@ -4468,7 +4469,7 @@
   /* Addition 221: category buttons expose the existing selection state without new state. */
   .ng-1v1-play-type-option {
     border-color: rgba(255, 255, 255, 0.13);
-    background: rgba(255, 255, 255, 0.035);
+    background: var(--ng-material-rest-bg);
     color: var(--ng-color-text-muted);
     transition: transform var(--ng-motion-fast) cubic-bezier(0.22, 1, 0.36, 1),
       border-color var(--ng-motion-fast) ease-out,
@@ -4522,7 +4523,7 @@
     }
 
     .ng-1v1-play-type-option {
-      min-height: 2.75rem;
+      min-height: var(--ng-touch-compact, 2.75rem);
       padding-inline: 0.7rem;
     }
   }
@@ -4549,12 +4550,12 @@
     width: 100%;
     max-width: 24rem;
     padding: 0.25rem;
-    background: rgba(255, 255, 255, 0.035);
+    background: var(--ng-material-rest-bg);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 22px rgba(0, 0, 0, 0.12);
   }
 
   .ng-1v1-reference-lobby .ng-lobby-setup-switch > button {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     border-radius: calc(var(--ng-radius-control) - 4px);
     letter-spacing: 0.01em;
   }
@@ -4573,7 +4574,7 @@
   /* Addition 225: a small, discoverable copy affordance beside the existing code. */
   .ng-1v1-reference-lobby .ng-room-code-copy {
     min-width: 2.75rem;
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     border: 1px solid rgba(125, 244, 255, 0.28);
     border-radius: 0.65rem;
     background: rgba(125, 244, 255, 0.07);
@@ -4636,7 +4637,7 @@
 
   .ng-1v1-reference-lobby .ng-host-identity-field .premium-cta,
   .ng-1v1-reference-lobby .ng-room-share-action {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     border-radius: 0.7rem;
   }
 
@@ -4648,7 +4649,7 @@
   }
 
   .ng-1v1-reference-lobby input {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     border-radius: 0.7rem;
   }
 
@@ -4701,7 +4702,7 @@
   }
 
   .ng-1v1-reference-lobby .ng-lobby-setup-switch > button {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     border-radius: 0.55rem;
   }
 
@@ -4785,7 +4786,7 @@
   /* Addition 234: reserve a calm action lane below the roster without changing action truth. */
   .ng-1v1-waiting-column .premium-cta {
     width: 100%;
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     border-radius: 0.7rem;
   }
 
@@ -4938,7 +4939,7 @@
 
   .ng-1v1-reference-lobby .ng-room-code-copy {
     min-width: 2.75rem;
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     border: 1px solid rgba(125, 244, 255, 0.28);
     border-radius: 0.6rem;
     color: rgb(125, 244, 255);
@@ -5034,7 +5035,7 @@
     }
 
     .ng-1v1-reference-lobby .ng-room-share-action {
-      min-height: 2.75rem;
+      min-height: var(--ng-touch-compact, 2.75rem);
     }
   }
 }
@@ -5601,7 +5602,7 @@
 }
 
 .ng-1v1-visual-reset .ng-recovery-actions .ng-button-cluster > button {
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   flex: 1 1 9rem;
   transition-property: color, background-color, border-color, box-shadow, transform;
   transition-duration: 150ms;
@@ -6005,7 +6006,7 @@
 
 .ng-tournament-reveal__target {
   min-width: 0;
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--ng-material-rest-bg);
 }
 
 .ng-tournament-reveal__target span {
@@ -6190,7 +6191,7 @@
 .ng-tournament-bracket-card__player--tbd { border-style: dashed; color: var(--ng-color-on-surface-variant); }
 .ng-tournament-bracket-card__score { flex: 0 0 auto; min-width: 1.5rem; text-align: right; font-family: var(--ng-font-stats); font-variant-numeric: tabular-nums; }
 .ng-tournament-flow-divider {
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   align-items: center;
   gap: 0.75rem;
   border-block: 1px solid rgba(233, 179, 255, 0.14);
@@ -6414,7 +6415,7 @@
 
 .ng-tournament-shell > [role="dialog"] button,
 .ng-tournament-shell > [role="alert"] button {
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   max-width: 100%;
   overflow-wrap: anywhere;
   white-space: normal;
@@ -6512,7 +6513,7 @@
 /* Improvement 3: enlarge existing controls while preserving their exact handlers and states. */
 .ng-tournament-shell .voice-room-panel button {
   min-width: 2.75rem;
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
 }
 
 /* Improvement 4: make existing pressed, disabled, and focus states legible as a control group. */
@@ -6800,7 +6801,7 @@
 }
 
 .ng-home-gateway > .premium-command-card + button {
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   width: fit-content;
   max-width: 100%;
   margin-inline: auto;
@@ -6909,7 +6910,7 @@
   }
 
   .ng-tournament-command-rail .ng-tournament-leave {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     border-radius: 0.75rem;
     background: rgba(255, 115, 127, 0.05);
     transition: border-color var(--ng-motion-fast) ease, background-color var(--ng-motion-fast) ease, transform var(--ng-motion-fast) ease;
@@ -6960,7 +6961,7 @@
 
   /* Four-player action rail: visually smaller, still touch-safe at 44px. */
   .ng-tournament-action-card button {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
     padding-inline: 0.8rem;
     transition: transform var(--ng-motion-fast) ease-out, box-shadow var(--ng-motion-fast) ease-out, background-color var(--ng-motion-fast) ease-out;
   }
@@ -6978,7 +6979,7 @@
 
   .ng-tournament-shell .voice-room-panel button {
     min-width: 2.75rem;
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
   }
 
   @media (max-width: 640px) {
@@ -7019,7 +7020,7 @@
     }
 
     .ng-tournament-action-card button {
-      min-height: 2.75rem;
+      min-height: var(--ng-touch-compact, 2.75rem);
       letter-spacing: 0.025em;
     }
   }
@@ -7074,7 +7075,7 @@
 
 .bg-cyber-grid > header button,
 .bg-cyber-grid > header a {
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   touch-action: manipulation;
   transition-property: transform, background-color, border-color, box-shadow, color, opacity;
 }
@@ -7122,7 +7123,7 @@
 
 .ng-competitive-chat form input,
 .ng-competitive-chat form button {
-  min-height: 2.75rem;
+  min-height: var(--ng-touch-compact, 2.75rem);
   touch-action: manipulation;
 }
 
@@ -7252,7 +7253,7 @@
 
 @media (max-width: 640px) {
   :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) :where(button, a, [role="button"]) {
-    min-height: 2.75rem;
+    min-height: var(--ng-touch-compact, 2.75rem);
   }
 }
 
