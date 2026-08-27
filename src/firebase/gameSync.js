@@ -272,6 +272,32 @@ export const syncResolveKnockoutMatch = firebaseOp(async (code, nextState, match
 });
 
 /**
+ * Build the authoritative round-result payload persisted to the shared room.
+ *
+ * In 1v1, activePlayerIds comes from the canonical round target assignment and
+ * remains reliable while the room player map may still be converging at the
+ * first round boundary. Non-1v1 validation intentionally retains its existing
+ * room-player-count behavior.
+ */
+export function buildPersistedRoundResult(current, roundResult) {
+  const roomPlayers = Object.values(current?.players || {});
+  const revealedTargets = roundResult?.revealedTargets || {};
+  const hasTwoRevealedTargets = Object.keys(revealedTargets).length === 2;
+  const hasTwoActivePlayers = Array.isArray(current?.activePlayerIds)
+    && current.activePlayerIds.length === 2;
+  const canPersistReveal = hasTwoRevealedTargets && (
+    current?.mode === '1v1'
+      ? roomPlayers.length === 2 || hasTwoActivePlayers
+      : roomPlayers.length === 2
+  );
+
+  return {
+    ...roundResult,
+    revealedTargets: canPersistReveal ? revealedTargets : {},
+  };
+}
+
+/**
  * Synchronize opponent-confirmed correct guess and round lock with reveal data.
  */
 export const syncConfirmOpponentGuess = firebaseOp(async (code, newScores, roundResult, revealEndTimestamp) => {
@@ -281,14 +307,7 @@ export const syncConfirmOpponentGuess = firebaseOp(async (code, newScores, round
     if (!current || current.phase !== 'playing' || current.roundId !== roundResult.roundId) {
       return current;
     }
-    const roomPlayers = Object.values(current.players || {});
-    const revealedTargets = roundResult.revealedTargets || {};
-    const persistedRoundResult = {
-      ...roundResult,
-      revealedTargets: roomPlayers.length === 2 && Object.keys(revealedTargets).length === 2
-        ? revealedTargets
-        : {},
-    };
+    const persistedRoundResult = buildPersistedRoundResult(current, roundResult);
 
     return {
       ...current,

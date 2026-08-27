@@ -7,6 +7,7 @@ import {
   GAME_PHASES,
   REVEAL_DURATION_MS,
 } from '../src/game/gameEngine.js';
+import { buildPersistedRoundResult } from '../src/firebase/gameSync.js';
 
 const contextSource = readFileSync(new URL('../src/context/GameStateContext.jsx', import.meta.url), 'utf8');
 const displayReducerBlock = contextSource.match(
@@ -296,4 +297,40 @@ const fallbackResult = confirmOpponentGuessed(fallbackState, {
 assert.equal(fallbackResult.roundResult.revealedTargets['player-a'].id, targetA.id, 'Fallback owner targets must preserve Player A own-target mapping');
 assert.equal(fallbackResult.roundResult.revealedTargets['player-b'].id, targetB.id, 'Fallback owner targets must preserve Player B own-target mapping');
 
-console.log('1v1 reveal target regression passed: owner-scoped snapshots remain authoritative and five-second timing is unchanged.');
+const roundOneResult = {
+  roundId: 'room-123:round:1',
+  revealedTargets: {
+    'player-a': targetA,
+    'player-b': targetB,
+  },
+};
+const transientRoundOneRoom = {
+  mode: GAME_MODES.ONE_V_ONE,
+  activePlayerIds: ['player-a', 'player-b'],
+  players: {
+    'player-a': { id: 'player-a', name: 'Player A' },
+  },
+};
+const persistedRoundOneResult = buildPersistedRoundResult(transientRoundOneRoom, roundOneResult);
+assert.equal(
+  persistedRoundOneResult.revealedTargets['player-a'].id,
+  targetA.id,
+  'Round-one 1v1 reveal must survive a transient one-player room snapshot',
+);
+assert.equal(
+  persistedRoundOneResult.revealedTargets['player-b'].id,
+  targetB.id,
+  'Round-one 1v1 reveal must persist both owner-scoped targets',
+);
+
+const transientSocialResult = buildPersistedRoundResult(
+  { mode: GAME_MODES.SOCIAL, activePlayerIds: ['player-a', 'player-b'], players: { 'player-a': { id: 'player-a' } } },
+  roundOneResult,
+);
+assert.deepEqual(
+  transientSocialResult.revealedTargets,
+  {},
+  'Non-1v1 reveal persistence must retain the existing room-player validation',
+);
+
+console.log('1v1 reveal target regression passed: owner-scoped snapshots, transient round-one persistence, and five-second timing are unchanged.');
