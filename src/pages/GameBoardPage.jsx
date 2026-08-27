@@ -441,7 +441,7 @@ const GameBoardPage = () => {
                   </figure>
                 ) : null
               ) : (
-                <OpponentTargetCard target={opponentTarget} compact={isOneVsOne} />
+                <OpponentTargetCard target={opponentTarget} compact={isOneVsOne} playerName={isOneVsOne ? primaryOpponent?.name : ''} />
               )}
 
               {primaryOpponent && (

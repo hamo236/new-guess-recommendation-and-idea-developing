@@ -76,18 +76,23 @@ const boardSource = readFileSync(new URL('../src/pages/GameBoardPage.jsx', impor
 const targetCardSource = readFileSync(new URL('../src/components/game/OpponentTargetCard.jsx', import.meta.url), 'utf8');
 assert.match(
   boardSource,
-  /<OpponentTargetCard target=\{opponentTarget\} compact=\{isOneVsOne\} \/>/,
+  /<OpponentTargetCard target=\{opponentTarget\} compact=\{isOneVsOne\} playerName=\{isOneVsOne \? primaryOpponent\?\.name : ''\} \/>/,
   'only 1v1 receives the compact target-card presentation variant',
 );
 assert.match(
   targetCardSource,
-  /if \(compact\)[\s\S]*max-w-\[250px\][\s\S]*h-36 w-36 sm:h-40 sm:w-40[\s\S]*object-contain/,
+  /if \(compact\)[\s\S]*max-w-\[250px\][\s\S]*h-40 w-40 sm:h-44 sm:w-44[\s\S]*object-contain/,
   'the compact 1v1 card must keep the full target image in a smaller bounded well',
 );
 assert.match(
   targetCardSource,
   /if \(compact\)[\s\S]*rounded-2xl[\s\S]*bg-white\/\[0\.055\][\s\S]*backdrop-blur-sm/,
   'the compact 1v1 card must use a smooth restrained translucent surface',
+);
+assert.match(
+  targetCardSource,
+  /if \(compact\)[\s\S]*playerName \|\| 'OPPONENT'[\s\S]*font-label-caps/,
+  'the compact 1v1 card must identify the opponent player beneath the target image',
 );
 assert.match(
   boardSource,

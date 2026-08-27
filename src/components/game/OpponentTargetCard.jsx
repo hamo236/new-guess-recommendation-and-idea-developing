@@ -4,7 +4,7 @@ import React from 'react';
  * Displays the opponent's secret target (from displayTargets — never ownTarget).
  * Display-only intelligence card; no interaction.
  */
-const OpponentTargetCard = ({ target, compact = false }) => {
+const OpponentTargetCard = ({ target, compact = false, playerName = '' }) => {
   if (!target) {
     return (
       <div className="w-full max-w-[280px] glass-panel rounded-xl p-stack-md border border-white/10 flex flex-col items-center gap-3">
@@ -23,15 +23,18 @@ const OpponentTargetCard = ({ target, compact = false }) => {
     return (
       <article
         className="w-full max-w-[250px] sm:max-w-[270px] flex flex-col items-center"
-        aria-label={`Your opponent's target is ${target.name}`}
+        aria-label={`Your opponent ${playerName || 'player'}'s target is ${target.name}`}
       >
-        <div className="relative flex h-36 w-36 sm:h-40 sm:w-40 items-center justify-center overflow-hidden rounded-2xl border border-primary-fixed/25 bg-white/[0.055] p-2 shadow-[0_8px_24px_rgba(0,0,0,0.16)] backdrop-blur-sm">
+        <div className="relative flex h-40 w-40 sm:h-44 sm:w-44 items-center justify-center overflow-hidden rounded-2xl border border-primary-fixed/25 bg-white/[0.055] p-1 shadow-[0_8px_24px_rgba(0,0,0,0.16)] backdrop-blur-sm">
           <img
             src={target.image}
             alt={target.name}
             className="block h-full w-full object-contain"
           />
         </div>
+        <p className="mt-2 text-center font-label-caps text-[11px] tracking-[0.12em] text-on-surface">
+          {playerName || 'OPPONENT'}
+        </p>
       </article>
     );
   }
