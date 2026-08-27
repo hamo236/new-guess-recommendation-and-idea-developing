@@ -4,6 +4,7 @@ import { useGameContext } from '../context/GameStateContext';
 import { getItemsByCategory } from '../data/gameData';
 import { formatTime } from '../hooks/useGameTimer';
 import OpponentTargetCard from '../components/game/OpponentTargetCard';
+import ClassicRoomVoiceContainer from '../components/game/ClassicRoomVoiceContainer.jsx';
 import RoundRevealPanel from '../components/game/RoundRevealPanel';
 import MatchTimeline from '../components/game/MatchTimeline';
 import CompetitiveChatPanel from '../components/game/CompetitiveChatPanel';
@@ -314,6 +315,11 @@ const GameBoardPage = () => {
         {isPreview && (isKnockoutTransition ? (
           <div className="flex-1 overflow-y-auto px-container-margin py-stack-md no-scrollbar">
             <div className="max-w-2xl mx-auto w-full flex flex-col items-center justify-center gap-stack-lg text-center min-h-full">
+              <div className="ng-room-voice-slot w-full flex justify-end">
+                <div className="w-full sm:max-w-[16rem] sm:ml-auto">
+                  <ClassicRoomVoiceContainer />
+                </div>
+              </div>
               <span className="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Semifinals Complete</span>
               <h2 className="font-display-lg text-display-lg text-on-background">Next Matches</h2>
               <div className="w-full grid gap-4">
@@ -334,6 +340,11 @@ const GameBoardPage = () => {
         ) : (
           <div className="flex-1 overflow-y-auto px-container-margin py-stack-md no-scrollbar">
             <div className="max-w-2xl mx-auto w-full flex flex-col gap-stack-md">
+              <div className="ng-room-voice-slot w-full flex justify-end">
+                <div className="w-full sm:max-w-[16rem] sm:ml-auto">
+                  <ClassicRoomVoiceContainer />
+                </div>
+              </div>
               <div className="text-center flex flex-col gap-2">
                 <span className="font-label-caps text-label-caps text-secondary uppercase tracking-widest">
                   Category Preview
@@ -396,6 +407,11 @@ const GameBoardPage = () => {
         {isPlaying && (
           <div className="flex-1 overflow-y-auto overflow-x-hidden px-container-margin py-stack-md no-scrollbar">
             <div className="max-w-md mx-auto w-full flex flex-col items-center gap-stack-md">
+              <div className="ng-room-voice-slot w-full flex justify-end">
+                <div className="w-full sm:max-w-[16rem] sm:ml-auto">
+                  <ClassicRoomVoiceContainer />
+                </div>
+              </div>
 
               <div className="w-full text-center">
                 <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">

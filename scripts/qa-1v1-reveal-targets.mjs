@@ -75,6 +75,8 @@ assert.match(
 const boardSource = readFileSync(new URL('../src/pages/GameBoardPage.jsx', import.meta.url), 'utf8');
 const targetCardSource = readFileSync(new URL('../src/components/game/OpponentTargetCard.jsx', import.meta.url), 'utf8');
 const appSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8');
+const lobbySource = readFileSync(new URL('../src/pages/LobbyPage.jsx', import.meta.url), 'utf8');
+const classicVoiceSource = readFileSync(new URL('../src/components/game/ClassicRoomVoiceContainer.jsx', import.meta.url), 'utf8');
 const competitiveSource = readFileSync(new URL('../src/pages/CompetitiveModePage.jsx', import.meta.url), 'utf8');
 assert.match(
   boardSource,
@@ -111,23 +113,47 @@ assert.match(
   /onClick=\{handleConfirmOpponentGuess\}/,
   'Guess Correct handler must remain unchanged',
 );
-for (const [source, label] of [[appSource, 'classic'], [competitiveSource, 'competitive']]) {
-  assert.match(
-    source,
-    /pointer-events-none fixed[\s\S]*top-\[calc\(env\(safe-area-inset-top\)\+6\.25rem\)\][\s\S]*max-w-\[16rem\][\s\S]*sm:top-24/,
-    `${label} voice panel must stay fixed in a compact below-header safe lane`,
-  );
-  assert.match(
-    source,
-    /VoiceRoomPanel[\s\S]*compact/,
-    `${label} voice panel usage and compact behavior must remain present`,
-  );
-  assert.match(
-    source,
-    /ng-room-voice-container[\s\S]*role="group" aria-label="Room voice controls"/,
-    `${label} voice panel must remain inside the Room Comms visual container`,
-  );
-}
+assert.doesNotMatch(appSource, /PersistentClassicVoiceRoom|VoiceRoomPanel/, 'classic voice must not remain mounted as a global fixed overlay');
+assert.match(
+  classicVoiceSource,
+  /VoiceRoomPanel[\s\S]*compact/,
+  'classic voice panel usage and compact behavior must remain present',
+);
+assert.match(
+  classicVoiceSource,
+  /ng-room-voice-container[\s\S]*role="group" aria-label="Room voice controls"/,
+  'classic voice panel must remain inside the Room Comms visual container',
+);
+assert.match(
+  classicVoiceSource,
+  /roomId=\{voiceRoomId\}[\s\S]*scopeId=\{voiceScopeId\}[\s\S]*eligibleParticipantIds=\{eligibleParticipantIds\}/,
+  'classic voice scope and participant contract must remain wired to the existing room state',
+);
+assert.match(
+  lobbySource,
+  /ng-room-voice-slot[\s\S]*ClassicRoomVoiceContainer/,
+  'classic Lobby must render the Room voice container in normal document flow',
+);
+assert.match(
+  boardSource,
+  /ng-room-voice-slot[\s\S]*ClassicRoomVoiceContainer/,
+  'classic gameplay must render the Room voice container in normal document flow',
+);
+assert.match(
+  competitiveSource,
+  /ng-tournament-session-signals ng-room-voice-slot w-full flex justify-end[\s\S]*ng-room-voice-container/,
+  'competitive voice must render inside an in-page Room slot rather than a fixed overlay',
+);
+assert.doesNotMatch(
+  competitiveSource,
+  /ng-tournament-session-signals[^\"]*fixed[^\"]*top-\[calc\(env\(safe-area-inset-top\)/,
+  'competitive voice slot must not be viewport-fixed',
+);
+assert.match(
+  competitiveSource,
+  /VoiceRoomPanel[\s\S]*compact/,
+  'competitive voice panel usage and compact behavior must remain present',
+);
 assert.match(
   competitiveSource,
   /roomVoiceMatch = state\?\.phase === MODE_PHASES\.LOBBY[\s\S]*matchId: 'room'[\s\S]*players\.map\(\(player\) => player\.id\)/,

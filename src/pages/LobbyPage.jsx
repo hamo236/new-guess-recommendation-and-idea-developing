@@ -6,6 +6,7 @@ import { MAX_PLAYERS, MIN_PLAYERS, createPlayer, generateRoomCode } from '../gam
 import { getPlayerAvatar, getPlayerAvatarLabel, getRosterAvatarIndex } from '../ui/playerAvatars.js';
 import { loadSession } from '../utils/sessionStorage';
 import ActiveMatchRecoveryCard from '../components/ActiveMatchRecoveryCard';
+import ClassicRoomVoiceContainer from '../components/game/ClassicRoomVoiceContainer.jsx';
 
 const MOCK_NAMES = ['NeonNinja99', 'CyberViper', 'GhostByte', 'ZeroKelvin'];
 
@@ -528,6 +529,13 @@ const LobbyPage = () => {
 
           {/* Create / Join Toggle + Mode Selector for existing 1v1 room state and legacy-compatible flow. */}
           {(!isOneVOneLobby || roomCreated) && <section className={`ng-home-route-card glass-panel-2 premium-command-card rounded-xl p-stack-lg flex flex-col gap-stack-md border border-primary-fixed/15 ${isOneVOneLobby ? 'ng-1v1-reference-lobby p-3 sm:p-5 gap-stack-sm border-primary-fixed/30 bg-gradient-to-br from-white/[0.06] via-primary-fixed/[0.03] to-transparent' : ''}`}>
+            {roomCode && (
+              <div className="ng-room-voice-slot flex w-full justify-end border-b border-white/5 pb-3">
+                <div className="w-full sm:max-w-[16rem]">
+                  <ClassicRoomVoiceContainer />
+                </div>
+              </div>
+            )}
             {/* Create / Join tab switcher */}
             <div role="group" aria-label="Lobby setup" className={`ng-lobby-setup-switch ng-segment-control relative flex p-1 glass-panel-1 rounded-lg border border-white/10 w-full sm:max-w-xs mb-2 ${''}`}>
               <div className={`absolute inset-y-1 w-[calc(50%-4px)] bg-primary-fixed/20 backdrop-blur-md rounded-md border border-primary-fixed/50 shadow-[0_0_15px_rgba(125,244,255,0.2)] transition-transform duration-300 ease-out z-0 ${lobbyMode === 'create' ? 'translate-x-0 left-1' : 'translate-x-[calc(100%+4px)] left-1'}`} />
