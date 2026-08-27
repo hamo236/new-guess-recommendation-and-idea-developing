@@ -4,7 +4,7 @@ import React from 'react';
  * Displays the opponent's secret target (from displayTargets — never ownTarget).
  * Display-only intelligence card; no interaction.
  */
-const OpponentTargetCard = ({ target, compact = false, playerName = '' }) => {
+const OpponentTargetCard = ({ target, compact = false }) => {
   if (!target) {
     return (
       <div className="w-full max-w-[280px] glass-panel rounded-xl p-stack-md border border-white/10 flex flex-col items-center gap-3">
@@ -22,18 +22,19 @@ const OpponentTargetCard = ({ target, compact = false, playerName = '' }) => {
   if (compact) {
     return (
       <article
-        className="w-full max-w-[250px] sm:max-w-[270px] flex flex-col items-center"
-        aria-label={`Your opponent ${playerName || 'player'}'s target is ${target.name}`}
+        className="w-full max-w-[320px] flex flex-col items-center gap-3"
+        aria-label={`Your opponent's target is ${target.name}`}
       >
-        <div className="relative flex h-40 w-40 sm:h-44 sm:w-44 items-center justify-center overflow-hidden rounded-2xl border border-primary-fixed/25 bg-white/[0.055] p-1 shadow-[0_8px_24px_rgba(0,0,0,0.16)] backdrop-blur-sm">
+        <div className="relative h-40 w-40 sm:h-44 sm:w-44 overflow-hidden rounded-2xl border-2 border-primary-fixed/40 shadow-[0_0_20px_rgba(125,244,255,0.25)]">
           <img
             src={target.image}
             alt={target.name}
-            className="block h-full w-full object-contain"
+            className="h-full w-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
         </div>
-        <p className="mt-2 text-center font-label-caps text-[11px] tracking-[0.12em] text-on-surface">
-          {playerName || 'OPPONENT'}
+        <p className="font-headline-sm text-headline-sm text-on-surface text-center font-semibold leading-tight">
+          {target.name}
         </p>
       </article>
     );

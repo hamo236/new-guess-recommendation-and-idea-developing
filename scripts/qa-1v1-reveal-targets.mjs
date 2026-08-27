@@ -78,40 +78,37 @@ const appSource = readFileSync(new URL('../src/App.jsx', import.meta.url), 'utf8
 const lobbySource = readFileSync(new URL('../src/pages/LobbyPage.jsx', import.meta.url), 'utf8');
 const classicVoiceSource = readFileSync(new URL('../src/components/game/ClassicRoomVoiceContainer.jsx', import.meta.url), 'utf8');
 const competitiveSource = readFileSync(new URL('../src/pages/CompetitiveModePage.jsx', import.meta.url), 'utf8');
+const compactTargetBlock = targetCardSource.match(/if \(compact\) \{([\s\S]*?)\n\s*\}\n\n\s*return \(/)?.[1];
+assert.ok(compactTargetBlock, 'the 1v1 frame-free Target branch must remain present');
 assert.match(
   boardSource,
-  /<OpponentTargetCard target=\{opponentTarget\} \/>/,
-  '1v1 must use the canonical non-compact Target presentation path',
+  /<OpponentTargetCard target=\{opponentTarget\} compact=\{isOneVsOne\} \/>/,
+  'only 1v1 receives the frame-free Target presentation variant',
 );
 assert.match(
   targetCardSource,
-  /className="w-full max-w-\[320px\] glass-panel rounded-2xl overflow-hidden[\s\S]*bg-primary-fixed\/5/,
-  'the canonical Target card surface must remain the shared 2v2/Four presentation',
+  /if \(compact\)[\s\S]*max-w-\[320px\][\s\S]*h-40 w-40 sm:h-44 sm:w-44[\s\S]*object-cover/,
+  'the 1v1 Target image must keep the established dimensions and full visual fill',
 );
 assert.match(
   targetCardSource,
-  /className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-2xl overflow-hidden border-2 border-primary-fixed\/40[\s\S]*object-cover/,
-  'the canonical Target image dimensions and crop mode must remain shared',
-);
-assert.match(
-  targetCardSource,
-  /The character your opponent is trying to guess\./,
-  'the canonical Target guidance copy must remain shared',
+  /if \(compact\)[\s\S]*target\.name[\s\S]*font-headline-sm[\s\S]*text-center/,
+  'the 1v1 frame-free presentation must retain the Target name below the image',
 );
 assert.doesNotMatch(
-  boardSource,
-  /compact=\{isOneVsOne\}|playerName=\{isOneVsOne \? primaryOpponent\?\.name : ''\}/,
-  '1v1 must not retain a separate compact target presentation branch',
+  compactTargetBlock,
+  /YOUR OPPONENT'S TARGET|VISIBLE|The character your opponent is trying to guess\.|visibility/,
+  'the 1v1 frame-free branch must not include the large card header, badge, guidance, or visibility decoration',
 );
 assert.match(
   boardSource,
-  /isFourPlayerSocial \? '' : '-mt-4 sm:-mt-3'/,
-  '1v1 must use the same target-to-action spacing path as the canonical non-Four presentation',
+  /isFourPlayerSocial \? '' : isOneVsOne \? 'mt-4 sm:mt-5' : '-mt-4 sm:-mt-3'/,
+  '1v1 Guess Correct must sit below the image/name with a comfortable gap while 2v2 keeps its established spacing',
 );
-assert.doesNotMatch(
+assert.match(
   boardSource,
-  /isOneVsOne \? 'rounded-full[\s\S]*transition-transform duration-150 ease-out motion-reduce:transition-none'/,
-  '1v1 Guess Correct must not retain a separate visual button treatment',
+  /className=\{`\$\{isFourPlayerSocial \? '' : isOneVsOne \? 'mt-4 sm:mt-5' : '-mt-4 sm:-mt-3'\}/,
+  '1v1 must use the frame-free action spacing branch',
 );
 assert.match(
   boardSource,
