@@ -9,7 +9,6 @@ function UiSoundLayer() {
       const target = event.target instanceof Element ? event.target.closest('button, a, [role="button"]') : null;
       if (!target || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
       if (target.closest('[data-ui-sound-control]') || target.dataset.uiSound === 'off') return;
-      if (!target.classList.contains('touch-feedback') && !target.dataset.uiSound) return;
       playUiClickSound(target.dataset.uiSound || 'click');
     };
 

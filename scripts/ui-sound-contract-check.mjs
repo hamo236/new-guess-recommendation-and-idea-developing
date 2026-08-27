@@ -7,7 +7,7 @@ const utility = fs.readFileSync('src/utils/uiSound.js', 'utf8');
 const checks = [
   ['App mounts UiSoundLayer', app.includes('<UiSoundLayer />')],
   ['toggle is marked as sound control', layer.includes('data-ui-sound-control')],
-  ['delegated feedback is limited to opt-in controls', layer.includes('touch-feedback') && layer.includes('target.dataset.uiSound')],
+  ['delegated feedback covers real buttons and links with opt-out guards', layer.includes("closest('button, a, [role=\"button\"]')") && layer.includes("target.dataset.uiSound === 'off'") && layer.includes('target.disabled')],
   ['sound utility supports browser AudioContext', utility.includes('AudioContext')],
   ['sound preference is persisted', utility.includes('localStorage')],
   ['audio failures are non-blocking', utility.includes('.catch(() => {})')],
