@@ -6,6 +6,7 @@ import {
   ref,
   remove,
   set,
+  update,
   serverTimestamp,
 } from 'firebase/database';
 
@@ -50,6 +51,16 @@ export async function createVoiceCall({ roomType, roomId, scopeId, hostId, eligi
     participants: {},
   });
   return callRef.key;
+}
+
+export async function expandVoiceCallEligibility({ roomType, roomId, callId, eligibleParticipantIds = [] }) {
+  const callRef = getVoiceCallsRef(roomType, roomId);
+  if (!callRef || !callId) return;
+  const eligible = Object.fromEntries(
+    [...new Set(eligibleParticipantIds.filter(Boolean))].map((id) => [`eligible/${id}`, true]),
+  );
+  if (Object.keys(eligible).length === 0) return;
+  await update(ref(callRef, callId), eligible);
 }
 
 export async function joinVoiceCall({ roomType, roomId, callId, participantId, displayName }) {

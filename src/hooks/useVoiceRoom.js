@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   createVoiceCall,
+  expandVoiceCallEligibility,
   joinVoiceCall,
   leaveVoiceCall,
   subscribeVoiceCalls,
@@ -257,6 +258,16 @@ export function useVoiceRoom({ roomType, roomId, scopeId = 'room', playerId, dis
       setCallId(null);
     }
   }, [callId, calls, callsLoaded]);
+
+  useEffect(() => {
+    if (!joined || !callId || roomType !== 'team-battle') return () => {};
+    expandVoiceCallEligibility({ roomType, roomId, callId, eligibleParticipantIds: eligibleIds })
+      .catch((err) => {
+        setError(err?.message || 'Could not update voice participants.');
+        setStatus('error');
+      });
+    return () => {};
+  }, [callId, eligibleIds, expandVoiceCallEligibility, joined, roomId, roomType]);
 
   useEffect(() => {
     if (!joined || !callId) return () => {};
