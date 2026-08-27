@@ -6936,6 +6936,13 @@
     min-width: 0;
   }
 
+  .ng-tournament-command-rail--four,
+  .ng-room-entry-actions--tournament {
+    transition-property: background-color, border-color, box-shadow, color, opacity, transform;
+    transition-duration: var(--ng-motion-fast);
+    transition-timing-function: ease-out;
+  }
+
   /* Reduce bracket competition through spacing and a clearer active-state ladder. */
   .ng-tournament-bracket--semifinals,
   .ng-tournament-bracket--progression {
@@ -6943,16 +6950,30 @@
   }
 
   .ng-tournament-bracket-card {
+    background: rgba(18, 20, 42, 0.46);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
     transition: border-color var(--ng-motion-fast) ease, box-shadow var(--ng-motion-fast) ease, background-color var(--ng-motion-fast) ease;
   }
 
+  .ng-tournament-bracket-card:not(.ng-tournament-bracket-card--active) {
+    background: rgba(18, 20, 42, 0.34);
+  }
+
   .ng-tournament-bracket-card--active {
+    background: rgba(20, 30, 54, 0.72);
     border-color: rgba(125, 244, 255, 0.48);
     box-shadow: 0 0 0 1px rgba(125, 244, 255, 0.1), 0 14px 34px rgba(0, 0, 0, 0.2), 0 0 22px rgba(125, 244, 255, 0.08);
   }
 
+  .ng-tournament-bracket-card__header {
+    min-width: 0;
+    gap: 0.55rem;
+  }
+
   .ng-tournament-bracket-card__status {
     line-height: 1.15;
+    letter-spacing: 0.035em;
   }
 
   .ng-tournament-flow-divider {
@@ -7261,5 +7282,58 @@
 @media (prefers-reduced-motion: reduce) {
   :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) :where(button, a, input, select, textarea) {
     scroll-behavior: auto;
+  }
+}
+
+/* Interaction-state polish: selected clarity and bilingual narrow-layout resilience. */
+:where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option {
+  min-width: 0;
+  overflow: hidden;
+  transition-property: transform, background-color, border-color, box-shadow, color;
+}
+:where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option[aria-selected="true"] {
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(125, 244, 255, 0.18), 0 0 18px rgba(125, 244, 255, 0.16);
+}
+:where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option[aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  inset-inline: 18%;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--ng-color-primary);
+  box-shadow: 0 0 10px rgba(125, 244, 255, 0.8);
+  pointer-events: none;
+}
+:where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option:not([aria-selected="true"]):not(:disabled):active {
+  transform: translateY(1px) scale(0.98);
+}
+:where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option > span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+[dir="rtl"] .ng-mode-switcher__option > span {
+  letter-spacing: normal;
+}
+@media (max-width: 390px) {
+  :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher {
+    padding-inline: 0.35rem;
+  }
+  :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option {
+    min-height: 3rem;
+    padding-inline: 0.3rem;
+  }
+  :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option[aria-selected="true"]::after {
+    inset-inline: 12%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option {
+    transition: none;
+  }
+  :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option:not([aria-selected="true"]):not(:disabled):active {
+    transform: none;
   }
 }
