@@ -314,7 +314,7 @@ const LobbyPage = () => {
           <div className="flex-1">
             <div className="premium-kicker" style={{ color: '#e9b3ff' }}>Featured team mode</div>
             <h2 id="team-battle-title" className="font-display-lg text-display-lg text-white mt-1">2v2 TEAM BATTLE</h2>
-            <p className="text-sm sm:text-base text-on-surface-variant mt-2 max-w-2xl">Build two teams of two, share a target with your teammate, and outguess the opposing pair across three synchronized rounds.</p>
+            <p className="text-sm sm:text-base text-on-surface-variant mt-2 max-w-2xl">Pair up, share a target, and outguess the other team.</p>
             <div className="flex flex-wrap gap-2 mt-4" aria-label="2v2 Team Battle features">
               <span className="premium-pill">4 players</span>
               <span className="premium-pill">Shared team targets</span>
@@ -337,7 +337,7 @@ const LobbyPage = () => {
             <div className="flex-1 min-w-0">
               <div className="premium-kicker" style={{ color: '#7df4ff' }}>Featured duel mode</div>
               <h2 id="one-v-one-home-title" className="font-display-lg text-display-lg text-white mt-1">1V1 GUESS WHO</h2>
-              <p className="text-sm sm:text-base text-on-surface-variant mt-2 max-w-2xl">A focused private duel for two players. Create a room or join a friend without choosing a category on Home.</p>
+              <p className="text-sm sm:text-base text-on-surface-variant mt-2 max-w-2xl">A private duel for two. Create a room or join a friend.</p>
               <div className="flex flex-wrap gap-2 mt-4" aria-label="1v1 Guess Who features">
                 <span className="premium-pill">2 players</span>
                 <span className="premium-pill">Private duel</span>
