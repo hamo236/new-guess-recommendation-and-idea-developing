@@ -27,11 +27,9 @@ const RoundRevealPanel = ({ players, revealedTargets, isOneVOne = false }) => {
               <span className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">
                 {player.name} TARGET
               </span>
-              {!isOneVOne && (
-                <div className="w-24 h-24 rounded-lg overflow-hidden border border-primary-fixed/30 shadow-[0_0_15px_rgba(125,244,255,0.2)]">
-                  <img src={target.image} alt={target.name} className="w-full h-full object-cover" />
-                </div>
-              )}
+              <div className={`w-24 h-24 rounded-lg overflow-hidden border border-primary-fixed/30 shadow-[0_0_15px_rgba(125,244,255,0.2)] ${isOneVOne ? 'ng-reveal-card__target-image' : ''}`}>
+                <img src={target.image} alt={target.name} className="w-full h-full object-cover" />
+              </div>
               <span className="font-headline-sm text-headline-sm text-on-surface font-semibold text-center">
                 {target.name}
               </span>
