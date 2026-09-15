@@ -11,7 +11,7 @@
   --ng-color-border: rgba(255, 255, 255, 0.14);
   --ng-color-border-strong: rgba(125, 244, 255, 0.48);
   --ng-color-primary: #7df4ff;
-  --ng-color-secondary: #e9b3ff;
+  --ng-color-secondary: #f4b860;
   --ng-color-text-muted: #c2d2d3;
   --ng-color-success: #75f2b2;
   --ng-color-warning: #ffd166;
@@ -106,7 +106,10 @@
   }
 
   .glass-card {
-    background: linear-gradient(145deg, var(--ng-material-rest-bg) 0%, rgba(255, 255, 255, 0.018) 100%);
+    background:
+      radial-gradient(circle at 8% 0%, rgba(125, 244, 255, 0.045), transparent 42%),
+      radial-gradient(circle at 92% 100%, color-mix(in srgb, var(--ng-color-secondary) 7%, transparent), transparent 46%),
+      linear-gradient(145deg, var(--ng-material-rest-bg) 0%, rgba(255, 255, 255, 0.018) 100%);
     box-shadow: var(--ng-shadow-surface);
   }
 
@@ -143,7 +146,7 @@
   }
   
   .purple-neon-glow {
-    box-shadow: 0 0 15px rgba(233, 179, 255, 0.3), inset 0 0 10px rgba(233, 179, 255, 0.2);
+    box-shadow: 0 0 15px rgba(244, 184, 96, 0.22), inset 0 0 10px rgba(244, 184, 96, 0.10);
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -160,6 +163,12 @@
   .mt-safe {
     margin-top: env(safe-area-inset-top, 0px);
   }
+}
+
+/* Custom browser surfaces: keep selection inside the Obsidian Neon identity. */
+::selection {
+  color: #061017;
+  background: color-mix(in srgb, var(--ng-color-secondary) 76%, var(--ng-color-primary) 24%);
 }
 
 /* Custom Scrollbar */
@@ -214,7 +223,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background: radial-gradient(circle at 88% 12%, rgba(125, 244, 255, 0.16), transparent 36%), radial-gradient(circle at 8% 100%, rgba(233, 179, 255, 0.12), transparent 40%);
+    background: radial-gradient(circle at 88% 12%, rgba(125, 244, 255, 0.16), transparent 36%), radial-gradient(circle at 8% 100%, rgba(244, 184, 96, 0.10), transparent 40%);
   }
 
   .premium-command-card:hover {
@@ -7312,7 +7321,7 @@
 }
 :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option[aria-selected="true"] {
   position: relative;
-  box-shadow: inset 0 0 0 1px rgba(125, 244, 255, 0.18), 0 0 18px rgba(125, 244, 255, 0.16);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ng-color-secondary) 28%, transparent), 0 0 18px color-mix(in srgb, var(--ng-color-secondary) 18%, transparent);
 }
 :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option[aria-selected="true"]::after {
   content: '';
@@ -7321,8 +7330,8 @@
   bottom: 3px;
   height: 2px;
   border-radius: 999px;
-  background: var(--ng-color-primary);
-  box-shadow: 0 0 10px rgba(125, 244, 255, 0.8);
+  background: var(--ng-color-secondary);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ng-color-secondary) 72%, transparent);
   pointer-events: none;
 }
 :where(.ng-home-gateway, .ng-tournament-shell, .bg-cyber-grid) .ng-mode-switcher__option:not([aria-selected="true"]):not(:disabled):active {
