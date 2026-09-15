@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --ng-color-bg: #070b12;
-  --ng-color-surface: rgba(255, 255, 255, 0.05);
-  --ng-color-surface-elevated: rgba(255, 255, 255, 0.09);
-  --ng-color-surface-strong: rgba(255, 255, 255, 0.13);
-  --ng-color-surface-soft: rgba(255, 255, 255, 0.035);
+  --ng-color-bg: #07100d;
+  --ng-color-surface: rgba(224, 245, 186, 0.055);
+  --ng-color-surface-elevated: rgba(224, 245, 186, 0.10);
+  --ng-color-surface-strong: rgba(224, 245, 186, 0.14);
+  --ng-color-surface-soft: rgba(224, 245, 186, 0.04);
   --ng-color-border: rgba(255, 255, 255, 0.14);
   --ng-color-border-strong: rgba(125, 244, 255, 0.48);
   --ng-color-primary: #7df4ff;
-  --ng-color-secondary: #f4b860;
+  --ng-color-secondary: #d7ef68;
   --ng-color-text-muted: #c2d2d3;
-  --ng-color-success: #75f2b2;
-  --ng-color-warning: #ffd166;
+  --ng-color-success: #9be27d;
+  --ng-color-warning: #f4c95d;
   --ng-color-danger: #ff7d9b;
   --ng-radius-control: 12px;
   --ng-radius-card: 18px;
